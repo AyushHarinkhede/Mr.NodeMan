@@ -12,6 +12,7 @@
   Seamlessly unified for <strong>Daily Shift Workers</strong>, <strong>Freelancers</strong>, and <strong>Enterprise Contractors</strong>.
 </p>
 
+<!-- Documentation release notes: initial autumn architecture review -->
 <p align="center">
   <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20PWA-7C6FED?style=for-the-badge&logo=android&logoColor=white" alt="Platform" /></a>
   <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Theme-Emerald%20%26%20Violet%20OLED-07070A?style=for-the-badge&logo=palette&logoColor=2DD4A8" alt="Theme" /></a>
