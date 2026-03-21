@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mr.NodeMan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════
+   RESET & BASE
+════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#07070A}
+body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:#1A1A24;border-radius:2px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ════════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════════ */
+:root{
+  --bg:#07070A; --s:#0E0E13; --s2:#131318; --s3:#17171D;
+  --b:#1A1A24; --b2:#22222F;
+  --t1:#EEEEF5; --t2:#74748A; --t3:#363646;
+  --paid:#2DD4A8; --paid-d:#0F9C7A; --paid-bg:rgba(45,212,168,.08); --paid-bd:rgba(45,212,168,.22);
+  --pend:#FFB930; --pend-d:#CC8F00; --pend-bg:rgba(255,185,48,.08); --pend-bd:rgba(255,185,48,.22);
+  --acc:#7C6FED; --acc-bg:rgba(124,111,237,.10); --acc-bd:rgba(124,111,237,.25);
+  --danger:#F87171; --danger-bg:rgba(248,113,113,.08); --danger-bd:rgba(248,113,113,.22);
+  --nav-h:72px;
+}
+
+/* ════════════════════════════════════════════════
+   APP SHELL
+════════════════════════════════════════════════ */
+#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;position:relative;overflow:hidden}
+.view{display:none;flex-direction:column;height:100%;overflow:hidden}
+.view.active{display:flex}
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px;padding-bottom:calc(var(--nav-h) + 28px)}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* ════════════════════════════════════════════════
+   HEADER
+════════════════════════════════════════════════ */
+.vhdr{padding:20px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-shrink:0}
+.hdr-left .super{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0;transition:background .3s}
+.sync-dot.live{background:var(--paid);box-shadow:0 0 6px var(--paid)}
+.sync-dot.local{background:var(--pend)}
+.hdr-title{font-size:24px;font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.hdr-icon{width:40px;height:40px;border-radius:12px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;cursor:pointer}
+
+/* ════════════════════════════════════════════════
+   CARDS
+════════════════════════════════════════════════ */
+.card{background:var(--s);border:1px solid var(--b);border-radius:18px;padding:16px;position:relative;overflow:hidden;margin-bottom:14px}
+.mono{font-family:'DM Mono',monospace}
+.ss-label{font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px;display:block}
+
+/* ════════════════════════════════════════════════
+   STATUS PILLS
+════════════════════════════════════════════════ */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.pill:active{transform:scale(.93)}
+.pill.paid{background:var(--paid-bg);color:var(--paid);border:1px solid var(--paid-bd)}
+.pill.pending{background:var(--pend-bg);color:var(--pend);border:1px solid var(--pend-bd)}
+
+/* ════════════════════════════════════════════════
+   HEATMAP
+════════════════════════════════════════════════ */
+.hmscroll{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.hmscroll::-webkit-scrollbar{display:none}
+.hcell{width:11px;height:11px;border-radius:2.5px;cursor:pointer;transition:transform .12s,filter .12s;flex-shrink:0}
+.hcell:hover{transform:scale(1.55);filter:brightness(1.3);z-index:3;position:relative}
+
+/* ════════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════════ */
+.ss-btn{border:none;cursor:pointer;font-family:'Syne',sans-serif;transition:opacity .15s,transform .12s;-webkit-tap-highlight-color:transparent}
+.ss-btn:active{transform:scale(.96);opacity:.85}
+.fab{width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#36DFAF,#1BA880);color:#07070A;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px rgba(45,212,168,.08),0 0 28px rgba(45,212,168,.3),0 4px 14px rgba(0,0,0,.5);position:relative;top:-10px}
+.fab:active{transform:scale(.93)!important}
+
+/* ════════════════════════════════════════════════
+   MODAL
+════════════════════════════════════════════════ */
+.moverlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .2s}
+.moverlay.open{opacity:1;pointer-events:auto}
+.msheet{background:var(--s);border:1px solid var(--b);border-radius:24px 24px 0 0;padding:8px 20px 44px;width:100%;max-height:90vh;overflow-y:auto;scrollbar-width:none;transform:translateY(100%);transition:transform .32s cubic-bezier(.22,1,.36,1)}
+.moverlay.open .msheet{transform:translateY(0)}
+.msheet::-webkit-scrollbar{display:none}
+.mhandle{width:36px;height:4px;border-radius:2px;background:var(--b);margin:8px auto 20px}
+.mtitle{font-size:18px;font-weight:800;letter-spacing:-.015em;margin-bottom:20px}
+
+/* ════════════════════════════════════════════════
+   INPUTS
+════════════════════════════════════════════════ */
+.ss-input{width:100%;background:var(--s2);border:1px solid var(--b);border-radius:11px;padding:12px 14px;color:var(--t1);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color .18s;-webkit-appearance:none}
+.ss-input:focus{border-color:rgba(124,111,237,.55)}
+.ss-input::placeholder{color:var(--t3)}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5) brightness(.8)}
+select.ss-input{appearance:none;cursor:pointer}
+select option{background:var(--s)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrp{display:flex;flex-direction:column;gap:6px;margin-bottom:0}
+
+/* ════════════════════════════════════════════════
+   TOGGLE BUTTONS
+════════════════════════════════════════════════ */
+.tgroup{display:flex;gap:8px}
+.tbtn{flex:1;padding:10px 8px;border-radius:11px;border:1px solid var(--b);background:var(--s2);color:var(--t2);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.tbtn:active{transform:scale(.97)}
+.tbtn.t-solo,.tbtn.t-team{background:var(--acc-bg)!important;border-color:var(--acc-bd)!important;color:var(--acc)!important}
+
+/* ════════════════════════════════════════════════
+   TEAM MEMBER CHIPS
+════════════════════════════════════════════════ */
+.tm-chips-wrap{display:flex;flex-wrap:wrap;gap:6px;min-height:0;margin-bottom:8px}
+.tm-chip{display:inline-flex;align-items:center;gap:5px;background:var(--acc-bg);border:1px solid var(--acc-bd);border-radius:99px;padding:4px 10px 4px 10px;font-size:12px;font-weight:700;color:var(--acc)}
+.tm-chip-x{cursor:pointer;opacity:.7;font-size:14px;line-height:1;margin-left:2px}
+.tm-chip-x:hover{opacity:1}
+.tm-input-row{display:flex;gap:8px;align-items:center}
+.tm-add-btn{flex-shrink:0;padding:11px 14px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}
+.tm-add-btn:active{transform:scale(.96)}
+
+/* ════════════════════════════════════════════════
+   TAB SWITCH
+════════════════════════════════════════════════ */
+.tabswitch{display:flex;background:#0A0A0F;border-radius:11px;padding:3px;margin-bottom:14px}
+.tabbtn{flex:1;padding:8px 0;border-radius:8px;border:none;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.03em;cursor:pointer;background:transparent;-webkit-tap-highlight-color:transparent}
+.tabbtn.active{background:var(--s);border:1px solid var(--b);color:var(--t1)}
+.tabbtn:not(.active){color:var(--t2)}
+
+/* ════════════════════════════════════════════════
+   CLIENT BAR
+════════════════════════════════════════════════ */
+.cbar{height:2px;border-radius:2px;background:rgba(124,111,237,.12);overflow:hidden;margin-top:8px}
+.cbar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#7C6FED,#A89EFF);transition:width .5s}
+
+/* ════════════════════════════════════════════════
+   ENTRY ROWS
+════════════════════════════════════════════════ */
+.erow{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--b)}
+.erow:last-child{border-bottom:none}
+.ledger-row{display:grid;grid-template-columns:1fr auto auto;gap:8px 10px;padding:9px 0;border-bottom:1px solid var(--b);align-items:center}
+.ledger-row:last-child{border-bottom:none}
+.reuse-btn{background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--t2);font-family:'Syne',sans-serif;font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer;transition:all .15s;flex-shrink:0;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.reuse-btn:hover{border-color:var(--acc-bd);color:var(--acc);background:var(--acc-bg)}
+.reuse-btn:active{transform:scale(.94)}
+
+/* ════════════════════════════════════════════════
+   BOTTOM NAV
+════════════════════════════════════════════════ */
+#bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(7,7,10,.92);border-top:1px solid var(--b);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);display:flex;align-items:center;z-index:100;padding:6px 0 22px}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:5px 0;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
+.nitem.active{opacity:1}
+.nitem:not(.active){opacity:.38}
+.nlbl{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* ════════════════════════════════════════════════
+   TOOLTIP
+════════════════════════════════════════════════ */
+#tooltip{position:fixed;z-index:300;background:var(--s3);border:1px solid var(--b2);border-radius:12px;padding:11px 14px;pointer-events:none;min-width:148px;box-shadow:0 12px 32px rgba(0,0,0,.65);opacity:0;transition:opacity .12s;transform:translateY(4px)}
+#tooltip.vis{opacity:1;transform:translateY(0)}
+
+/* ════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════ */
+#toast{position:fixed;bottom:calc(var(--nav-h) + 20px);left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--b2);border-radius:24px;padding:8px 18px;font-size:12px;color:var(--t1);z-index:500;opacity:0;transition:opacity .2s,bottom .2s;pointer-events:none;white-space:nowrap;font-weight:600}
+#toast.show{opacity:1;bottom:calc(var(--nav-h) + 28px)}
+
+/* ════════════════════════════════════════════════
+   COUNTDOWN CIRCLE
+════════════════════════════════════════════════ */
+.cd-wrap{text-align:center;padding:14px 0 6px}
+.cd-svg{display:block;margin:0 auto}
+.cd-label{font-size:11px;color:var(--t2);margin-top:8px}
+
+/* ════════════════════════════════════════════════
+   STATS
+════════════════════════════════════════════════ */
+.bar-wrap{display:flex;align-items:flex-end;gap:4px;height:90px;margin:12px 0 6px}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px;cursor:default}
+.bar{border-radius:4px 4px 0 0;width:100%;min-height:3px;background:linear-gradient(180deg,#7C6FED,#5a4dd6);transition:opacity .15s}
+.bar-lbl{font-size:8px;font-family:'DM Mono',monospace;color:var(--t2)}
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.dlrow{display:flex;align-items:center;gap:8px;font-size:12px}
+.ddot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ════════════════════════════════════════════════
+   CLIENTS FULL VIEW
+════════════════════════════════════════════════ */
+.cfl-row{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--s2);border:1px solid var(--b);border-radius:14px;margin-bottom:8px}
+.cfl-avatar{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;color:#07070A}
+.cfl-info{flex:1;min-width:0}
+.cfl-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cfl-meta{font-size:11px;color:var(--t2);margin-top:2px}
+.cfl-right{text-align:right;flex-shrink:0}
+.cfl-total{font-family:'DM Mono',monospace;font-size:14px;font-weight:500}
+.cfl-due{font-family:'DM Mono',monospace;font-size:10px;color:var(--pend);margin-top:2px}
+
+/* ════════════════════════════════════════════════
+   MORE VIEW
+════════════════════════════════════════════════ */
+.more-row{display:flex;align-items:center;gap:14px;padding:14px 14px;background:var(--s2);border:1px solid var(--b);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
+.more-row:hover{background:var(--s3)}
+.more-row:active{transform:scale(.98)}
+.micon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.mico-label{font-size:14px;font-weight:700}
+.mico-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.mchev{margin-left:auto;color:var(--t3);font-size:16px}
+
+/* Filter chips */
+.fchips{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.fchips::-webkit-scrollbar{display:none}
+.fchip{padding:6px 13px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid var(--b);background:var(--s2);color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.fchip.active{background:var(--acc-bg);border-color:var(--acc-bd);color:var(--acc)}
+
+/* Firebase setup box */
+.setup-box{background:var(--s2);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:14px}
+.setup-box.connected{border-color:var(--paid-bd);background:var(--paid-bg)}
+.setup-step{font-size:11px;color:var(--t2);margin-bottom:6px;padding-left:14px;position:relative}
+.setup-step::before{content:counter(step);counter-increment:step;position:absolute;left:0;color:var(--acc);font-weight:700;font-size:10px}
+.setup-steps{counter-reset:step;display:flex;flex-direction:column;gap:4px}
+
+/* Animations */
+@keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:slideUp .3s ease both}
+.anim:nth-child(1){animation-delay:.00s}.anim:nth-child(2){animation-delay:.04s}
+.anim:nth-child(3){animation-delay:.08s}.anim:nth-child(4){animation-delay:.12s}
+.anim:nth-child(5){animation-delay:.16s}.anim:nth-child(6){animation-delay:.20s}
+.anim:nth-child(7){animation-delay:.24s}.anim:nth-child(8){animation-delay:.28s}
+@keyframes sheetUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.sec-title{font-size:13px;font-weight:700;margin-bottom:0}
+.divider{height:1px;background:var(--b);margin:14px 0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══════════════ DASHBOARD VIEW ══════════════ -->
+<div class="view active" id="view-dashboard">
+  <div class="vhdr">
+    <div class="hdr-left">
+      <div class="super">Mr.NodeMan <div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:9px"></span></div>
+      <div class="hdr-title">Work Ledger</div>
+    </div>
+    <div class="hdr-icon">⚡</div>
+  </div>
+  <div class="scroll-area">
+    <!-- Financial Summary -->
+    <div class="card anim">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div><div class="ss-label" style="margin-bottom:3px">Total Logged</div>
+          <div class="mono" id="s-total" style="font-size:34px;font-weight:500;letter-spacing:-.03em;line-height:1">₹0</div></div>
+        <div style="text-align:right"><div class="ss-label" style="margin-bottom:3px">Entries</div>
+          <div class="mono" id="s-count" style="font-size:34px;font-weight:500;letter-spacing:-.03em;line-height:1">0</div></div>
+      </div>
+      <div class="divider" style="margin:0 0 14px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:12px;padding:11px 14px">
+          <div style="font-size:9px;font-weight:700;color:var(--paid);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">● Collected</div>
+          <div class="mono" id="s-paid" style="font-size:20px;font-weight:500;color:var(--paid);letter-spacing:-.02em">₹0</div>
+        </div>
+        <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:12px;padding:11px 14px">
+          <div style="font-size:9px;font-weight:700;color:var(--pend);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">◌ Outstanding</div>
+          <div class="mono" id="s-pending" style="font-size:20px;font-weight:500;color:var(--pend);letter-spacing:-.02em">₹0</div>
+        </div>
+      </div>
+    </div>
+    <!-- Heatmap -->
+    <div class="card anim">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div class="sec-title">Activity</div>
+        <div style="display:flex;gap:14px">
+          <div style="text-align:right"><div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">Active Days</div>
+            <div class="mono" id="hm-days" style="font-size:15px;font-weight:500;color:var(--acc)">0</div></div>
+          <div style="text-align:right"><div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">Avg / Day</div>
+            <div class="mono" id="hm-avg" style="font-size:15px;font-weight:500;color:var(--acc)">₹0</div></div>
+        </div>
+      </div>
+      <div class="hmscroll">
+        <div id="hm-months" style="position:relative;height:14px;margin-bottom:4px"></div>
+        <div style="display:flex;gap:2px">
+          <div id="hm-dlabels" style="display:flex;flex-direction:column;gap:2px;margin-right:4px;flex-shrink:0"></div>
+          <div id="hm-weeks" style="display:flex;gap:2px"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:var(--b)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">None</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(45,212,168,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Paid</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,185,48,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Pending</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(160,200,120,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Mixed</span></div>
+      </div>
+    </div>
+    <!-- Managed Entities -->
+    <div class="card anim">
+      <div class="tabswitch">
+        <button class="tabbtn active" id="tab-cl" onclick="setManagedTab('clients')">Clients</button>
+        <button class="tabbtn" id="tab-lg" onclick="setManagedTab('ledger')">Ledger</button>
+      </div>
+      <div id="managed-body"></div>
+    </div>
+    <!-- Recent Entries -->
+    <div class="card anim">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="sec-title">Recent Entries</div>
+        <div style="font-size:10px;color:var(--t2)">↺ to reuse</div>
+      </div>
+      <div id="recent-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CLIENTS VIEW ══════════════ -->
+<div class="view" id="view-clients">
+  <div class="vhdr">
+    <div class="hdr-left">
+      <div class="super">Mr.NodeMan</div>
+      <div class="hdr-title">Clients</div>
+    </div>
+    <div class="hdr-icon" onclick="openModal('client-modal')" title="Add client">＋</div>
+  </div>
+  <div class="scroll-area">
+    <div class="fchips" id="cl-filters">
+      <div class="fchip active" onclick="setClientFilter('all',this)">All</div>
+      <div class="fchip" onclick="setClientFilter('has-pending',this)">Has Pending</div>
+      <div class="fchip" onclick="setClientFilter('fully-paid',this)">Fully Paid</div>
+    </div>
+    <div id="cl-full-list"></div>
+  </div>
+</div>
+
+<!-- ══════════════ STATS VIEW ══════════════ -->
+<div class="view" id="view-stats">
+  <div class="vhdr">
+    <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">Analytics</div></div>
+    <div class="hdr-icon">📊</div>
+  </div>
+  <div class="scroll-area">
+    <div class="card anim">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div class="sec-title">Monthly Earnings</div>
+        <div class="mono" style="font-size:10px;color:var(--t2)">Last 12 months</div>
+      </div>
+      <div class="bar-wrap" id="monthly-bars"></div>
+      <div class="divider" style="margin:4px 0 8px"></div>
+      <div style="display:flex;gap:16px" id="stats-row"></div>
+    </div>
+    <div class="card anim">
+      <div class="sec-title" style="margin-bottom:14px">Work Type Split</div>
+      <div class="donut-wrap">
+        <svg id="donut-svg" width="90" height="90" viewBox="0 0 90 90" style="flex-shrink:0"></svg>
+        <div class="donut-legend" id="donut-leg"></div>
+      </div>
+    </div>
+    <div class="card anim">
+      <div class="sec-title" style="margin-bottom:14px">Revenue by Client</div>
+      <div id="stats-cl-bars"></div>
+    </div>
+    <div class="card anim">
+      <div class="sec-title" style="margin-bottom:14px">Collection Rate</div>
+      <div id="col-rate"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MORE VIEW ══════════════ -->
+<div class="view" id="view-more">
+  <div class="vhdr">
+    <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">More</div></div>
+    <div class="hdr-icon">⚙️</div>
+  </div>
+  <div class="scroll-area">
+    <!-- Sync Status Card -->
+    <div class="card anim" id="sync-card">
+      <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        <div class="sync-dot" id="sync-dot2"></div> Sync Status
+      </div>
+      <div id="sync-status-body"></div>
+    </div>
+    <!-- Firebase setup -->
+    <div class="card anim" id="firebase-setup-card">
+      <div class="sec-title" style="margin-bottom:10px">☁️ Cloud Sync Setup</div>
+      <div style="font-size:11px;color:var(--t2);margin-bottom:10px">Paste your Firebase config to enable real-time sync across all devices.</div>
+      <div class="setup-steps" style="margin-bottom:12px">
+        <div class="setup-step">Go to <strong style="color:var(--t1)">console.firebase.google.com</strong></div>
+        <div class="setup-step">Create project → Add Web App</div>
+        <div class="setup-step">Enable Realtime Database (Test mode)</div>
+        <div class="setup-step">Copy config JSON and paste below</div>
+      </div>
+      <textarea class="ss-input" id="fb-config-input" rows="4" placeholder='{"apiKey":"...","authDomain":"...","databaseURL":"https://xxx-rtdb.firebaseio.com","projectId":"..."}'
+        style="font-size:11px;resize:none;font-family:DM Mono,monospace;padding:10px 12px"></textarea>
+      <button class="ss-btn" onclick="connectFirebase()" style="width:100%;margin-top:10px;padding:12px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:13px;font-weight:700">
+        Connect Firebase →
+      </button>
+    </div>
+    <!-- Workspace ID -->
+    <div style="background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px" class="anim">
+      <div style="flex:1"><div style="font-size:11px;color:var(--t2);margin-bottom:3px">Workspace ID</div>
+        <div class="mono" id="ws-id-label" style="font-size:11px;color:var(--t1);word-break:break-all"></div></div>
+      <button class="ss-btn" onclick="copyWsId()" style="padding:7px 12px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-size:11px;font-weight:700">Copy</button>
+    </div>
+    <!-- Actions -->
+    <div class="anim" id="more-actions"></div>
+    <div style="margin-top:16px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:.05em" id="more-footer"></div>
+  </div>
+</div>
+
+<!-- ══════════════ BOTTOM NAV ══════════════ -->
+<nav id="bnav">
+  <div class="nitem active" id="nav-dashboard" onclick="switchTab('dashboard')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <div class="nlbl">Home</div>
+  </div>
+  <div class="nitem" id="nav-clients" onclick="switchTab('clients')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+    <div class="nlbl">Clients</div>
+  </div>
+  <div style="flex:1;display:flex;justify-content:center">
+    <button class="ss-btn fab" onclick="openEntryModal(null)" aria-label="Add entry">+</button>
+  </div>
+  <div class="nitem" id="nav-stats" onclick="switchTab('stats')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <div class="nlbl">Stats</div>
+  </div>
+  <div class="nitem" id="nav-more" onclick="switchTab('more')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+    <div class="nlbl">More</div>
+  </div>
+</nav>
+
+<!-- ══════════════ TOOLTIP ══════════════ -->
+<div id="tooltip">
+  <div id="tt-date" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--t2);margin-bottom:6px"></div>
+  <div id="tt-amt"  style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;margin-bottom:7px;letter-spacing:-.02em"></div>
+  <div id="tt-det"  style="display:flex;flex-direction:column;gap:3px"></div>
+  <div id="tt-row2" style="margin-top:8px;padding-top:7px;border-top:1px solid var(--b);display:flex;gap:8px;flex-wrap:wrap"></div>
+</div>
+
+<!-- ══════════════ ADD ENTRY MODAL ══════════════ -->
+<div class="moverlay" id="entry-modal" onclick="overlayClose(event,'entry-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="entry-modal-title">Log Work Session</div>
+    <div style="display:flex;flex-direction:column;gap:14px" id="entry-form">
+
+      <!-- Date (required manually) -->
+      <div class="fgrp">
+        <label class="ss-label">Date <span id="date-hint" style="color:var(--pend);font-size:9px;letter-spacing:0;text-transform:none;display:none">← required</span></label>
+        <input class="ss-input" type="date" id="f-date"/>
+      </div>
+
+      <!-- Client + Duration -->
+      <div class="fg2">
+        <div class="fgrp">
+          <label class="ss-label">Client</label>
+          <select class="ss-input" id="f-client" onchange="onClientChange()"></select>
+        </div>
+        <div class="fgrp">
+          <label class="ss-label">Duration (hrs) <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span></label>
+          <input class="ss-input" type="number" id="f-dur" placeholder="2.5" step="0.5" min="0.5" oninput="updateSubmitBtn()"/>
+        </div>
+      </div>
+
+      <!-- Amount with suggestion -->
+      <div class="fgrp">
+        <label class="ss-label">Amount (₹) <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span> <span id="amt-suggest" style="font-size:9px;color:var(--acc);letter-spacing:0;text-transform:none"></span></label>
+        <input class="ss-input" type="number" id="f-amount" placeholder="0" min="0" step="100" oninput="updateSubmitBtn()"/>
+      </div>
+
+      <!-- Description with autocomplete -->
+      <div class="fgrp">
+        <label class="ss-label">Description <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span></label>
+        <input class="ss-input" type="text" id="f-desc" placeholder="e.g. UI redesign sprint" list="desc-dl" autocomplete="off"/>
+        <datalist id="desc-dl"></datalist>
+      </div>
+
+      <!-- Work Type -->
+      <div class="fgrp">
+        <label class="ss-label">Work Type</label>
+        <div class="tgroup">
+          <button class="tbtn t-solo" id="ft-solo" onclick="setFormType('solo')">👤 Solo</button>
+          <button class="tbtn" id="ft-team" onclick="setFormType('team')">👥 Team</button>
+        </div>
+      </div>
+
+      <!-- Team Members (shown when team selected) -->
+      <div id="team-members-section" style="display:none">
+        <div class="fgrp">
+          <label class="ss-label">Team Members</label>
+          <div class="tm-chips-wrap" id="tm-chips"></div>
+          <div class="tm-input-row">
+            <div style="flex:1;position:relative">
+              <input class="ss-input" type="text" id="tm-input" placeholder="Member name…" list="tm-dl" autocomplete="off"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addTeamMember()}"/>
+              <datalist id="tm-dl"></datalist>
+            </div>
+            <button class="tm-add-btn ss-btn" onclick="addTeamMember()">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hint + Submit -->
+      <div id="f-hint" style="font-size:11px;color:var(--t2);text-align:center;display:none">Please select a client and date</div>
+      <button class="ss-btn" id="f-submit" onclick="submitEntry()" style="width:100%;padding:16px;border-radius:13px;font-size:15px;font-weight:800;letter-spacing:.02em;transition:all .2s">Log Entry →</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADD CLIENT MODAL ══════════════ -->
+<div class="moverlay" id="client-modal" onclick="overlayClose(event,'client-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle">Add New Client</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="fgrp"><label class="ss-label">Client Name</label><input class="ss-input" type="text" id="nc-name" placeholder="e.g. Ravi Enterprises"/></div>
+      <div class="fg2">
+        <div class="fgrp"><label class="ss-label">Industry</label><input class="ss-input" type="text" id="nc-ind" placeholder="Design"/></div>
+        <div class="fgrp"><label class="ss-label">Rate/hr (₹)</label><input class="ss-input" type="number" id="nc-rate" placeholder="500" min="0"/></div>
+      </div>
+      <button class="ss-btn" onclick="submitAddClient()" style="width:100%;padding:16px;border-radius:13px;background:linear-gradient(135deg,#2DD4A8,#1BA880);color:#07070A;font-size:15px;font-weight:800;letter-spacing:.02em;box-shadow:0 4px 22px rgba(45,212,168,.28)">Add Client →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CONFIRM MODAL (with countdown) ══════════════ -->
+<div class="moverlay" id="confirm-modal" onclick="overlayClose(event,'confirm-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="conf-title">Confirm</div>
+    <div id="conf-body" style="font-size:13px;color:var(--t2);margin-bottom:16px;line-height:1.6"></div>
+    <!-- Countdown circle (paid → pending only) -->
+    <div id="cd-section" style="display:none">
+      <div class="cd-wrap">
+        <svg class="cd-svg" width="80" height="80" viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="32" fill="none" stroke="var(--b2)" stroke-width="8"/>
+          <circle id="cd-arc" cx="40" cy="40" r="32" fill="none" stroke="var(--pend)" stroke-width="8"
+            stroke-dasharray="201.06" stroke-dashoffset="0" stroke-linecap="round"
+            transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .9s linear"/>
+          <text x="40" y="47" text-anchor="middle" font-family="DM Mono,monospace" font-size="20"
+            font-weight="500" fill="var(--pend)" id="cd-num">10</text>
+        </svg>
+        <div class="cd-label" id="cd-label">Please wait before confirming…</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="ss-btn" onclick="cancelConfirm()" style="flex:1;padding:14px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:14px;font-weight:700">Cancel</button>
+      <button class="ss-btn" id="conf-ok" onclick="executeConfirm()" style="flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;transition:all .2s">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ TOAST ══════════════ -->
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════
+   APP CONFIG
+   ─────────────────────────────────────────
+   Set FIREBASE_CONFIG to enable cloud sync.
+   All users sharing the same HTML file AND
+   the same WORKSPACE_ID will see shared data.
+════════════════════════════════════════════ */
+const WORKSPACE_ID  = 'mrnodeman_ws_' + (()=>{
+  let id = localStorage.getItem('_mnm_wsid');
+  if (!id) { id = 'ws_' + Math.random().toString(36).slice(2,10); localStorage.setItem('_mnm_wsid', id); }
+  return id;
+})();
+
+/* Paste your Firebase config object here to enable cloud sync */
+let FIREBASE_CONFIG = null; // e.g. {apiKey:"...", databaseURL:"https://xxx-rtdb.firebaseio.com", ...}
+
+/* ════════════════════════════════════════════
+   CONSTANTS & HELPERS
+════════════════════════════════════════════ */
+const MTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DESCS_DEF = ['Brand identity','UI redesign','Dev sprint','Consultation','Video edit','Motion design','Strategy deck','Copywriting','Web audit','Mobile app'];
+
+const fmtRs = n => '₹' + new Intl.NumberFormat('en-IN',{maximumFractionDigits:0}).format(n);
+const fmtDate = s => { const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('en-IN',{month:'short',day:'numeric',year:'numeric'}); };
+const fmtShort = s => { const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('en-IN',{month:'short',day:'numeric'}); };
+const todayStr = () => new Date().toISOString().split('T')[0];
+const dsOf = d => d.toISOString().split('T')[0];
+
+const CLIENT_COLORS = ['#2DD4A8','#7C6FED','#FFB930','#F87171','#60A5FA','#34D399','#A78BFA','#FBBF24','#FB923C','#E879F9'];
+const cColorMap = {};
+let cColorIdx = 0;
+function cColor(n){ if(!cColorMap[n]) cColorMap[n]=CLIENT_COLORS[cColorIdx++%CLIENT_COLORS.length]; return cColorMap[n]; }
+
+/* ════════════════════════════════════════════
+   STATE
+════════════════════════════════════════════ */
+let entries      = [];
+let CLIENTS      = ['Raisoni Polythechnic College','Raisoni Business Managment College','Raisoni Sadar ','YCCE College','Vainganga College','CP Berar College', 'PW Vidyapeeth'];
+let nextId       = Date.now();
+let managedTab   = 'clients';
+let clientFilter = 'all';
+let formType     = 'solo';
+let formTMs      = []; // team members in form
+let currentView  = 'dashboard';
+let fbDB         = null;
+let fbConnected  = false;
+let ttTimer;
+let cdInterval;
+let pendingConfirmFn = null;
+let pendingConfirmNeedsCD = false;
+let cdVal = 10;
+
+/* ════════════════════════════════════════════
+   LOCAL STORAGE (always-on fallback)
+════════════════════════════════════════════ */
+function saveLS(){
+  try{
+    localStorage.setItem('_mnm_entries', JSON.stringify(entries));
+    localStorage.setItem('_mnm_clients', JSON.stringify(CLIENTS));
+  }catch(e){}
+}
+function loadLS(){
+  try{
+    const e = localStorage.getItem('_mnm_entries');
+    const c = localStorage.getItem('_mnm_clients');
+    if(e) entries = JSON.parse(e);
+    if(c) CLIENTS  = JSON.parse(c);
+    // Pre-assign colors
+    CLIENTS.forEach(n=>cColor(n));
+    entries.forEach(e=>cColor(e.clientId));
+  }catch(e){ entries=[]; }
+}
+
+/* ════════════════════════════════════════════
+   FIREBASE BACKEND
+════════════════════════════════════════════ */
+function loadFirebaseSDK(){
+  return new Promise((res,rej)=>{
+    if(window.firebase){ res(); return; }
+    const s1=document.createElement('script');
+    s1.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
+    s1.onload=()=>{
+      const s2=document.createElement('script');
+      s2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
+      s2.onload=res; s2.onerror=rej;
+      document.head.appendChild(s2);
+    };
+    s1.onerror=rej;
+    document.head.appendChild(s1);
+  });
+}
+
+async function connectFirebase(configArg){
+  const cfg = configArg || FIREBASE_CONFIG;
+  if(!cfg){ showToast('⚠ No Firebase config provided'); return; }
+  try{
+    await loadFirebaseSDK();
+    if(!firebase.apps.length) firebase.initializeApp(cfg);
+    fbDB = firebase.database();
+    const ref = fbDB.ref('workspaces/'+WORKSPACE_ID);
+
+    // Listen for entries
+    ref.child('entries').on('value', snap=>{
+      const data = snap.val();
+      if(data){
+        entries = Object.values(data).sort((a,b)=>b.date.localeCompare(a.date));
+        entries.forEach(e=>cColor(e.clientId));
+      } else {
+        // First connect: push existing local data to Firebase
+        if(entries.length>0){
+          entries.forEach(e=>{
+            ref.child('entries/'+e.id).set(e);
+          });
+        }
+      }
+      renderAll();
+    });
+
+    // Listen for clients
+    ref.child('clients').on('value', snap=>{
+      const data = snap.val();
+      if(data && Array.isArray(data)){
+        data.forEach(n=>{ if(!CLIENTS.includes(n)) CLIENTS.push(n); cColor(n); });
+      } else if(!snap.val()){
+        ref.child('clients').set(CLIENTS);
+      }
+    });
+
+    fbConnected = true;
+    FIREBASE_CONFIG = cfg;
+    localStorage.setItem('_mnm_fbcfg', JSON.stringify(cfg));
+    updateSyncUI();
+    showToast('☁️ Firebase connected!');
+    if(currentView==='more') renderMoreView();
+  }catch(err){
+    showToast('✗ Firebase error: '+err.message);
+    console.error(err);
+  }
+}
+
+function fbSaveEntry(entry){
+  if(!fbDB) return;
+  fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries/'+entry.id).set(entry);
+}
+function fbUpdateEntry(id, data){
+  if(!fbDB) return;
+  fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries/'+id).update(data);
+}
+function fbDeleteEntry(id){
+  if(!fbDB) return;
+  fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries/'+id).remove();
+}
+function fbSaveClients(){
+  if(!fbDB) return;
+  fbDB.ref('workspaces/'+WORKSPACE_ID+'/clients').set(CLIENTS);
+}
+
+function updateSyncUI(){
+  const dots  = document.querySelectorAll('.sync-dot');
+  const label = document.getElementById('sync-label');
+  dots.forEach(d=>{
+    d.className = 'sync-dot ' + (fbConnected?'live':'local');
+  });
+  if(label) label.textContent = fbConnected ? '● live' : '● local';
+  // More view sync card
+  const body = document.getElementById('sync-status-body');
+  if(body){
+    if(fbConnected){
+      body.innerHTML = `<div style="font-size:11px;color:var(--paid)">✓ Connected to Firebase</div>
+        <div style="font-size:10px;color:var(--t2);margin-top:4px">Workspace: <span class="mono" style="color:var(--t1)">${WORKSPACE_ID}</span></div>
+        <div style="font-size:10px;color:var(--t2);margin-top:2px">Data syncs in real-time across all devices sharing this workspace.</div>`;
+    } else {
+      body.innerHTML = `<div style="font-size:11px;color:var(--pend)">◌ Local storage only</div>
+        <div style="font-size:10px;color:var(--t2);margin-top:4px">Setup Firebase below to enable cross-device sync.</div>`;
+    }
+  }
+}
+
+/* ════════════════════════════════════════════
+   COMPUTED / DATA HELPERS
+════════════════════════════════════════════ */
+function getSummary(){
+  const t = entries.reduce((s,e)=>s+e.amount,0);
+  const p = entries.filter(e=>e.paymentStatus==='paid').reduce((s,e)=>s+e.amount,0);
+  const d = entries.filter(e=>e.paymentStatus==='pending').reduce((s,e)=>s+e.amount,0);
+  return { total:t, paid:p, pending:d, count:entries.length };
+}
+function getDateMap(){
+  const m={};
+  entries.forEach(e=>{
+    if(!m[e.date]) m[e.date]={total:0,paid:0,pending:0,entries:[],workTypes:[]};
+    m[e.date].total+=e.amount;
+    e.paymentStatus==='paid'?(m[e.date].paid+=e.amount):(m[e.date].pending+=e.amount);
+    m[e.date].entries.push(e);
+    if(!m[e.date].workTypes.includes(e.workType)) m[e.date].workTypes.push(e.workType);
+  });
+  return m;
+}
+function getClientMap(){
+  const m={};
+  entries.forEach(e=>{
+    if(!m[e.clientId]) m[e.clientId]={total:0,paid:0,pending:0,count:0};
+    m[e.clientId].total+=e.amount; m[e.clientId].count++;
+    e.paymentStatus==='paid'?(m[e.clientId].paid+=e.amount):(m[e.clientId].pending+=e.amount);
+  });
+  return m;
+}
+function getAllDescriptions(){
+  return [...new Set(entries.map(e=>e.description).filter(Boolean))];
+}
+function getAllTMHistory(){
+  const s=new Set();
+  entries.forEach(e=>{ if(e.teamMembers) e.teamMembers.forEach(n=>s.add(n)); });
+  return [...s];
+}
+function getClientAvgAmount(clientId){
+  const es = entries.filter(e=>e.clientId===clientId);
+  if(!es.length) return null;
+  return Math.round(es.reduce((s,e)=>s+e.amount,0)/es.length);
+}
+
+/* ════════════════════════════════════════════
+   HEATMAP
+════════════════════════════════════════════ */
+function buildHMGrid(){
+  const now=new Date(), start=new Date(now);
+  start.setFullYear(start.getFullYear()-1);
+  start.setDate(start.getDate()-start.getDay());
+  const weeks=[], cur=new Date(start);
+  while(cur<=now){
+    const wk=[]; for(let d=0;d<7;d++){wk.push(new Date(cur));cur.setDate(cur.getDate()+1);} weeks.push(wk);
+  }
+  return weeks;
+}
+function getHMMonthLabels(weeks){
+  const out=[]; let last=-1;
+  weeks.forEach((wk,i)=>{const m=wk[0].getMonth();if(m!==last){out.push({col:i,label:MTHS[m]});last=m;}});
+  return out;
+}
+function cellColor(ds, isFuture, dm, maxAmt){
+  if(isFuture) return 'transparent';
+  const d=dm[ds]; if(!d) return 'var(--b)';
+  const k=0.28+0.72*Math.min(1,d.total/Math.max(maxAmt,1));
+  if(d.paid>0&&d.pending===0) return `rgba(45,212,168,${k.toFixed(2)})`;
+  if(d.pending>0&&d.paid===0) return `rgba(255,185,48,${k.toFixed(2)})`;
+  return `rgba(160,200,120,${k.toFixed(2)})`;
+}
+function renderHeatmap(){
+  const dm=getDateMap(), now=new Date();
+  const maxAmt=Math.max(...Object.values(dm).map(d=>d.total),1);
+  const activeDays=Object.keys(dm).length;
+  const {total}=getSummary();
+  document.getElementById('hm-days').textContent=activeDays;
+  document.getElementById('hm-avg').textContent=fmtRs(activeDays>0?Math.round(total/activeDays):0);
+
+  const grid=buildHMGrid(), mLabels=getHMMonthLabels(grid), CW=13;
+  const totalW=grid.length*CW+16;
+
+  // Month labels
+  const mEl=document.getElementById('hm-months');
+  mEl.style.minWidth=totalW+'px'; mEl.innerHTML='';
+  mLabels.forEach(({col,label})=>{
+    const d=document.createElement('div');
+    d.style.cssText=`position:absolute;left:${col*CW+16}px;font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;top:0`;
+    d.textContent=label; mEl.appendChild(d);
+  });
+
+  // Day labels
+  const dlEl=document.getElementById('hm-dlabels');
+  dlEl.innerHTML=['S','M','T','W','T','F','S'].map((l,i)=>
+    `<div style="width:9px;height:11px;font-size:8px;font-weight:600;color:var(--t3);display:flex;align-items:center;justify-content:center">${i%2!==0?l:''}</div>`
+  ).join('');
+
+  // Weeks
+  const wEl=document.getElementById('hm-weeks');
+  wEl.innerHTML=''; wEl.style.minWidth=(grid.length*CW)+'px';
+  const frag=document.createDocumentFragment();
+  grid.forEach(wk=>{
+    const col=document.createElement('div');
+    col.style.cssText='display:flex;flex-direction:column;gap:2px;flex-shrink:0';
+    wk.forEach(date=>{
+      const ds=dsOf(date), future=date>now, cell=document.createElement('div');
+      cell.className='hcell';
+      cell.style.background=cellColor(ds,future,dm,maxAmt);
+      cell.style.opacity=future?'0':'1';
+      if(dm[ds]){
+        cell.onmouseenter=ev=>showTT(ev,ds,dm[ds]);
+        cell.onmouseleave=hideTT;
+        cell.onclick=ev=>showTT(ev,ds,dm[ds]);
+      }
+      col.appendChild(cell);
+    });
+    frag.appendChild(col);
+  });
+  wEl.appendChild(frag);
+  const sc=wEl.closest('.hmscroll');
+  if(sc) setTimeout(()=>{ sc.scrollLeft=sc.scrollWidth; },60);
+}
+
+/* ════════════════════════════════════════════
+   TOOLTIP
+════════════════════════════════════════════ */
+function showTT(ev, ds, dd){
+  clearTimeout(ttTimer);
+  const root=document.getElementById('app').getBoundingClientRect();
+  const rect=ev.currentTarget.getBoundingClientRect();
+  document.getElementById('tt-date').textContent=fmtDate(ds);
+  document.getElementById('tt-amt').textContent=fmtRs(dd.total);
+  const det=document.getElementById('tt-det');
+  det.innerHTML='';
+  if(dd.paid>0)    det.innerHTML+=`<span style="font-size:10px;color:var(--paid);font-weight:600">● ${fmtRs(dd.paid)} collected</span>`;
+  if(dd.pending>0) det.innerHTML+=`<span style="font-size:10px;color:var(--pend);font-weight:600">◌ ${fmtRs(dd.pending)} pending</span>`;
+  const r2=document.getElementById('tt-row2');
+  const solS=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>`;
+  const temS=`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="3.5"/><circle cx="17" cy="8.5" r="3"/><path d="M1 21c0-3.5 2.8-6.5 6.5-6.5h3"/><path d="M14.5 18.5c0-3 2.2-5 5-5s5 2 5 5"/></svg>`;
+  r2.innerHTML=dd.workTypes.map(t=>`<span style="font-size:10px;color:var(--t2);display:flex;align-items:center;gap:4px">${t==='team'?temS:solS} ${t==='team'?'Team':'Solo'}</span>`).join('')
+    +`<span style="font-size:10px;color:var(--t3)">${dd.entries.length} entr${dd.entries.length!==1?'ies':'y'}</span>`;
+  let x=rect.left-root.left+rect.width/2, y=rect.top-root.top;
+  x=Math.min(x-74,430-162); y=Math.max(8,y-110);
+  const tt=document.getElementById('tooltip');
+  tt.style.left=x+'px'; tt.style.top=y+'px';
+  tt.classList.add('vis');
+  ttTimer=setTimeout(hideTT,2800);
+}
+function hideTT(){ document.getElementById('tooltip').classList.remove('vis'); }
+
+/* ════════════════════════════════════════════
+   RENDER: SUMMARY
+════════════════════════════════════════════ */
+function renderSummary(){
+  const {total,paid,pending,count}=getSummary();
+  document.getElementById('s-total').textContent=fmtRs(total);
+  document.getElementById('s-paid').textContent=fmtRs(paid);
+  document.getElementById('s-pending').textContent=fmtRs(pending);
+  document.getElementById('s-count').textContent=count;
+}
+
+/* ════════════════════════════════════════════
+   RENDER: MANAGED ENTITIES
+════════════════════════════════════════════ */
+function setManagedTab(t){
+  managedTab=t;
+  document.getElementById('tab-cl').classList.toggle('active',t==='clients');
+  document.getElementById('tab-lg').classList.toggle('active',t==='ledger');
+  renderManagedEntities();
+}
+function renderManagedEntities(){
+  const cm=getClientMap();
+  const cArr=Object.entries(cm).sort((a,b)=>b[1].total-a[1].total);
+  const maxV=Math.max(...cArr.map(([,d])=>d.total),1);
+  const body=document.getElementById('managed-body');
+
+  if(managedTab==='clients'){
+    if(!cArr.length){ body.innerHTML=`<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px">No entries yet.</div>`; return; }
+    body.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">`+cArr.map(([name,d])=>`
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">
+          <div><div style="font-size:13px;font-weight:700;margin-bottom:2px">${name}</div>
+               <div style="font-size:10px;color:var(--t2)">${d.count} job${d.count!==1?'s':''}</div></div>
+          <div style="text-align:right">
+            <div class="mono" style="font-size:14px;font-weight:500">${fmtRs(d.total)}</div>
+            ${d.pending>0?`<div class="mono" style="font-size:10px;color:var(--pend);margin-top:2px">◌ ${fmtRs(d.pending)} due</div>`:''}
+          </div>
+        </div>
+        <div class="cbar"><div class="cbar-fill" style="width:${(d.total/maxV*100).toFixed(1)}%"></div></div>
+      </div>`).join('')+`</div>`;
+  } else {
+    const sorted=[...entries].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15);
+    if(!sorted.length){ body.innerHTML=`<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px">No entries yet.</div>`; return; }
+    body.innerHTML=`
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:6px 10px;padding:0 0 8px;border-bottom:1px solid var(--b);margin-bottom:2px">
+        ${['Client / Date','Amount','Status'].map(h=>`<div style="font-size:9px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em">${h}</div>`).join('')}
+      </div>`+sorted.map(e=>`
+      <div class="ledger-row">
+        <div><div style="font-size:12px;font-weight:600">${e.clientId}</div>
+             <div style="font-size:10px;color:var(--t2)">${fmtShort(e.date)}</div></div>
+        <div class="mono" style="font-size:13px;font-weight:500">${fmtRs(e.amount)}</div>
+        <div class="pill ${e.paymentStatus}" onclick="handlePillClick('${e.id}')" title="Tap to change status">
+          ${e.paymentStatus==='paid'?'✓ Paid':'⌛ Pend'}
+        </div>
+      </div>`).join('');
+  }
+}
+
+/* ════════════════════════════════════════════
+   RENDER: RECENT ENTRIES
+════════════════════════════════════════════ */
+const SOLO_IC=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>`;
+const TEAM_IC=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="7" r="3.5"/><circle cx="17" cy="8.5" r="3"/><path d="M1 21c0-3.5 2.8-6.5 6.5-6.5h3"/><path d="M14.5 18.5c0-3 2.2-5 5-5s5 2 5 5"/></svg>`;
+
+function renderRecentEntries(){
+  const el=document.getElementById('recent-list');
+  const sorted=entries.slice(0,10);
+  if(!sorted.length){ el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px;font-style:italic">No entries yet. Tap + to log work.</div>`; return; }
+  el.innerHTML=sorted.map(e=>{
+    const isTeam=e.workType==='team';
+    const tms=e.teamMembers&&e.teamMembers.length?`<div style="font-size:9px;color:var(--acc);margin-top:2px">👥 ${e.teamMembers.slice(0,3).join(', ')}${e.teamMembers.length>3?` +${e.teamMembers.length-3}`:''}</div>`:'';
+    return `<div class="erow">
+      <div style="width:36px;height:36px;border-radius:11px;background:${isTeam?'var(--acc-bg)':'var(--s2)'};border:1px solid ${isTeam?'var(--acc-bd)':'var(--b)'};color:${isTeam?'var(--acc)':'var(--t2)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${isTeam?TEAM_IC:SOLO_IC}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px">${e.clientId}</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--t2)">${fmtShort(e.date)}</span>
+          <span style="color:var(--t3);font-size:10px">·</span>
+          <span class="mono" style="font-size:10px;color:var(--t2)">${e.duration}h</span>
+          ${e.description?`<span style="color:var(--t3);font-size:10px">·</span><span style="font-size:10px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px">${e.description}</span>`:''}
+        </div>
+        ${tms}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div class="mono" style="font-size:14px;font-weight:500">${fmtRs(e.amount)}</div>
+        <div class="pill ${e.paymentStatus}" onclick="handlePillClick('${e.id}')" title="Tap to change status">
+          ${e.paymentStatus==='paid'?'✓ Paid':'◌ Pending'}
+        </div>
+        <button class="reuse-btn" onclick="openEntryModal('${e.id}')" title="Reuse this entry">↺ Reuse</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════
+   RENDER: CLIENTS VIEW
+════════════════════════════════════════════ */
+let _clientFilter='all';
+function setClientFilter(f, el){
+  _clientFilter=f;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderClientsView();
+}
+function renderClientsView(){
+  const cm=getClientMap();
+  let arr=Object.entries(cm);
+  if(_clientFilter==='has-pending') arr=arr.filter(([,d])=>d.pending>0);
+  if(_clientFilter==='fully-paid')  arr=arr.filter(([,d])=>d.pending===0&&d.total>0);
+  arr.sort((a,b)=>b[1].total-a[1].total);
+  const el=document.getElementById('cl-full-list');
+  if(!arr.length){ el.innerHTML=`<div style="text-align:center;padding:32px;color:var(--t3);font-size:13px">No clients match this filter.</div>`; return; }
+  el.innerHTML=arr.map(([name,d])=>{
+    const col=cColor(name), init=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const pct=d.total>0?Math.round(d.paid/d.total*100):0;
+    return `<div class="cfl-row">
+      <div class="cfl-avatar" style="background:${col}">${init}</div>
+      <div class="cfl-info">
+        <div class="cfl-name">${name}</div>
+        <div class="cfl-meta">${d.count} job${d.count!==1?'s':''} · ${pct}% collected</div>
+        <div style="margin-top:6px;height:2px;border-radius:2px;background:rgba(255,255,255,.07);overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${col};border-radius:2px;transition:width .5s"></div>
+        </div>
+      </div>
+      <div class="cfl-right">
+        <div class="cfl-total">${fmtRs(d.total)}</div>
+        ${d.pending>0
+          ?`<div class="cfl-due">◌ ${fmtRs(d.pending)}</div>`
+          :`<div style="font-size:10px;color:var(--paid);margin-top:2px">✓ all clear</div>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════
+   RENDER: STATS VIEW
+════════════════════════════════════════════ */
+function renderStatsView(){
+  renderMonthlyBars(); renderDonut(); renderClientBars(); renderCollRate();
+}
+function renderMonthlyBars(){
+  const now=new Date();
+  const months=[];
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    months.push({y:d.getFullYear(),m:d.getMonth(),lbl:MTHS[d.getMonth()]});
+  }
+  const byM={};
+  entries.forEach(e=>{
+    const d=new Date(e.date+'T00:00:00');
+    const k=`${d.getFullYear()}-${d.getMonth()}`;
+    if(!byM[k]) byM[k]=0; byM[k]+=e.amount;
+  });
+  const vals=months.map(m=>byM[`${m.y}-${m.m}`]||0);
+  const maxV=Math.max(...vals,1);
+  document.getElementById('monthly-bars').innerHTML=months.map((m,i)=>{
+    const h=Math.max(3,Math.round((vals[i]/maxV)*82));
+    const vl=vals[i]>0?(vals[i]>=1000?'₹'+(vals[i]/1000).toFixed(1)+'k':'₹'+vals[i]):'';
+    return `<div class="bar-col">
+      <div style="font-size:7px;font-family:'DM Mono',monospace;color:var(--t3);text-align:center">${vl}</div>
+      <div class="bar" style="height:${h}px" title="${m.lbl}: ${fmtRs(vals[i])}"></div>
+      <div class="bar-lbl">${m.lbl.slice(0,1)}</div>
+    </div>`;
+  }).join('');
+  const t12=vals.reduce((s,v)=>s+v,0), best=Math.max(...vals), actM=vals.filter(v=>v>0).length;
+  document.getElementById('stats-row').innerHTML=`
+    <div><div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">12M Total</div><div class="mono" style="font-size:14px;font-weight:500;color:var(--acc)">${fmtRs(t12)}</div></div>
+    <div><div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Best Month</div><div class="mono" style="font-size:14px;font-weight:500;color:var(--paid)">${fmtRs(best)}</div></div>
+    <div><div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Active Months</div><div class="mono" style="font-size:14px;font-weight:500;color:var(--t1)">${actM}</div></div>`;
+}
+function renderDonut(){
+  const soloA=entries.filter(e=>e.workType==='solo').reduce((s,e)=>s+e.amount,0);
+  const teamA=entries.filter(e=>e.workType==='team').reduce((s,e)=>s+e.amount,0);
+  const tot=soloA+teamA||1, pct=soloA/tot;
+  const r=33,cx=45,cy=45,sw=11,C=2*Math.PI*r;
+  const sL=C*pct, tL=C*(1-pct);
+  document.getElementById('donut-svg').innerHTML=`
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--b)" stroke-width="${sw}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#7C6FED" stroke-width="${sw}"
+      stroke-dasharray="${sL} ${tL}" stroke-dashoffset="${C*.25}" stroke-linecap="round"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#2DD4A8" stroke-width="${sw}"
+      stroke-dasharray="${tL} ${sL}" stroke-dashoffset="${C*.25-sL}" stroke-linecap="round"/>`;
+  document.getElementById('donut-leg').innerHTML=`
+    <div class="dlrow"><div class="ddot" style="background:#7C6FED"></div><div><div style="font-size:12px;font-weight:700">Solo</div><div class="mono" style="font-size:10px;color:var(--t2)">${fmtRs(soloA)} · ${Math.round(pct*100)}%</div></div></div>
+    <div class="dlrow"><div class="ddot" style="background:#2DD4A8"></div><div><div style="font-size:12px;font-weight:700">Team</div><div class="mono" style="font-size:10px;color:var(--t2)">${fmtRs(teamA)} · ${Math.round((1-pct)*100)}%</div></div></div>
+    <div class="dlrow" style="margin-top:4px;padding-top:10px;border-top:1px solid var(--b)"><div style="font-size:11px;color:var(--t2)">${entries.length} entries total</div></div>`;
+}
+function renderClientBars(){
+  const cm=getClientMap();
+  const arr=Object.entries(cm).sort((a,b)=>b[1].total-a[1].total).slice(0,6);
+  const maxV=Math.max(...arr.map(([,d])=>d.total),1);
+  document.getElementById('stats-cl-bars').innerHTML=arr.map(([name,d])=>{
+    const col=cColor(name), pct=(d.total/maxV*100).toFixed(1);
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <div style="font-size:12px;font-weight:700">${name}</div>
+        <div class="mono" style="font-size:12px;font-weight:500">${fmtRs(d.total)}</div>
+      </div>
+      <div style="height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:3px;transition:width .6s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderCollRate(){
+  const p=entries.filter(e=>e.paymentStatus==='paid').reduce((s,e)=>s+e.amount,0);
+  const d=entries.filter(e=>e.paymentStatus==='pending').reduce((s,e)=>s+e.amount,0);
+  const tot=p+d||1, pct=(p/tot*100).toFixed(1);
+  document.getElementById('col-rate').innerHTML=`
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:11px;color:var(--t2)">Collection rate</div>
+      <div class="mono" style="font-size:13px;font-weight:500;color:var(--paid)">${pct}%</div>
+    </div>
+    <div style="height:10px;border-radius:6px;background:rgba(255,185,48,.15);overflow:hidden;margin-bottom:12px">
+      <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#2DD4A8,#1BA880);border-radius:6px;transition:width .6s"></div>
+    </div>
+    <div style="display:flex;gap:16px">
+      <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--paid)"></div>
+        <div><div style="font-size:10px;color:var(--t2)">Collected</div><div class="mono" style="font-size:13px;font-weight:500;color:var(--paid)">${fmtRs(p)}</div></div></div>
+      <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--pend)"></div>
+        <div><div style="font-size:10px;color:var(--t2)">Outstanding</div><div class="mono" style="font-size:13px;font-weight:500;color:var(--pend)">${fmtRs(d)}</div></div></div>
+    </div>`;
+}
+
+/* ════════════════════════════════════════════
+   RENDER: MORE VIEW
+════════════════════════════════════════════ */
+function renderMoreView(){
+  updateSyncUI();
+  document.getElementById('ws-id-label').textContent=WORKSPACE_ID;
+  const {total,count}=getSummary();
+  document.getElementById('more-footer').textContent=`${count} entries · ${fmtRs(total)} total · ${CLIENTS.length} clients`;
+
+  // Show/hide firebase setup card
+  const fbCard=document.getElementById('firebase-setup-card');
+  if(fbConnected){ fbCard.style.display='none'; } else { fbCard.style.display=''; }
+
+  document.getElementById('more-actions').innerHTML=`
+    <div class="more-row" onclick="exportCSV()">
+      <div class="micon" style="background:rgba(45,212,168,.1)">📥</div>
+      <div><div class="mico-label">Export CSV</div><div class="mico-sub">Download all entries</div></div>
+      <div class="mchev">›</div>
+    </div>
+    <div class="more-row" onclick="exportJSON()">
+      <div class="micon" style="background:rgba(124,111,237,.1)">📤</div>
+      <div><div class="mico-label">Export JSON</div><div class="mico-sub">Full backup for sharing</div></div>
+      <div class="mchev">›</div>
+    </div>
+    <div class="more-row" onclick="document.getElementById('import-file').click()">
+      <div class="micon" style="background:rgba(96,165,250,.1)">📂</div>
+      <div><div class="mico-label">Import JSON</div><div class="mico-sub">Restore or merge data</div></div>
+      <div class="mchev">›</div>
+    </div>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)"/>
+    <div class="more-row" onclick="openModal('client-modal')">
+      <div class="micon" style="background:var(--acc-bg)">👤</div>
+      <div><div class="mico-label">Add New Client</div><div class="mico-sub">Register a new client</div></div>
+      <div class="mchev">›</div>
+    </div>
+    <div class="more-row" onclick="bulkMarkPaid()">
+      <div class="micon" style="background:rgba(45,212,168,.1)">✓</div>
+      <div><div class="mico-label">Mark All as Paid</div><div class="mico-sub">Collect all outstanding</div></div>
+      <div class="mchev">›</div>
+    </div>
+    <div class="more-row" onclick="confirmClearData()" style="border-color:rgba(248,113,113,.2)">
+      <div class="micon" style="background:rgba(248,113,113,.08)">🗑</div>
+      <div><div class="mico-label" style="color:var(--danger)">Clear All Data</div><div class="mico-sub">Permanently delete entries</div></div>
+      <div class="mchev">›</div>
+    </div>`;
+}
+
+/* ════════════════════════════════════════════
+   TEAM MEMBERS FORM UI
+════════════════════════════════════════════ */
+function setFormType(t){
+  formType=t;
+  document.getElementById('ft-solo').className='tbtn'+(t==='solo'?' t-solo':'');
+  document.getElementById('ft-team').className='tbtn'+(t==='team'?' t-team':'');
+  const sec=document.getElementById('team-members-section');
+  sec.style.display=(t==='team')?'':'none';
+  if(t==='team') populateTMDatalist();
+}
+function populateTMDatalist(){
+  const all=getAllTMHistory();
+  document.getElementById('tm-dl').innerHTML=all.map(n=>`<option value="${n}">`).join('');
+}
+function addTeamMember(){
+  const inp=document.getElementById('tm-input');
+  const name=inp.value.trim();
+  if(!name) return;
+  if(!formTMs.includes(name)) formTMs.push(name);
+  inp.value='';
+  renderTMChips();
+}
+function removeTM(name){
+  formTMs=formTMs.filter(n=>n!==name);
+  renderTMChips();
+}
+function renderTMChips(){
+  const el=document.getElementById('tm-chips');
+  if(!el) return;
+  el.innerHTML=formTMs.map(n=>`
+    <div class="tm-chip">${n} <span class="tm-chip-x" onclick="removeTM('${n.replace(/'/g,"\\'")}')">×</span></div>
+  `).join('');
+}
+
+/* ════════════════════════════════════════════
+   SUGGESTIONS / AUTOCOMPLETE
+════════════════════════════════════════════ */
+function populateFormSuggestions(){
+  // Descriptions
+  const descs=[...new Set([...DESCS_DEF,...getAllDescriptions()])];
+  document.getElementById('desc-dl').innerHTML=descs.map(d=>`<option value="${d}">`).join('');
+}
+function onClientChange(){
+  const clientId=document.getElementById('f-client').value;
+  const avg=getClientAvgAmount(clientId);
+  const span=document.getElementById('amt-suggest');
+  if(avg){
+    span.textContent=`avg: ${fmtRs(avg)}`;
+    // Only suggest if amount is empty
+    if(!document.getElementById('f-amount').value){
+      document.getElementById('f-amount').value=avg;
+      updateSubmitBtn();
+    }
+  } else {
+    span.textContent='';
+  }
+}
+
+/* ════════════════════════════════════════════
+   MODAL HELPERS
+════════════════════════════════════════════ */
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+function overlayClose(ev,id){
+  if(ev.target===document.getElementById(id)) closeModal(id);
+}
+
+/* ════════════════════════════════════════════
+   ENTRY MODAL — Open (new or reuse)
+   Pass entry.id to reuse, null for fresh new
+════════════════════════════════════════════ */
+function openEntryModal(reuseId){
+  const modal=document.getElementById('entry-modal');
+  formTMs=[];
+
+  if(!reuseId){
+    // Fresh new entry
+    document.getElementById('entry-modal-title').textContent='Log Work Session';
+    document.getElementById('f-date').value='';
+    document.getElementById('f-dur').value='';
+    document.getElementById('f-client').innerHTML=CLIENTS.map(c=>`<option value="${c}">${c}</option>`).join('');
+    document.getElementById('f-amount').value='';
+    document.getElementById('f-desc').value='';
+    document.getElementById('amt-suggest').textContent='';
+    document.getElementById('date-hint').style.display='none';
+    setFormType('solo');
+  } else {
+    // Reuse entry
+    const src=entries.find(e=>e.id===reuseId);
+    if(!src) return;
+    document.getElementById('entry-modal-title').textContent='↺ Reuse Entry — Add New Date';
+    document.getElementById('f-date').value=''; // intentionally blank
+    document.getElementById('date-hint').style.display='inline';
+    document.getElementById('f-client').innerHTML=CLIENTS.map(c=>`<option value="${c}" ${c===src.clientId?'selected':''}>${c}</option>`).join('');
+    document.getElementById('f-dur').value=src.duration;
+    document.getElementById('f-amount').value=src.amount;
+    document.getElementById('f-desc').value=src.description||'';
+    if(src.teamMembers) formTMs=[...src.teamMembers];
+    setFormType(src.workType);
+    if(src.workType==='team') renderTMChips();
+    const avg=getClientAvgAmount(src.clientId);
+    document.getElementById('amt-suggest').textContent=avg?`avg: ${fmtRs(avg)}`:'';
+    showToast('Date is empty — fill it in to continue');
+  }
+
+  populateFormSuggestions();
+  updateSubmitBtn();
+  openModal('entry-modal');
+  // Focus date field
+  setTimeout(()=>document.getElementById('f-date').focus(),350);
+}
+
+function updateSubmitBtn(){
+  const amt=document.getElementById('f-amount').value;
+  const dur=document.getElementById('f-dur').value;
+  const date=document.getElementById('f-date').value;
+  const clientId=document.getElementById('f-client').value;
+  const valid=!!(date && clientId);
+  const btn=document.getElementById('f-submit');
+  const hint=document.getElementById('f-hint');
+  btn.style.background=valid?'linear-gradient(135deg,#2DD4A8,#1BA880)':'var(--s2)';
+  btn.style.color=valid?'#07070A':'var(--t2)';
+  btn.style.boxShadow=valid?'0 4px 22px rgba(45,212,168,.28)':'none';
+  btn.style.cursor=valid?'pointer':'not-allowed';
+  hint.style.display=valid?'none':'block';
+  hint.textContent = valid ? '' : 'Please select a client and date';
+}
+document.getElementById('f-date').addEventListener('input',updateSubmitBtn);
+
+function submitEntry(){
+  const date=document.getElementById('f-date').value;
+  const dur=parseFloat(document.getElementById('f-dur').value) || 0;
+  const clientId=document.getElementById('f-client').value;
+  const amount=parseFloat(document.getElementById('f-amount').value) || 0;
+  const desc=document.getElementById('f-desc').value.trim();
+  if(!date){showToast('⚠ Please enter a date');return;}
+  if(!clientId){showToast('⚠ Please select a client');return;}
+  const entry={
+    id: 'e'+nextId++, date, duration:dur, clientId, amount,
+    paymentStatus:'pending',
+    workType:formType,
+    teamMembers:formType==='team'?[...formTMs]:[],
+    description:desc
+  };
+  cColor(entry.clientId);
+  entries=[entry,...entries].sort((a,b)=>b.date.localeCompare(a.date));
+  saveLS();
+  fbSaveEntry(entry);
+  closeModal('entry-modal');
+  renderAll();
+  showToast('✓ Entry logged — marked as Pending');
+}
+
+/* ════════════════════════════════════════════
+   ADD CLIENT
+════════════════════════════════════════════ */
+function submitAddClient(){
+  const name=document.getElementById('nc-name').value.trim();
+  if(!name){showToast('⚠ Enter a client name');return;}
+  if(CLIENTS.includes(name)){showToast('Client already exists');return;}
+  CLIENTS.push(name); cColor(name);
+  saveLS(); fbSaveClients();
+  closeModal('client-modal');
+  document.getElementById('nc-name').value='';
+  document.getElementById('nc-ind').value='';
+  document.getElementById('nc-rate').value='';
+  renderAll(); showToast(`✓ ${name} added`);
+}
+
+/* ════════════════════════════════════════════
+   PAYMENT STATUS TOGGLE with CONFIRMATION
+════════════════════════════════════════════ */
+function handlePillClick(id){
+  const e=entries.find(x=>x.id===id); if(!e) return;
+  if(e.paymentStatus==='pending'){
+    // pending → paid: simple confirm
+    showConfirm({
+      title: 'Mark as Paid?',
+      body: `Mark <strong style="color:var(--t1)">${e.clientId}</strong>'s entry of <strong style="color:var(--paid)">${fmtRs(e.amount)}</strong> as <strong style="color:var(--paid)">Paid</strong>?`,
+      countdown: false,
+      okStyle: 'background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid)',
+      okText: '✓ Mark as Paid',
+      fn: ()=>{ setStatus(id,'paid'); }
+    });
+  } else {
+    // paid → pending: 10-second countdown
+    showConfirm({
+      title: 'Revert to Pending?',
+      body: `You're about to mark <strong style="color:var(--t1)">${e.clientId}</strong>'s payment of <strong style="color:var(--paid)">${fmtRs(e.amount)}</strong> back to <strong style="color:var(--pend)">Pending</strong>.<br><br>Please wait 10 seconds to prevent accidental changes.`,
+      countdown: true,
+      okStyle: 'background:var(--pend-bg);border:1px solid var(--pend-bd);color:var(--pend)',
+      okText: '◌ Mark as Pending',
+      fn: ()=>{ setStatus(id,'pending'); }
+    });
+  }
+}
+
+function setStatus(id, status){
+  const e=entries.find(x=>x.id===id); if(!e) return;
+  e.paymentStatus=status;
+  saveLS();
+  fbUpdateEntry(id,{paymentStatus:status});
+  renderAll();
+  showToast(status==='paid'?'✓ Marked as Paid':'◌ Reverted to Pending');
+}
+
+/* ════════════════════════════════════════════
+   CONFIRM MODAL ENGINE
+════════════════════════════════════════════ */
+function showConfirm({title,body,countdown,okStyle,okText,fn}){
+  clearInterval(cdInterval);
+  pendingConfirmFn=fn;
+  pendingConfirmNeedsCD=countdown;
+
+  document.getElementById('conf-title').textContent=title;
+  document.getElementById('conf-body').innerHTML=body;
+
+  const okBtn=document.getElementById('conf-ok');
+  okBtn.style.cssText=okStyle+';flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;transition:all .2s';
+
+  const cdSec=document.getElementById('cd-section');
+  if(countdown){
+    cdSec.style.display='';
+    okBtn.disabled=true;
+    okBtn.textContent='Confirm (10s)';
+    okBtn.style.opacity='.4';
+    okBtn.style.cursor='not-allowed';
+    startCountdown(okBtn,okText);
+  } else {
+    cdSec.style.display='none';
+    okBtn.disabled=false;
+    okBtn.textContent=okText;
+    okBtn.style.opacity='1';
+    okBtn.style.cursor='pointer';
+  }
+
+  openModal('confirm-modal');
+}
+
+function startCountdown(btn,finalText){
+  cdVal=10;
+  const arc=document.getElementById('cd-arc');
+  const num=document.getElementById('cd-num');
+  const FULL=2*Math.PI*32; // circumference for r=32
+  arc.style.strokeDashoffset='0';
+  num.textContent='10';
+  cdInterval=setInterval(()=>{
+    cdVal--;
+    num.textContent=cdVal;
+    const pct=(10-cdVal)/10;
+    arc.style.strokeDashoffset=(FULL*pct).toFixed(2);
+    if(cdVal<=0){
+      clearInterval(cdInterval);
+      btn.disabled=false;
+      btn.textContent=finalText;
+      btn.style.opacity='1';
+      btn.style.cursor='pointer';
+      document.getElementById('cd-label').textContent='Confirm button is now active.';
+    }
+  },1000);
+}
+
+function cancelConfirm(){
+  clearInterval(cdInterval);
+  pendingConfirmFn=null;
+  closeModal('confirm-modal');
+}
+
+function executeConfirm(){
+  if(pendingConfirmFn) pendingConfirmFn();
+  clearInterval(cdInterval);
+  pendingConfirmFn=null;
+  closeModal('confirm-modal');
+}
+
+/* ════════════════════════════════════════════
+   BULK ACTIONS
+════════════════════════════════════════════ */
+function bulkMarkPaid(){
+  showConfirm({
+    title: 'Mark All as Paid?',
+    body: `Mark all <strong style="color:var(--t1)">${entries.filter(e=>e.paymentStatus==='pending').length} pending entries</strong> as Paid?`,
+    countdown: false,
+    okStyle:'background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid)',
+    okText:'✓ Mark All Paid',
+    fn:()=>{
+      entries.forEach(e=>{ if(e.paymentStatus==='pending'){ e.paymentStatus='paid'; fbUpdateEntry(e.id,{paymentStatus:'paid'}); }});
+      saveLS(); renderAll(); showToast('✓ All entries marked as Paid');
+    }
+  });
+}
+function confirmClearData(){
+  showConfirm({
+    title:'Clear All Data?',
+    body:'This will permanently delete all work entries and cannot be undone.',
+    countdown:false,
+    okStyle:'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
+    okText:'🗑 Delete All',
+    fn:()=>{
+      if(fbDB) fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries').remove();
+      entries=[]; nextId=Date.now(); saveLS(); renderAll(); showToast('🗑 All data cleared');
+    }
+  });
+}
+
+/* ════════════════════════════════════════════
+   EXPORT / IMPORT
+════════════════════════════════════════════ */
+function exportCSV(){
+  const hdr='ID,Date,Client,Amount,Duration,Status,WorkType,TeamMembers,Description';
+  const rows=entries.map(e=>`${e.id},${e.date},${e.clientId},${e.amount},${e.duration},${e.paymentStatus},${e.workType},"${(e.teamMembers||[]).join(';')}","${(e.description||'').replace(/"/g,'""')}"`);
+  const csv=[hdr,...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='mrnodeman-entries.csv'; a.click();
+  URL.revokeObjectURL(url); showToast('📥 CSV downloaded');
+}
+function exportJSON(){
+  const data={workspace:WORKSPACE_ID,exportedAt:new Date().toISOString(),entries,clients:CLIENTS};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='mrnodeman-backup.json'; a.click();
+  URL.revokeObjectURL(url); showToast('📤 JSON exported');
+}
+function importJSON(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(data.entries){
+        const existing=new Set(entries.map(x=>x.id));
+        let added=0;
+        data.entries.forEach(entry=>{
+          if(!existing.has(entry.id)){ entries.push(entry); cColor(entry.clientId); added++; fbSaveEntry(entry); }
+        });
+        if(data.clients) data.clients.forEach(c=>{ if(!CLIENTS.includes(c)){CLIENTS.push(c);cColor(c);}});
+        entries.sort((a,b)=>b.date.localeCompare(a.date));
+        saveLS(); renderAll();
+        showToast(`✓ Imported ${added} new entries`);
+      }
+    }catch(err){ showToast('✗ Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+  ev.target.value='';
+}
+
+/* ════════════════════════════════════════════
+   FIREBASE CONNECT FROM UI
+════════════════════════════════════════════ */
+function connectFirebase_UI(){
+  const raw=document.getElementById('fb-config-input').value.trim();
+  if(!raw){showToast('⚠ Paste your Firebase config');return;}
+  try{
+    const cfg=JSON.parse(raw);
+    if(!cfg.databaseURL){showToast('⚠ Missing databaseURL in config');return;}
+    connectFirebase(cfg);
+  }catch(e){ showToast('✗ Invalid JSON config'); }
+}
+// Hook connect button
+document.querySelector('#firebase-setup-card button').onclick=connectFirebase_UI;
+
+function copyWsId(){
+  navigator.clipboard&&navigator.clipboard.writeText(WORKSPACE_ID).then(()=>showToast('✓ Workspace ID copied'));
+}
+
+/* ════════════════════════════════════════════
+   VIEW ROUTING
+════════════════════════════════════════════ */
+function switchTab(id){
+  currentView=id;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.nitem').forEach(n=>n.classList.remove('active'));
+  const nav=document.getElementById('nav-'+id);
+  if(nav) nav.classList.add('active');
+  if(id==='stats')   renderStatsView();
+  if(id==='clients') renderClientsView();
+  if(id==='more')    renderMoreView();
+}
+
+/* ════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════ */
+let toastT;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+/* ════════════════════════════════════════════
+   RENDER ALL
+════════════════════════════════════════════ */
+function renderAll(){
+  renderSummary(); renderHeatmap(); renderManagedEntities(); renderRecentEntries();
+  if(currentView==='clients') renderClientsView();
+  if(currentView==='stats')   renderStatsView();
+  if(currentView==='more')    renderMoreView();
+}
+
+/* ════════════════════════════════════════════
+   SEED SAMPLE DATA (only if no saved data)
+════════════════════════════════════════════ */
+function seedSampleData(){
+  if(entries.length>0) return;
+  const now=new Date();
+  const DESCS_S=['Brand redesign','UI sprint','Dev consultation','Motion graphics','Strategy deck','Logo revisions','Copywriting','Web audit','App prototype','Social media kit'];
+  const TMS=['Rahul Sharma','Priya Singh','Aarav Patel','Neha Gupta','Vikram Joshi','Meera Nair'];
+  for(let i=0;i<42;i++){
+    const d=new Date(now); d.setDate(d.getDate()-Math.floor(Math.random()*300));
+    const wt=Math.random()>0.45?'solo':'team';
+    const tms=wt==='team'?TMS.slice(0,Math.floor(Math.random()*3)+1):[];
+    const cl=CLIENTS[Math.floor(Math.random()*CLIENTS.length)];
+    entries.push({
+      id:'e'+i, date:dsOf(d), duration:Math.round((0.5+Math.random()*7)*2)/2,
+      clientId:cl, amount:Math.round((500+Math.random()*14000)/100)*100,
+      paymentStatus:Math.random()>0.37?'paid':'pending',
+      workType:wt, teamMembers:tms,
+      description:DESCS_S[Math.floor(Math.random()*DESCS_S.length)]
+    });
+    cColor(cl);
+  }
+  entries.sort((a,b)=>b.date.localeCompare(a.date));
+  saveLS();
+}
+
+/* ════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════ */
+CLIENTS.forEach(n=>cColor(n));
+loadLS();
+seedSampleData();
+
+// Try to reconnect Firebase from saved config
+const savedFBCfg=localStorage.getItem('_mnm_fbcfg');
+if(savedFBCfg){
+  try{
+    const cfg=JSON.parse(savedFBCfg);
+    setTimeout(()=>connectFirebase(cfg),500);
+  }catch(e){}
+}
+
+updateSyncUI();
+renderAll();
+
+// Scroll heatmap to end
+setTimeout(()=>{
+  const sc=document.querySelector('.hmscroll');
+  if(sc) sc.scrollLeft=sc.scrollWidth;
+},150);
+
+// Keep localStorage in sync on tab focus
+window.addEventListener('focus',()=>{
+  if(!fbConnected){ loadLS(); renderAll(); }
+});
+
+// BroadcastChannel for same-device multi-tab sync
+if(typeof BroadcastChannel!=='undefined'){
+  const bc=new BroadcastChannel('mrnodeman_sync');
+  bc.onmessage=ev=>{
+    if(ev.data==='update'&&!fbConnected){ loadLS(); renderAll(); }
+  };
+  const origSave=saveLS;
+  window.saveLS=function(){
+    origSave(); try{bc.postMessage('update');}catch(e){}
+  };
+}
+</script>
+</body>
+</html>
