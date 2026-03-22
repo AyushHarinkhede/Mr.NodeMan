@@ -8,6 +8,42 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════════════
+   TEXT PROTECTION
+════════════════════════════════════════════════ */
+body{
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent zoom functionality */
+  touch-action: manipulation;
+  -ms-touch-action: manipulation;
+  zoom: 1;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Allow text selection for input fields and textareas */
+input, textarea, select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Allow text selection for specific editable content */
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* ════════════════════════════════════════════════
    RESET & BASE
 ════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -15,7 +51,7 @@ html,body{height:100%;overflow:hidden;background:#07070A}
 body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:#1A1A24;border-radius:2px}
-::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-track{background:transparent} 
 
 /* ════════════════════════════════════════════════
    DESIGN TOKENS
@@ -245,10 +281,9 @@ select option{background:var(--s)}
 <div class="view active" id="view-dashboard">
   <div class="vhdr">
     <div class="hdr-left">
-      <div class="super">Mr.NodeMan <div class="sync-dot" id="sync-dot"></div><span id="sync-label" style="font-size:9px"></span></div>
+      <div class="super">Mr.NodeMan <span id="sync-label" style="font-size:9px"></span></div>
       <div class="hdr-title">Work Ledger</div>
     </div>
-    <div class="hdr-icon">⚡</div>
   </div>
   <div class="scroll-area">
     <!-- Financial Summary -->
@@ -262,11 +297,11 @@ select option{background:var(--s)}
       <div class="divider" style="margin:0 0 14px"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:12px;padding:11px 14px">
-          <div style="font-size:9px;font-weight:700;color:var(--paid);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">● Collected</div>
+          <div style="font-size:9px;font-weight:700;color:var(--paid);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg>Collected</div>
           <div class="mono" id="s-paid" style="font-size:20px;font-weight:500;color:var(--paid);letter-spacing:-.02em">₹0</div>
         </div>
         <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:12px;padding:11px 14px">
-          <div style="font-size:9px;font-weight:700;color:var(--pend);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">◌ Outstanding</div>
+          <div style="font-size:9px;font-weight:700;color:var(--pend);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><circle cx="12" cy="12" r="10"/></svg>Outstanding</div>
           <div class="mono" id="s-pending" style="font-size:20px;font-weight:500;color:var(--pend);letter-spacing:-.02em">₹0</div>
         </div>
       </div>
@@ -322,13 +357,17 @@ select option{background:var(--s)}
       <div class="super">Mr.NodeMan</div>
       <div class="hdr-title">Clients</div>
     </div>
-    <div class="hdr-icon" onclick="openModal('client-modal')" title="Add client">＋</div>
   </div>
   <div class="scroll-area">
-    <div class="fchips" id="cl-filters">
-      <div class="fchip active" onclick="setClientFilter('all',this)">All</div>
-      <div class="fchip" onclick="setClientFilter('has-pending',this)">Has Pending</div>
-      <div class="fchip" onclick="setClientFilter('fully-paid',this)">Fully Paid</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div class="fchips" id="cl-filters">
+        <div class="fchip active" onclick="setClientFilter('all',this)">All</div>
+        <div class="fchip" onclick="setClientFilter('has-pending',this)">Has Pending</div>
+        <div class="fchip" onclick="setClientFilter('fully-paid',this)">Fully Paid</div>
+      </div>
+      <button class="ss-btn" onclick="openModal('client-modal')" style="padding:8px 16px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:700;white-space:nowrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client
+      </button>
     </div>
     <div id="cl-full-list"></div>
   </div>
@@ -338,7 +377,6 @@ select option{background:var(--s)}
 <div class="view" id="view-stats">
   <div class="vhdr">
     <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">Analytics</div></div>
-    <div class="hdr-icon">📊</div>
   </div>
   <div class="scroll-area">
     <div class="card anim">
@@ -372,7 +410,6 @@ select option{background:var(--s)}
 <div class="view" id="view-more">
   <div class="vhdr">
     <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">More</div></div>
-    <div class="hdr-icon">⚙️</div>
   </div>
   <div class="scroll-area">
     <!-- Sync Status Card -->
@@ -384,7 +421,7 @@ select option{background:var(--s)}
     </div>
     <!-- Firebase setup -->
     <div class="card anim" id="firebase-setup-card">
-      <div class="sec-title" style="margin-bottom:10px">☁️ Cloud Sync Setup</div>
+      <div class="sec-title" style="margin-bottom:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>Cloud Sync Setup</div>
       <div style="font-size:11px;color:var(--t2);margin-bottom:10px">Paste your Firebase config to enable real-time sync across all devices.</div>
       <div class="setup-steps" style="margin-bottom:12px">
         <div class="setup-step">Go to <strong style="color:var(--t1)">console.firebase.google.com</strong></div>
@@ -560,6 +597,52 @@ select option{background:var(--s)}
 
 <script>
 /* ════════════════════════════════════════════
+   PREVENT ZOOM FUNCTIONALITY
+════════════════════════════════════════════ */
+// Prevent zoom with keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  // Prevent Ctrl/Cmd + Plus/Minus/Zero
+  if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-' || e.key === '0' || e.key === '=')) {
+    e.preventDefault();
+  }
+  // Prevent Ctrl/Cmd + Mouse wheel zoom
+  if (e.ctrlKey || e.metaKey) {
+    if (e.deltaY !== undefined) {
+      e.preventDefault();
+    }
+  }
+});
+
+// Prevent zoom with pinch gestures on touch devices
+document.addEventListener('touchstart', function(e) {
+  if (e.touches.length > 1) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Prevent zoom with double-tap on mobile
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) {
+    e.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+// Prevent zoom with mouse wheel
+document.addEventListener('wheel', function(e) {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+  }
+}, { passive: false });
+
+// Prevent context menu on long press
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+
+/* ════════════════════════════════════════════
    APP CONFIG
    ─────────────────────────────────────────
    Set FIREBASE_CONFIG to enable cloud sync.
@@ -610,6 +693,9 @@ let cdInterval;
 let pendingConfirmFn = null;
 let pendingConfirmNeedsCD = false;
 let cdVal = 10;
+let undoTimer = null;
+let lastAction = null;
+let lastActionData = null;
 
 /* ════════════════════════════════════════════
    LOCAL STORAGE (always-on fallback)
@@ -625,11 +711,23 @@ function loadLS(){
     const e = localStorage.getItem('_mnm_entries');
     const c = localStorage.getItem('_mnm_clients');
     if(e) entries = JSON.parse(e);
-    if(c) CLIENTS  = JSON.parse(c);
+    // Only load clients from localStorage if they exist, otherwise keep the new clients
+    if(c && JSON.parse(c).length > 0){
+      const savedClients = JSON.parse(c);
+      // Only use saved clients if they're not the old default ones
+      if(!savedClients.includes('Nexus Corp') && !savedClients.includes('Orbital Studio')){
+        CLIENTS = savedClients;
+      }
+    }
     // Pre-assign colors
     CLIENTS.forEach(n=>cColor(n));
     entries.forEach(e=>cColor(e.clientId));
-  }catch(e){ entries=[]; }
+  }catch(e){ 
+    console.error('Error loading from localStorage:', e);
+    entries = []; 
+    // Reset to default clients on error
+    CLIENTS = ['Raisoni Polythechnic College','Raisoni Business Managment College','Raisoni Sadar ','YCCE College','Vainganga College','CP Berar College', 'PW Vidyapeeth'];
+  }
 }
 
 /* ════════════════════════════════════════════
@@ -722,16 +820,16 @@ function updateSyncUI(){
   dots.forEach(d=>{
     d.className = 'sync-dot ' + (fbConnected?'live':'local');
   });
-  if(label) label.textContent = fbConnected ? '● live' : '● local';
+  if(label) label.textContent = fbConnected ? '● live' : '';
   // More view sync card
   const body = document.getElementById('sync-status-body');
   if(body){
     if(fbConnected){
-      body.innerHTML = `<div style="font-size:11px;color:var(--paid)">✓ Connected to Firebase</div>
+      body.innerHTML = `<div style="font-size:11px;color:var(--paid)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg> Connected to Firebase</div>
         <div style="font-size:10px;color:var(--t2);margin-top:4px">Workspace: <span class="mono" style="color:var(--t1)">${WORKSPACE_ID}</span></div>
         <div style="font-size:10px;color:var(--t2);margin-top:2px">Data syncs in real-time across all devices sharing this workspace.</div>`;
     } else {
-      body.innerHTML = `<div style="font-size:11px;color:var(--pend)">◌ Local storage only</div>
+      body.innerHTML = `<div style="font-size:11px;color:var(--pend)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><circle cx="12" cy="12" r="10"/></svg> Local storage only</div>
         <div style="font-size:10px;color:var(--t2);margin-top:4px">Setup Firebase below to enable cross-device sync.</div>`;
     }
   }
@@ -955,7 +1053,7 @@ function renderRecentEntries(){
   if(!sorted.length){ el.innerHTML=`<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px;font-style:italic">No entries yet. Tap + to log work.</div>`; return; }
   el.innerHTML=sorted.map(e=>{
     const isTeam=e.workType==='team';
-    const tms=e.teamMembers&&e.teamMembers.length?`<div style="font-size:9px;color:var(--acc);margin-top:2px">👥 ${e.teamMembers.slice(0,3).join(', ')}${e.teamMembers.length>3?` +${e.teamMembers.length-3}`:''}</div>`:'';
+    const tms=e.teamMembers&&e.teamMembers.length?`<div style="font-size:9px;color:var(--acc);margin-top:2px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:3px;vertical-align:middle"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>${e.teamMembers.slice(0,3).join(', ')}${e.teamMembers.length>3?` +${e.teamMembers.length-3}`:''}</div>`:'';
     return `<div class="erow">
       <div style="width:36px;height:36px;border-radius:11px;background:${isTeam?'var(--acc-bg)':'var(--s2)'};border:1px solid ${isTeam?'var(--acc-bd)':'var(--b)'};color:${isTeam?'var(--acc)':'var(--t2)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
         ${isTeam?TEAM_IC:SOLO_IC}
@@ -973,9 +1071,9 @@ function renderRecentEntries(){
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
         <div class="mono" style="font-size:14px;font-weight:500">${fmtRs(e.amount)}</div>
         <div class="pill ${e.paymentStatus}" onclick="handlePillClick('${e.id}')" title="Tap to change status">
-          ${e.paymentStatus==='paid'?'✓ Paid':'◌ Pending'}
+          ${e.paymentStatus==='paid'?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg> Paid':'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><circle cx="12" cy="12" r="10"/></svg> Pending'}
         </div>
-        <button class="reuse-btn" onclick="openEntryModal('${e.id}')" title="Reuse this entry">↺ Reuse</button>
+        <button class="reuse-btn" onclick="openEntryModal('${e.id}')" title="Reuse this entry"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Reuse</button>
       </div>
     </div>`;
   }).join('');
@@ -1126,33 +1224,38 @@ function renderMoreView(){
 
   document.getElementById('more-actions').innerHTML=`
     <div class="more-row" onclick="exportCSV()">
-      <div class="micon" style="background:rgba(45,212,168,.1)">📥</div>
+      <div class="micon" style="background:rgba(45,212,168,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
       <div><div class="mico-label">Export CSV</div><div class="mico-sub">Download all entries</div></div>
       <div class="mchev">›</div>
     </div>
     <div class="more-row" onclick="exportJSON()">
-      <div class="micon" style="background:rgba(124,111,237,.1)">📤</div>
+      <div class="micon" style="background:rgba(124,111,237,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
       <div><div class="mico-label">Export JSON</div><div class="mico-sub">Full backup for sharing</div></div>
       <div class="mchev">›</div>
     </div>
     <div class="more-row" onclick="document.getElementById('import-file').click()">
-      <div class="micon" style="background:rgba(96,165,250,.1)">📂</div>
+      <div class="micon" style="background:rgba(96,165,250,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
       <div><div class="mico-label">Import JSON</div><div class="mico-sub">Restore or merge data</div></div>
       <div class="mchev">›</div>
     </div>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)"/>
     <div class="more-row" onclick="openModal('client-modal')">
-      <div class="micon" style="background:var(--acc-bg)">👤</div>
+      <div class="micon" style="background:var(--acc-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg></div>
       <div><div class="mico-label">Add New Client</div><div class="mico-sub">Register a new client</div></div>
       <div class="mchev">›</div>
     </div>
     <div class="more-row" onclick="bulkMarkPaid()">
-      <div class="micon" style="background:rgba(45,212,168,.1)">✓</div>
+      <div class="micon" style="background:rgba(45,212,168,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
       <div><div class="mico-label">Mark All as Paid</div><div class="mico-sub">Collect all outstanding</div></div>
       <div class="mchev">›</div>
     </div>
+    <div class="more-row" onclick="confirmClearClients()" style="border-color:rgba(248,113,113,.2)">
+      <div class="micon" style="background:rgba(248,113,113,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div><div class="mico-label" style="color:var(--danger)">Clear All Clients</div><div class="mico-sub">Remove all clients</div></div>
+      <div class="mchev">›</div>
+    </div>
     <div class="more-row" onclick="confirmClearData()" style="border-color:rgba(248,113,113,.2)">
-      <div class="micon" style="background:rgba(248,113,113,.08)">🗑</div>
+      <div class="micon" style="background:rgba(248,113,113,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
       <div><div class="mico-label" style="color:var(--danger)">Clear All Data</div><div class="mico-sub">Permanently delete entries</div></div>
       <div class="mchev">›</div>
     </div>`;
@@ -1309,6 +1412,12 @@ function submitEntry(){
   };
   cColor(entry.clientId);
   entries=[entry,...entries].sort((a,b)=>b.date.localeCompare(a.date));
+  
+  // Save for undo
+  lastAction = 'addEntry';
+  lastActionData = {entry};
+  showUndoToast();
+  
   saveLS();
   fbSaveEntry(entry);
   closeModal('entry-modal');
@@ -1324,6 +1433,12 @@ function submitAddClient(){
   if(!name){showToast('⚠ Enter a client name');return;}
   if(CLIENTS.includes(name)){showToast('Client already exists');return;}
   CLIENTS.push(name); cColor(name);
+  
+  // Save for undo
+  lastAction = 'addClient';
+  lastActionData = {client: name};
+  showUndoToast();
+  
   saveLS(); fbSaveClients();
   closeModal('client-modal');
   document.getElementById('nc-name').value='';
@@ -1362,7 +1477,14 @@ function handlePillClick(id){
 
 function setStatus(id, status){
   const e=entries.find(x=>x.id===id); if(!e) return;
+  const oldStatus = e.paymentStatus;
   e.paymentStatus=status;
+  
+  // Save for undo
+  lastAction = 'setStatus';
+  lastActionData = {id, oldStatus, newStatus: status};
+  showUndoToast();
+  
   saveLS();
   fbUpdateEntry(id,{paymentStatus:status});
   renderAll();
@@ -1450,6 +1572,12 @@ function bulkMarkPaid(){
     okText:'✓ Mark All Paid',
     fn:()=>{
       entries.forEach(e=>{ if(e.paymentStatus==='pending'){ e.paymentStatus='paid'; fbUpdateEntry(e.id,{paymentStatus:'paid'}); }});
+      
+      // Save for undo
+      lastAction = 'bulkMarkPaid';
+      lastActionData = {entries: [...entries]};
+      showUndoToast();
+      
       saveLS(); renderAll(); showToast('✓ All entries marked as Paid');
     }
   });
@@ -1457,13 +1585,37 @@ function bulkMarkPaid(){
 function confirmClearData(){
   showConfirm({
     title:'Clear All Data?',
-    body:'This will permanently delete all work entries and cannot be undone.',
-    countdown:false,
+    body:'This will permanently delete all work entries and cannot be undone.<br><br>Please wait 10 seconds to prevent accidental changes.',
+    countdown:true,
     okStyle:'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
     okText:'🗑 Delete All',
     fn:()=>{
+      // Save for undo
+      lastAction = 'clearData';
+      lastActionData = {entries: [...entries], nextId: nextId};
+      showUndoToast();
+      
       if(fbDB) fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries').remove();
-      entries=[]; nextId=Date.now(); saveLS(); renderAll(); showToast('🗑 All data cleared');
+      entries=[]; nextId=Date.now(); saveLS(); renderAll(); 
+      showToast('🗑 All data cleared');
+    }
+  });
+}
+function confirmClearClients(){
+  showConfirm({
+    title:'Clear All Clients?',
+    body:'This will remove all clients from the list.<br><br>Please wait 10 seconds to prevent accidental changes.',
+    countdown:true,
+    okStyle:'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
+    okText:'👥 Clear All',
+    fn:()=>{
+      // Save for undo
+      lastAction = 'clearClients';
+      lastActionData = {clients: [...CLIENTS]};
+      showUndoToast();
+      
+      CLIENTS=[]; saveLS(); fbSaveClients(); renderAll(); 
+      showToast('👥 All clients cleared');
     }
   });
 }
@@ -1545,6 +1697,107 @@ function switchTab(id){
 }
 
 /* ════════════════════════════════════════════
+   UNDO SYSTEM
+════════════════════════════════════════════ */
+function showUndoToast(){
+  clearTimeout(undoTimer);
+  const toast = document.getElementById('toast');
+  const originalContent = toast.textContent;
+  
+  toast.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <span>${originalContent}</span>
+      <button onclick="performUndo()" style="background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);padding:4px 8px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer">↶ Undo</button>
+      <span onclick="hideUndoToast()" style="cursor:pointer;color:var(--t3);font-size:12px">×</span>
+    </div>
+  `;
+  
+  undoTimer = setTimeout(() => {
+    hideUndoToast();
+  }, 5000);
+}
+
+function hideUndoToast(){
+  clearTimeout(undoTimer);
+  const toast = document.getElementById('toast');
+  toast.classList.remove('show');
+  lastAction = null;
+  lastActionData = null;
+}
+
+function performUndo(){
+  if(!lastAction || !lastActionData) return;
+  
+  switch(lastAction){
+    case 'setStatus':
+      const e = entries.find(x=>x.id===lastActionData.id);
+      if(e){
+        e.paymentStatus = lastActionData.oldStatus;
+        saveLS(); fbUpdateEntry(lastActionData.id,{paymentStatus:lastActionData.oldStatus});
+        renderAll();
+        showToast('↶ Status change undone');
+      }
+      break;
+      
+    case 'clearData':
+      entries = lastActionData.entries;
+      nextId = lastActionData.nextId;
+      saveLS(); 
+      if(fbDB){
+        lastActionData.entries.forEach(entry => fbSaveEntry(entry));
+      }
+      renderAll();
+      showToast('↶ Data clear undone');
+      break;
+      
+    case 'clearClients':
+      CLIENTS = lastActionData.clients;
+      saveLS(); fbSaveClients();
+      renderAll();
+      showToast('↶ Client clear undone');
+      break;
+      
+    case 'addEntry':
+      const entryIndex = entries.findIndex(x=>x.id===lastActionData.entry.id);
+      if(entryIndex !== -1){
+        entries.splice(entryIndex, 1);
+        saveLS();
+        if(fbDB) fbDeleteEntry(lastActionData.entry.id);
+        renderAll();
+        showToast('↶ Entry addition undone');
+      }
+      break;
+      
+    case 'addClient':
+      const clientIndex = CLIENTS.indexOf(lastActionData.client);
+      if(clientIndex !== -1){
+        CLIENTS.splice(clientIndex, 1);
+        saveLS(); fbSaveClients();
+        renderAll();
+        showToast('↶ Client addition undone');
+      }
+      break;
+      
+    case 'bulkMarkPaid':
+      lastActionData.entries.forEach(entry => {
+        const e = entries.find(x=>x.id===entry.id);
+        if(e) e.paymentStatus = entry.paymentStatus;
+      });
+      saveLS();
+      if(fbDB){
+        lastActionData.entries.forEach(entry => {
+          fbUpdateEntry(entry.id, {paymentStatus: entry.paymentStatus});
+        });
+      }
+      renderAll();
+      showToast('↶ Bulk mark paid undone');
+      break;
+  }
+  
+  hideUndoToast();
+}
+
+/* ════════════════════════════════════════════
    TOAST
 ════════════════════════════════════════════ */
 let toastT;
@@ -1594,6 +1847,23 @@ function seedSampleData(){
 /* ════════════════════════════════════════════
    INIT
 ════════════════════════════════════════════ */
+// Clear potentially corrupted localStorage on first load with new clients
+const currentClients = ['Raisoni Polythechnic College','Raisoni Business Managment College','Raisoni Sadar ','YCCE College','Vainganga College','CP Berar College', 'PW Vidyapeeth'];
+const savedClients = localStorage.getItem('_mnm_clients');
+if(savedClients){
+  try{
+    const parsed = JSON.parse(savedClients);
+    // If old clients exist, clear localStorage to force refresh
+    if(parsed.includes('Nexus Corp') || parsed.includes('Orbital Studio')){
+      localStorage.removeItem('_mnm_entries');
+      localStorage.removeItem('_mnm_clients');
+    }
+  }catch(e){
+    localStorage.removeItem('_mnm_entries');
+    localStorage.removeItem('_mnm_clients');
+  }
+}
+
 CLIENTS.forEach(n=>cColor(n));
 loadLS();
 seedSampleData();
