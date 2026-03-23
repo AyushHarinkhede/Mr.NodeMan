@@ -359,15 +359,19 @@ select option{background:var(--s)}
     </div>
   </div>
   <div class="scroll-area">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="margin-bottom:14px">
+      <!-- Add Client button section -->
+      <div style="display:flex;justify-content:flex-start;margin-bottom:12px">
+        <button class="ss-btn" onclick="openModal('client-modal')" style="padding:10px 18px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:700;white-space:nowrap;min-width:fit-content">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client
+        </button>
+      </div>
+      <!-- Filter chips section -->
       <div class="fchips" id="cl-filters">
         <div class="fchip active" onclick="setClientFilter('all',this)">All</div>
         <div class="fchip" onclick="setClientFilter('has-pending',this)">Has Pending</div>
         <div class="fchip" onclick="setClientFilter('fully-paid',this)">Fully Paid</div>
       </div>
-      <button class="ss-btn" onclick="openModal('client-modal')" style="padding:8px 16px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:700;white-space:nowrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client
-      </button>
     </div>
     <div id="cl-full-list"></div>
   </div>
@@ -677,8 +681,12 @@ select option{background:var(--s)}
       <div class="fgrp">
         <label class="ss-label">Payment Status</label>
         <div class="tgroup">
-          <button class="tbtn" id="edit-status-pending" onclick="setEditPaymentStatus('pending')">⌛ Pending</button>
-          <button class="tbtn" id="edit-status-paid" onclick="setEditPaymentStatus('paid')">✓ Paid</button>
+          <button class="tbtn" id="edit-status-pending" onclick="setEditPaymentStatus('pending')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><circle cx="12" cy="12" r="10"/></svg>Pending
+          </button>
+          <button class="tbtn" id="edit-status-paid" onclick="setEditPaymentStatus('paid')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg>Paid
+          </button>
         </div>
       </div>
 
@@ -686,6 +694,33 @@ select option{background:var(--s)}
       <div style="display:flex;gap:10px">
         <button class="ss-btn" onclick="closeModal('edit-entry-modal')" style="flex:1;padding:14px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:14px;font-weight:700">Cancel</button>
         <button class="ss-btn" id="edit-f-submit" onclick="submitEditEntry()" style="flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;transition:all .2s">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ DAY DETAILS MODAL ══════════════ -->
+<div class="moverlay" id="day-details-modal" onclick="overlayClose(event,'day-details-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="day-details-title">Day Details</div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Day Summary -->
+      <div id="day-summary" style="background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div id="day-date" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500"></div>
+          <div id="day-total" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--acc)"></div>
+        </div>
+        <div id="day-stats" style="display:flex;gap:12px;font-size:11px"></div>
+      </div>
+      
+      <!-- Entries List -->
+      <div id="day-entries-list"></div>
+      
+      <!-- Actions -->
+      <div style="display:flex;gap:10px">
+        <button class="ss-btn" onclick="closeModal('day-details-modal')" style="flex:1;padding:12px;border-radius:11px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:700">Close</button>
+        <button class="ss-btn" onclick="openEntryModalForDay()" style="flex:1;padding:12px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:13px;font-weight:700">Add Entry</button>
       </div>
     </div>
   </div>
@@ -1014,12 +1049,33 @@ function getClientAvgAmount(clientId){
    HEATMAP
 ════════════════════════════════════════════ */
 function buildHMGrid(){
-  const now=new Date(), start=new Date(now);
-  start.setFullYear(start.getFullYear()-1);
-  start.setDate(start.getDate()-start.getDay());
+  const now=new Date();
+  let start;
+  
+  if(entries.length > 0) {
+    // Find the oldest entry date
+    const oldestDate = entries.reduce((oldest, entry) => {
+      return entry.date < oldest ? entry.date : oldest;
+    }, entries[0].date);
+    
+    start = new Date(oldestDate);
+  } else {
+    // Fallback to 1 year ago if no entries
+    start = new Date(now);
+    start.setFullYear(start.getFullYear() - 1);
+  }
+  
+  // Align to Sunday of the week containing the start date
+  start.setDate(start.getDate() - start.getDay());
+  
   const weeks=[], cur=new Date(start);
   while(cur<=now){
-    const wk=[]; for(let d=0;d<7;d++){wk.push(new Date(cur));cur.setDate(cur.getDate()+1);} weeks.push(wk);
+    const wk=[]; 
+    for(let d=0;d<7;d++){
+      wk.push(new Date(cur));
+      cur.setDate(cur.getDate()+1);
+    } 
+    weeks.push(wk);
   }
   return weeks;
 }
@@ -1030,7 +1086,8 @@ function getHMMonthLabels(weeks){
 }
 function cellColor(ds, isFuture, dm, maxAmt){
   if(isFuture) return 'transparent';
-  const d=dm[ds]; if(!d) return 'var(--b)';
+  const d=dm[ds]; 
+  if(!d) return 'var(--b)'; // Empty days - more visible
   const k=0.28+0.72*Math.min(1,d.total/Math.max(maxAmt,1));
   if(d.paid>0&&d.pending===0) return `rgba(45,212,168,${k.toFixed(2)})`;
   if(d.pending>0&&d.paid===0) return `rgba(255,185,48,${k.toFixed(2)})`;
@@ -1074,10 +1131,17 @@ function renderHeatmap(){
       cell.className='hcell';
       cell.style.background=cellColor(ds,future,dm,maxAmt);
       cell.style.opacity=future?'0':'1';
+      cell.style.cursor=future?'default':'pointer';
+      
       if(dm[ds]){
         cell.onmouseenter=ev=>showTT(ev,ds,dm[ds]);
         cell.onmouseleave=hideTT;
-        cell.onclick=ev=>showTT(ev,ds,dm[ds]);
+        cell.onclick=ev=>showDayDetails(ev,ds,dm[ds]);
+      } else if(!future) {
+        // Empty day - show basic info and allow click to see details
+        cell.onmouseenter=ev=>showEmptyDayTT(ev,ds);
+        cell.onmouseleave=hideTT;
+        cell.onclick=ev=>showDayDetails(ev,ds,null);
       }
       col.appendChild(cell);
     });
@@ -1114,6 +1178,88 @@ function showTT(ev, ds, dd){
   ttTimer=setTimeout(hideTT,2800);
 }
 function hideTT(){ document.getElementById('tooltip').classList.remove('vis'); }
+
+function showEmptyDayTT(ev, ds){
+  clearTimeout(ttTimer);
+  const root=document.getElementById('app').getBoundingClientRect();
+  const rect=ev.currentTarget.getBoundingClientRect();
+  document.getElementById('tt-date').textContent=fmtDate(ds);
+  document.getElementById('tt-amt').textContent='No work';
+  document.getElementById('tt-det').innerHTML='<span style="font-size:10px;color:var(--t3)">Rest day</span>';
+  document.getElementById('tt-row2').innerHTML='<span style="font-size:10px;color:var(--t3)">Click to add entry</span>';
+  let x=rect.left-root.left+rect.width/2, y=rect.top-root.top;
+  x=Math.min(x-74,430-162); y=Math.max(8,y-110);
+  const tt=document.getElementById('tooltip');
+  tt.style.left=x+'px'; tt.style.top=y+'px';
+  tt.classList.add('vis');
+  ttTimer=setTimeout(hideTT,2800);
+}
+
+let currentDayDate = null;
+
+function showDayDetails(ev, ds, dayData){
+  currentDayDate = ds;
+  const dateStr = fmtDate(ds);
+  
+  // Update modal title and summary
+  document.getElementById('day-date').textContent = dateStr;
+  
+  if(dayData) {
+    // Day with entries
+    document.getElementById('day-total').textContent = fmtRs(dayData.total);
+    document.getElementById('day-stats').innerHTML = `
+      <span style="color:var(--paid)">● ${fmtRs(dayData.paid)} collected</span>
+      <span style="color:var(--pend)">◌ ${fmtRs(dayData.pending)} pending</span>
+      <span style="color:var(--t3)">${dayData.entries.length} entr${dayData.entries.length !== 1 ? 'ies' : 'y'}</span>
+    `;
+    
+    // Render entries
+    const entriesHtml = dayData.entries.map(entry => `
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">${entry.description || 'Work Session'}</div>
+            <div style="font-size:11px;color:var(--t2)">${entry.clientId}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="mono" style="font-size:14px;font-weight:500">${fmtRs(entry.amount)}</div>
+            <div class="pill ${entry.paymentStatus}" style="margin-top:4px;font-size:9px">${entry.paymentStatus}</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;gap:8px;font-size:10px;color:var(--t3)">
+            <span>${entry.workType === 'team' ? '👥 Team' : '👤 Solo'}</span>
+            ${entry.teamMembers ? `<span>${entry.teamMembers.length} members</span>` : ''}
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="ss-btn" onclick="openEditEntryModal('${entry.id}'); closeModal('day-details-modal');" style="padding:4px 8px;border-radius:6px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:600">Edit</button>
+            <button class="ss-btn" onclick="openClientDetails('${entry.clientId.replace(/'/g, "\\'")}'); closeModal('day-details-modal');" style="padding:4px 8px;border-radius:6px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:10px;font-weight:600">View Client</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    
+    document.getElementById('day-entries-list').innerHTML = entriesHtml;
+  } else {
+    // Empty day
+    document.getElementById('day-total').textContent = 'No entries';
+    document.getElementById('day-stats').innerHTML = '<span style="color:var(--t3)">Rest day</span>';
+    document.getElementById('day-entries-list').innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3);font-size:12px">No work entries for this day. Click "Add Entry" to log work.</div>';
+  }
+  
+  openModal('day-details-modal');
+}
+
+function openEntryModalForDay(){
+  closeModal('day-details-modal');
+  // Pre-fill the date in the entry modal
+  setTimeout(() => {
+    if(currentDayDate) {
+      document.getElementById('f-date').value = currentDayDate;
+    }
+    openEntryModal(null);
+  }, 300);
+}
 
 /* ════════════════════════════════════════════
    RENDER: SUMMARY
@@ -1304,7 +1450,7 @@ function renderClientEntries(){
             ${entry.description ? `<div style="font-size:12px;color:var(--t2);margin-bottom:6px">${entry.description}</div>` : ''}
             ${teamMembersHtml}
           </div>
-          <div class="pill ${entry.paymentStatus}" style="flex-shrink:0">
+          <div class="pill ${entry.paymentStatus}" style="flex-shrink:0;cursor:pointer" onclick="handlePillClickInClientDetails('${entry.id}')" title="Tap to change status">
             ${entry.paymentStatus === 'paid' ? '✓ Paid' : '⌛ Pending'}
           </div>
         </div>
@@ -1487,6 +1633,50 @@ function deleteEntry(entryId){
   renderAll();
   if(currentView === 'client-details') renderClientDetails();
   showToast('🗑 Entry deleted successfully');
+}
+
+function handlePillClickInClientDetails(entryId){
+  const e = entries.find(x=>x.id===entryId); 
+  if(!e) return;
+  if(e.paymentStatus==='pending'){
+    // pending → paid: simple confirm
+    showConfirm({
+      title: 'Mark as Paid?',
+      body: `Mark <strong style="color:var(--t1)">${e.clientId}</strong>'s entry of <strong style="color:var(--paid)">${fmtRs(e.amount)}</strong> as <strong style="color:var(--paid)">Paid</strong>?`,
+      countdown: false,
+      okStyle: 'background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid)',
+      okText: '✓ Mark as Paid',
+      fn: ()=>{ setStatusInClientDetails(entryId,'paid'); }
+    });
+  } else {
+    // paid → pending: 10-second countdown
+    showConfirm({
+      title: 'Revert to Pending?',
+      body: `You're about to mark <strong style="color:var(--t1)">${e.clientId}</strong>'s payment of <strong style="color:var(--paid)">${fmtRs(e.amount)}</strong> back to <strong style="color:var(--pend)">Pending</strong>.<br><br>Please wait 10 seconds to prevent accidental changes.`,
+      countdown: true,
+      okStyle: 'background:var(--pend-bg);border:1px solid var(--pend-bd);color:var(--pend)',
+      okText: '◌ Mark as Pending',
+      fn: ()=>{ setStatusInClientDetails(entryId,'pending'); }
+    });
+  }
+}
+
+function setStatusInClientDetails(id, status){
+  const e = entries.find(x=>x.id===id); 
+  if(!e) return;
+  const oldStatus = e.paymentStatus;
+  e.paymentStatus = status;
+  
+  // Save for undo
+  lastAction = 'setStatus';
+  lastActionData = {id, oldStatus, newStatus: status};
+  showUndoToast();
+  
+  saveLS();
+  fbUpdateEntry(id,{paymentStatus:status});
+  renderAll();
+  if(currentView === 'client-details') renderClientDetails();
+  showToast(status==='paid'?'✓ Marked as Paid':'◌ Reverted to Pending');
 }
 
 /* ════════════════════════════════════════════
