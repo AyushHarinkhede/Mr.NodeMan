@@ -452,7 +452,7 @@ select option{background:var(--s)}
       <div class="super">Mr.NodeMan</div>
       <div class="hdr-title" id="client-details-name">Client Details</div>
     </div>
-    <button class="ss-btn" onclick="switchTab('clients')" style="padding:8px 16px;border-radius:11px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:12px;font-weight:700">
+    <button class="ss-btn" onclick="switchTab('clients')" style="padding:8px 16px;border-radius:11px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.22);color:var(--danger);font-size:12px;font-weight:700">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><polyline points="15 18 9 12 15 6"/></svg>Back
     </button>
   </div>
@@ -1454,7 +1454,7 @@ function renderRecentEntries(){
 function openClientDetails(clientName){
   currentClient = clientName;
   clientDetailsTab = 'all';
-  document.getElementById('client-details-name').textContent = clientName;
+  // Don't set header title - keep it as "Client Details"
   switchTab('client-details');
   renderClientDetails();
 }
