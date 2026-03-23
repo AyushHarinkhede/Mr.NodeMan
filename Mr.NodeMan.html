@@ -305,6 +305,13 @@ select option{background:var(--s)}
           <div class="mono" id="s-pending" style="font-size:20px;font-weight:500;color:var(--pend);letter-spacing:-.02em">₹0</div>
         </div>
       </div>
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:11px 14px;margin-top:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <div style="font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.1em;text-transform:uppercase">Advance Payments</div>
+          <div class="mono" id="s-advance" style="font-size:16px;font-weight:500;color:var(--acc);letter-spacing:-.02em">₹0</div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Net Outstanding: <span id="s-net-outstanding" class="mono" style="color:var(--pend)">₹0</span></div>
+      </div>
     </div>
     <!-- Heatmap -->
     <div class="card anim">
@@ -407,6 +414,33 @@ select option{background:var(--s)}
     <div class="card anim">
       <div class="sec-title" style="margin-bottom:14px">Collection Rate</div>
       <div id="col-rate"></div>
+    </div>
+    <div class="card anim">
+      <div class="sec-title" style="margin-bottom:14px">Earnings Analysis</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Highest Month</div>
+          <div class="mono" id="highest-month" style="font-size:14px;font-weight:500;color:var(--paid)">₹0</div>
+        </div>
+        <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Lowest Month</div>
+          <div class="mono" id="lowest-month" style="font-size:14px;font-weight:500;color:var(--pend)">₹0</div>
+        </div>
+      </div>
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em">Monthly Average</div>
+          <div class="mono" id="monthly-avg" style="font-size:16px;font-weight:500;color:var(--acc)">₹0</div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Based on last 12 months</div>
+      </div>
+      <div style="background:var(--acc-bg);border:1px solid var(--acc-bd);border-radius:10px;padding:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:10px;color:var(--acc);text-transform:uppercase;letter-spacing:.07em">Annual Prediction</div>
+          <div class="mono" id="annual-prediction" style="font-size:16px;font-weight:500;color:var(--acc)">₹0</div>
+        </div>
+        <div style="font-size:8px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Projected yearly earnings</div>
+      </div>
     </div>
   </div>
 </div>
@@ -572,6 +606,12 @@ select option{background:var(--s)}
         <input class="ss-input" type="number" id="f-amount" placeholder="0" min="0" step="100" oninput="updateSubmitBtn()"/>
       </div>
 
+      <!-- Advance Payment -->
+      <div class="fgrp">
+        <label class="ss-label">Advance Received <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span></label>
+        <input class="ss-input" type="number" id="f-advance" placeholder="0" min="0" step="100" oninput="updateSubmitBtn()"/>
+      </div>
+
       <!-- Description with autocomplete -->
       <div class="fgrp">
         <label class="ss-label">Description <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px"></span></label>
@@ -650,6 +690,12 @@ select option{background:var(--s)}
       <div class="fgrp">
         <label class="ss-label">Amount (₹)</label>
         <input class="ss-input" type="number" id="edit-f-amount" placeholder="0" min="0" step="100" oninput="updateEditSubmitBtn()"/>
+      </div>
+
+      <!-- Advance Payment -->
+      <div class="fgrp">
+        <label class="ss-label">Advance Received <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span></label>
+        <input class="ss-input" type="number" id="edit-f-advance" placeholder="0" min="0" step="100" oninput="updateEditSubmitBtn()"/>
       </div>
 
       <div class="fgrp">
@@ -1015,7 +1061,8 @@ function getSummary(){
   const t = entries.reduce((s,e)=>s+e.amount,0);
   const p = entries.filter(e=>e.paymentStatus==='paid').reduce((s,e)=>s+e.amount,0);
   const d = entries.filter(e=>e.paymentStatus==='pending').reduce((s,e)=>s+e.amount,0);
-  return { total:t, paid:p, pending:d, count:entries.length };
+  const a = entries.reduce((s,e)=>s+(e.advance||0),0);
+  return { total:t, paid:p, pending:d, advance:a, count:entries.length };
 }
 function getDateMap(){
   const m={};
@@ -1307,10 +1354,12 @@ function openEntryModalForDay(){
    RENDER: SUMMARY
 ════════════════════════════════════════════ */
 function renderSummary(){
-  const {total,paid,pending,count}=getSummary();
+  const {total,paid,pending,advance,count}=getSummary();
   document.getElementById('s-total').textContent=fmtRs(total);
   document.getElementById('s-paid').textContent=fmtRs(paid);
   document.getElementById('s-pending').textContent=fmtRs(pending);
+  document.getElementById('s-advance').textContent=fmtRs(advance);
+  document.getElementById('s-net-outstanding').textContent=fmtRs(Math.max(0, pending - advance));
   document.getElementById('s-count').textContent=count;
 }
 
@@ -1525,6 +1574,7 @@ function openEditEntryModal(entryId){
   document.getElementById('edit-f-date').value = entry.date;
   document.getElementById('edit-f-dur').value = entry.duration;
   document.getElementById('edit-f-amount').value = entry.amount;
+  document.getElementById('edit-f-advance').value = entry.advance || '';
   document.getElementById('edit-f-desc').value = entry.description || '';
   
   // Set work type buttons
@@ -1606,6 +1656,7 @@ function submitEditEntry(){
   const date = document.getElementById('edit-f-date').value;
   const dur = parseFloat(document.getElementById('edit-f-dur').value) || 0;
   const amount = parseFloat(document.getElementById('edit-f-amount').value) || 0;
+  const advance = parseFloat(document.getElementById('edit-f-advance').value) || 0;
   const desc = document.getElementById('edit-f-desc').value.trim();
   
   if(!date || !amount || !dur){
@@ -1623,6 +1674,7 @@ function submitEditEntry(){
   entry.date = date;
   entry.duration = dur;
   entry.amount = amount;
+  entry.advance = advance;
   entry.description = desc;
   entry.workType = editFormType;
   entry.teamMembers = editFormType === 'team' ? [...editFormTMs] : [];
@@ -1765,7 +1817,7 @@ function renderClientsView(){
    RENDER: STATS VIEW
 ════════════════════════════════════════════ */
 function renderStatsView(){
-  renderMonthlyBars(); renderDonut(); renderClientBars(); renderCollRate();
+  renderMonthlyBars(); renderDonut(); renderClientBars(); renderCollRate(); renderEarningsAnalysis();
 }
 function renderMonthlyBars(){
   const now=new Date();
@@ -1849,6 +1901,58 @@ function renderCollRate(){
       <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:var(--pend)"></div>
         <div><div style="font-size:10px;color:var(--t2)">Outstanding</div><div class="mono" style="font-size:13px;font-weight:500;color:var(--pend)">${fmtRs(d)}</div></div></div>
     </div>`;
+}
+function renderEarningsAnalysis(){
+  // Get monthly data for analysis
+  const now=new Date();
+  const monthlyData={};
+  
+  // Calculate monthly totals for last 12 months
+  for(let i=11;i>=0;i--){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const key=`${d.getFullYear()}-${d.getMonth()}`;
+    monthlyData[key]=0;
+  }
+  
+  entries.forEach(e=>{
+    const entryDate=new Date(e.date+'T00:00:00');
+    const key=`${entryDate.getFullYear()}-${entryDate.getMonth()}`;
+    if(monthlyData.hasOwnProperty(key)){
+      monthlyData[key]+=e.amount;
+    }
+  });
+  
+  const values=Object.values(monthlyData).filter(v=>v>0);
+  if(values.length===0){
+    document.getElementById('highest-month').textContent='₹0';
+    document.getElementById('lowest-month').textContent='₹0';
+    document.getElementById('monthly-avg').textContent='₹0';
+    document.getElementById('annual-prediction').textContent='₹0';
+    return;
+  }
+  
+  const highest=Math.max(...values);
+  const lowest=Math.min(...values);
+  const average=values.reduce((s,v)=>s+v,0)/values.length;
+  
+  // Find month names for highest and lowest
+  let highestMonth='', lowestMonth='';
+  Object.entries(monthlyData).forEach(([key,val])=>{
+    if(val===highest) highestMonth=key;
+    if(val===lowest) lowestMonth=key;
+  });
+  
+  const highestMonthName=MTHS[parseInt(highestMonth.split('-')[1])];
+  const lowestMonthName=MTHS[parseInt(lowestMonth.split('-')[1])];
+  
+  // Calculate annual prediction based on average
+  const annualPrediction=average*12;
+  
+  // Update UI
+  document.getElementById('highest-month').textContent=`${fmtRs(highest)} (${highestMonthName})`;
+  document.getElementById('lowest-month').textContent=`${fmtRs(lowest)} (${lowestMonthName})`;
+  document.getElementById('monthly-avg').textContent=fmtRs(Math.round(average));
+  document.getElementById('annual-prediction').textContent=fmtRs(Math.round(annualPrediction));
 }
 
 /* ════════════════════════════════════════════
@@ -2023,6 +2127,7 @@ function openEntryModal(reuseId){
     document.getElementById('f-dur').value='';
     document.getElementById('f-client').innerHTML=CLIENTS.map(c=>`<option value="${c}">${c}</option>`).join('');
     document.getElementById('f-amount').value='';
+    document.getElementById('f-advance').value='';
     document.getElementById('f-desc').value='';
     document.getElementById('amt-suggest').textContent='';
     document.getElementById('date-hint').style.display='none';
@@ -2037,6 +2142,7 @@ function openEntryModal(reuseId){
     document.getElementById('f-client').innerHTML=CLIENTS.map(c=>`<option value="${c}" ${c===src.clientId?'selected':''}>${c}</option>`).join('');
     document.getElementById('f-dur').value=src.duration;
     document.getElementById('f-amount').value=src.amount;
+    document.getElementById('f-advance').value=src.advance || '';
     document.getElementById('f-desc').value=src.description||'';
     if(src.teamMembers) formTMs=[...src.teamMembers];
     setFormType(src.workType);
@@ -2075,11 +2181,13 @@ function submitEntry(){
   const dur=parseFloat(document.getElementById('f-dur').value) || 0;
   const clientId=document.getElementById('f-client').value;
   const amount=parseFloat(document.getElementById('f-amount').value) || 0;
+  const advance=parseFloat(document.getElementById('f-advance').value) || 0;
   const desc=document.getElementById('f-desc').value.trim();
   if(!date){showToast('⚠ Please enter a date');return;}
   if(!clientId){showToast('⚠ Please select a client');return;}
   const entry={
     id: 'e'+nextId++, date, duration:dur, clientId, amount,
+    advance: advance,
     paymentStatus:'pending',
     workType:formType,
     teamMembers:formType==='team'?[...formTMs]:[],
