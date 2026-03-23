@@ -318,7 +318,8 @@ select option{background:var(--s)}
         </div>
       </div>
       <div class="hmscroll">
-        <div id="hm-months" style="position:relative;height:14px;margin-bottom:4px"></div>
+        <div id="hm-years" style="position:relative;height:16px;margin-bottom:2px"></div>
+        <div id="hm-months" style="position:relative;height:16px;margin-bottom:4px"></div>
         <div style="display:flex;gap:2px">
           <div id="hm-dlabels" style="display:flex;flex-direction:column;gap:2px;margin-right:4px;flex-shrink:0"></div>
           <div id="hm-weeks" style="display:flex;gap:2px"></div>
@@ -552,24 +553,29 @@ select option{background:var(--s)}
       <div class="fg2">
         <div class="fgrp">
           <label class="ss-label">Client</label>
-          <select class="ss-input" id="f-client" onchange="onClientChange()"></select>
+          <div style="display:flex;gap:8px">
+            <select class="ss-input" id="f-client" onchange="onClientChange()" style="flex:1"></select>
+            <button class="ss-btn" onclick="quickAddClient()" style="padding:10px 8px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:3px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client
+            </button>
+          </div>
         </div>
         <div class="fgrp">
-          <label class="ss-label">Duration (hrs) <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span></label>
-          <input class="ss-input" type="number" id="f-dur" placeholder="2.5" step="0.5" min="0.5" oninput="updateSubmitBtn()"/>
+          <label class="ss-label">Duration <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:8px">(hrs)</span></label>
+          <input class="ss-input" type="number" id="f-dur" placeholder="2.5" step="0.5" min="0.5" oninput="updateSubmitBtn()" style="font-size:12px"/>
         </div>
       </div>
 
       <!-- Amount with suggestion -->
       <div class="fgrp">
-        <label class="ss-label">Amount (₹) <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span> <span id="amt-suggest" style="font-size:9px;color:var(--acc);letter-spacing:0;text-transform:none"></span></label>
+        <label class="ss-label">Amount (₹) <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px"></span> <span id="amt-suggest" style="font-size:9px;color:var(--acc);letter-spacing:0;text-transform:none"></span></label>
         <input class="ss-input" type="number" id="f-amount" placeholder="0" min="0" step="100" oninput="updateSubmitBtn()"/>
       </div>
 
       <!-- Description with autocomplete -->
       <div class="fgrp">
-        <label class="ss-label">Description <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px">(optional)</span></label>
-        <input class="ss-input" type="text" id="f-desc" placeholder="e.g. UI redesign sprint" list="desc-dl" autocomplete="off"/>
+        <label class="ss-label">Description <span style="color:var(--t3);text-transform:none;letter-spacing:0;font-size:9px"></span></label>
+        <input class="ss-input" type="text" id="f-desc" placeholder="What did you work on?" list="desc-dl" oninput="updateSubmitBtn()"/>
         <datalist id="desc-dl"></datalist>
       </div>
 
@@ -1080,8 +1086,30 @@ function buildHMGrid(){
   return weeks;
 }
 function getHMMonthLabels(weeks){
-  const out=[]; let last=-1;
-  weeks.forEach((wk,i)=>{const m=wk[0].getMonth();if(m!==last){out.push({col:i,label:MTHS[m]});last=m;}});
+  const out=[]; let lastMonth=-1; 
+  let yearLabels = new Map(); // Store year positions
+  
+  weeks.forEach((wk,i)=>{
+    const firstDay = wk[0];
+    const month = firstDay.getMonth();
+    const year = firstDay.getFullYear();
+    
+    // Store year positions for top display
+    if(!yearLabels.has(year)){
+      yearLabels.set(year, {start: i, end: i});
+    } else {
+      yearLabels.get(year).end = i;
+    }
+    
+    // Show month labels only when month changes
+    if(month !== lastMonth){
+      out.push({col:i,label:MTHS[month],year});
+      lastMonth = month;
+    }
+  });
+  
+  // Store year labels globally for rendering
+  window.currentYearLabels = yearLabels;
   return out;
 }
 function cellColor(ds, isFuture, dm, maxAmt){
@@ -1104,19 +1132,33 @@ function renderHeatmap(){
   const grid=buildHMGrid(), mLabels=getHMMonthLabels(grid), CW=13;
   const totalW=grid.length*CW+16;
 
-  // Month labels
+  // Year labels - display at top
+  const yEl=document.getElementById('hm-years');
+  yEl.style.minWidth=totalW+'px'; yEl.innerHTML='';
+  if(window.currentYearLabels){
+    window.currentYearLabels.forEach((pos, year) => {
+      const d=document.createElement('div');
+      const width = (pos.end - pos.start + 1) * CW;
+      d.style.cssText=`position:absolute;left:${pos.start*CW+16}px;font-size:7px;font-weight:600;color:var(--acc);text-transform:uppercase;white-space:nowrap;top:0;width:${width}px;text-align:center`;
+      d.textContent=year; yEl.appendChild(d);
+    });
+  }
+
+  // Month labels - display below years with spacing
   const mEl=document.getElementById('hm-months');
   mEl.style.minWidth=totalW+'px'; mEl.innerHTML='';
-  mLabels.forEach(({col,label})=>{
+  mLabels.forEach(({col,label}, index) => {
     const d=document.createElement('div');
-    d.style.cssText=`position:absolute;left:${col*CW+16}px;font-size:9px;font-weight:700;color:var(--t2);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;top:0`;
+    // Add spacing between months
+    const leftPos = index > 0 ? col*CW+16+4 : col*CW+16;
+    d.style.cssText=`position:absolute;left:${leftPos}px;font-size:8px;font-weight:600;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;top:0`;
     d.textContent=label; mEl.appendChild(d);
   });
 
-  // Day labels
+  // Day labels - show all days clearly
   const dlEl=document.getElementById('hm-dlabels');
   dlEl.innerHTML=['S','M','T','W','T','F','S'].map((l,i)=>
-    `<div style="width:9px;height:11px;font-size:8px;font-weight:600;color:var(--t3);display:flex;align-items:center;justify-content:center">${i%2!==0?l:''}</div>`
+    `<div style="width:11px;height:11px;font-size:8px;font-weight:600;color:var(--t2);display:flex;align-items:center;justify-content:center">${l}</div>`
   ).join('');
 
   // Weeks
@@ -1909,15 +1951,48 @@ function onClientChange(){
   const avg=getClientAvgAmount(clientId);
   const span=document.getElementById('amt-suggest');
   if(avg){
-    span.textContent=`avg: ${fmtRs(avg)}`;
-    // Only suggest if amount is empty
-    if(!document.getElementById('f-amount').value){
-      document.getElementById('f-amount').value=avg;
-      updateSubmitBtn();
-    }
-  } else {
+    span.textContent=`(avg: ₹${avg})`;
+  }else{
     span.textContent='';
   }
+  updateSubmitBtn();
+}
+
+function quickAddClient(){
+  const name = prompt('Enter new client name:');
+  if(!name || !name.trim()){
+    return;
+  }
+  
+  const clientName = name.trim();
+  
+  // Check if client already exists
+  if(CLIENTS.includes(clientName)){
+    showToast('⚠ Client already exists');
+    return;
+  }
+  
+  // Add to CLIENTS array
+  CLIENTS.push(clientName);
+  cColor(clientName); // Assign color
+  
+  // Update the dropdown
+  const select = document.getElementById('f-client');
+  const option = document.createElement('option');
+  option.value = clientName;
+  option.textContent = clientName;
+  option.selected = true;
+  select.appendChild(option);
+  
+  // Save and update
+  saveLS();
+  fbSaveClients();
+  renderAll();
+  
+  // Trigger client change to show amount suggestion
+  onClientChange();
+  
+  showToast(`✓ Client "${clientName}" added successfully`);
 }
 
 /* ════════════════════════════════════════════
