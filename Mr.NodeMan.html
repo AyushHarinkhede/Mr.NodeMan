@@ -406,6 +406,59 @@ select option{background:var(--s)}
   </div>
 </div>
 
+<!-- ══════════════ CLIENT DETAILS VIEW ══════════════ -->
+<div class="view" id="view-client-details">
+  <div class="vhdr">
+    <div class="hdr-left">
+      <div class="super">Mr.NodeMan</div>
+      <div class="hdr-title" id="client-details-name">Client Details</div>
+    </div>
+    <button class="ss-btn" onclick="switchTab('clients')" style="padding:8px 16px;border-radius:11px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:12px;font-weight:700">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><polyline points="15 18 9 12 15 6"/></svg>Back
+    </button>
+  </div>
+  <div class="scroll-area">
+    <!-- Client Summary Card -->
+    <div class="card anim">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div id="client-avatar" style="width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;color:#07070A"></div>
+        <div style="flex:1">
+          <div id="client-name-display" style="font-size:18px;font-weight:800;margin-bottom:4px"></div>
+          <div id="client-stats" style="font-size:12px;color:var(--t2)"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div style="text-align:center;padding:10px;background:var(--s2);border-radius:10px">
+          <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Total Days</div>
+          <div id="total-days" class="mono" style="font-size:16px;font-weight:500;color:var(--t1)">0</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px">
+          <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Collected</div>
+          <div id="total-paid" class="mono" style="font-size:16px;font-weight:500;color:var(--paid)">₹0</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:10px">
+          <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Pending</div>
+          <div id="total-pending" class="mono" style="font-size:16px;font-weight:500;color:var(--pend)">₹0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="card anim">
+      <div class="tabswitch">
+        <button class="tabbtn active" id="tab-all" onclick="setClientDetailsTab('all')">All</button>
+        <button class="tabbtn" id="tab-paid" onclick="setClientDetailsTab('paid')">Paid</button>
+        <button class="tabbtn" id="tab-pending" onclick="setClientDetailsTab('pending')">Pending</button>
+        <button class="tabbtn" id="tab-solo" onclick="setClientDetailsTab('solo')">Solo</button>
+        <button class="tabbtn" id="tab-team" onclick="setClientDetailsTab('team')">Team</button>
+      </div>
+    </div>
+
+    <!-- Entries List -->
+    <div id="client-entries-list"></div>
+  </div>
+</div>
+
 <!-- ══════════════ MORE VIEW ══════════════ -->
 <div class="view" id="view-more">
   <div class="vhdr">
@@ -565,6 +618,79 @@ select option{background:var(--s)}
   </div>
 </div>
 
+<!-- ══════════════ EDIT ENTRY MODAL ══════════════ -->
+<div class="moverlay" id="edit-entry-modal" onclick="overlayClose(event,'edit-entry-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="edit-entry-title">Edit Entry</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Date & Duration -->
+      <div class="fg2">
+        <div class="fgrp">
+          <label class="ss-label">Date</label>
+          <input class="ss-input" type="date" id="edit-f-date" oninput="updateEditSubmitBtn()"/>
+        </div>
+        <div class="fgrp">
+          <label class="ss-label">Duration (hrs)</label>
+          <input class="ss-input" type="number" id="edit-f-dur" placeholder="2.5" step="0.5" min="0.5" oninput="updateEditSubmitBtn()"/>
+        </div>
+      </div>
+
+      <!-- Amount & Description -->
+      <div class="fgrp">
+        <label class="ss-label">Amount (₹)</label>
+        <input class="ss-input" type="number" id="edit-f-amount" placeholder="0" min="0" step="100" oninput="updateEditSubmitBtn()"/>
+      </div>
+
+      <div class="fgrp">
+        <label class="ss-label">Description</label>
+        <input class="ss-input" type="text" id="edit-f-desc" placeholder="e.g. UI redesign sprint" list="edit-desc-dl" autocomplete="off"/>
+        <datalist id="edit-desc-dl"></datalist>
+      </div>
+
+      <!-- Work Type -->
+      <div class="fgrp">
+        <label class="ss-label">Work Type</label>
+        <div class="tgroup">
+          <button class="tbtn t-solo" id="edit-ft-solo" onclick="setEditFormType('solo')">👤 Solo</button>
+          <button class="tbtn" id="edit-ft-team" onclick="setEditFormType('team')">👥 Team</button>
+        </div>
+      </div>
+
+      <!-- Team Members (shown when team selected) -->
+      <div id="edit-team-members-section" style="display:none">
+        <div class="fgrp">
+          <label class="ss-label">Team Members</label>
+          <div class="tm-chips-wrap" id="edit-tm-chips"></div>
+          <div class="tm-input-row">
+            <div style="flex:1;position:relative">
+              <input class="ss-input" type="text" id="edit-tm-input" placeholder="Member name…" list="edit-tm-dl" autocomplete="off"
+                onkeydown="if(event.key==='Enter'){event.preventDefault();addEditTeamMember()}"/>
+              <datalist id="edit-tm-dl"></datalist>
+            </div>
+            <button class="tm-add-btn ss-btn" onclick="addEditTeamMember()">+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Status -->
+      <div class="fgrp">
+        <label class="ss-label">Payment Status</label>
+        <div class="tgroup">
+          <button class="tbtn" id="edit-status-pending" onclick="setEditPaymentStatus('pending')">⌛ Pending</button>
+          <button class="tbtn" id="edit-status-paid" onclick="setEditPaymentStatus('paid')">✓ Paid</button>
+        </div>
+      </div>
+
+      <div id="edit-f-hint" style="font-size:11px;color:var(--t2);text-align:center;display:none">Please fill in required fields</div>
+      <div style="display:flex;gap:10px">
+        <button class="ss-btn" onclick="closeModal('edit-entry-modal')" style="flex:1;padding:14px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:14px;font-weight:700">Cancel</button>
+        <button class="ss-btn" id="edit-f-submit" onclick="submitEditEntry()" style="flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;transition:all .2s">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════ CONFIRM MODAL (with countdown) ══════════════ -->
 <div class="moverlay" id="confirm-modal" onclick="overlayClose(event,'confirm-modal')">
   <div class="msheet">
@@ -686,6 +812,12 @@ let clientFilter = 'all';
 let formType     = 'solo';
 let formTMs      = []; // team members in form
 let currentView  = 'dashboard';
+let currentClient = null; // for client details view
+let clientDetailsTab = 'all'; // for filtering in client details
+let editFormType = 'solo';
+let editFormTMs = []; // team members in edit form
+let editingEntryId = null;
+let editPaymentStatus = 'pending';
 let fbDB         = null;
 let fbConnected  = false;
 let ttTimer;
@@ -1014,7 +1146,7 @@ function renderManagedEntities(){
     body.innerHTML=`<div style="display:flex;flex-direction:column;gap:14px">`+cArr.map(([name,d])=>`
       <div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">
-          <div><div style="font-size:13px;font-weight:700;margin-bottom:2px">${name}</div>
+          <div><div style="font-size:13px;font-weight:700;margin-bottom:2px;cursor:pointer;color:var(--acc)" onclick="openClientDetails('${name.replace(/'/g, "\\'")}')">${name}</div>
                <div style="font-size:10px;color:var(--t2)">${d.count} job${d.count!==1?'s':''}</div></div>
           <div style="text-align:right">
             <div class="mono" style="font-size:14px;font-weight:500">${fmtRs(d.total)}</div>
@@ -1080,6 +1212,284 @@ function renderRecentEntries(){
 }
 
 /* ════════════════════════════════════════════
+   CLIENT DETAILS VIEW FUNCTIONS
+════════════════════════════════════════════ */
+function openClientDetails(clientName){
+  currentClient = clientName;
+  clientDetailsTab = 'all';
+  document.getElementById('client-details-name').textContent = clientName;
+  switchTab('client-details');
+  renderClientDetails();
+}
+
+function setClientDetailsTab(tab){
+  clientDetailsTab = tab;
+  document.querySelectorAll('#view-client-details .tabbtn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  renderClientEntries();
+}
+
+function renderClientDetails(){
+  if(!currentClient) return;
+  
+  const clientEntries = entries.filter(e => e.clientId === currentClient);
+  const totalDays = new Set(clientEntries.map(e => e.date)).size;
+  const totalPaid = clientEntries.filter(e => e.paymentStatus === 'paid').reduce((sum, e) => sum + e.amount, 0);
+  const totalPending = clientEntries.filter(e => e.paymentStatus === 'pending').reduce((sum, e) => sum + e.amount, 0);
+  const totalAmount = totalPaid + totalPending;
+  
+  // Update avatar and name
+  const avatar = document.getElementById('client-avatar');
+  const color = cColor(currentClient);
+  const initials = currentClient.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  avatar.style.background = color;
+  avatar.textContent = initials;
+  
+  document.getElementById('client-name-display').textContent = currentClient;
+  document.getElementById('client-stats').textContent = `${clientEntries.length} job${clientEntries.length !== 1 ? 's' : ''} · ${totalDays} day${totalDays !== 1 ? 's' : ''}`;
+  
+  // Update summary cards
+  document.getElementById('total-days').textContent = totalDays;
+  document.getElementById('total-paid').textContent = fmtRs(totalPaid);
+  document.getElementById('total-pending').textContent = fmtRs(totalPending);
+  
+  renderClientEntries();
+}
+
+function renderClientEntries(){
+  if(!currentClient) return;
+  
+  let clientEntries = entries.filter(e => e.clientId === currentClient);
+  
+  // Apply filters
+  if(clientDetailsTab === 'paid'){
+    clientEntries = clientEntries.filter(e => e.paymentStatus === 'paid');
+  } else if(clientDetailsTab === 'pending'){
+    clientEntries = clientEntries.filter(e => e.paymentStatus === 'pending');
+  } else if(clientDetailsTab === 'solo'){
+    clientEntries = clientEntries.filter(e => e.workType === 'solo');
+  } else if(clientDetailsTab === 'team'){
+    clientEntries = clientEntries.filter(e => e.workType === 'team');
+  }
+  
+  // Sort by date (newest first)
+  clientEntries.sort((a, b) => b.date.localeCompare(a.date));
+  
+  const container = document.getElementById('client-entries-list');
+  
+  if(clientEntries.length === 0){
+    container.innerHTML = `<div style="text-align:center;padding:32px;color:var(--t3);font-size:13px">No entries found for this filter.</div>`;
+    return;
+  }
+  
+  container.innerHTML = clientEntries.map(entry => {
+    const isTeam = entry.workType === 'team';
+    const teamMembersHtml = isTeam && entry.teamMembers && entry.teamMembers.length 
+      ? `<div style="font-size:11px;color:var(--acc);margin-top:4px;padding:8px;background:var(--acc-bg);border-radius:8px;border:1px solid var(--acc-bd)">
+          <div style="font-size:9px;font-weight:700;color:var(--acc);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em">Team Members:</div>
+          ${entry.teamMembers.map(member => `<div style="margin-bottom:2px">• ${member}</div>`).join('')}
+        </div>`
+      : '';
+    
+    return `
+      <div class="card anim" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--t1);margin-bottom:4px">${fmtDate(entry.date)}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span class="mono" style="font-size:16px;font-weight:500;color:var(--t1)">${fmtRs(entry.amount)}</span>
+              <span style="font-size:11px;color:var(--t2)">• ${entry.duration}h</span>
+              <span style="font-size:11px;color:var(--t2)">• ${isTeam ? 'Team' : 'Solo'}</span>
+            </div>
+            ${entry.description ? `<div style="font-size:12px;color:var(--t2);margin-bottom:6px">${entry.description}</div>` : ''}
+            ${teamMembersHtml}
+          </div>
+          <div class="pill ${entry.paymentStatus}" style="flex-shrink:0">
+            ${entry.paymentStatus === 'paid' ? '✓ Paid' : '⌛ Pending'}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="ss-btn" onclick="openEditEntryModal('${entry.id}')" style="flex:1;padding:8px;border-radius:9px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:700">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit
+          </button>
+          <button class="ss-btn" onclick="confirmDeleteEntry('${entry.id}')" style="flex:1;padding:8px;border-radius:9px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.22);color:var(--danger);font-size:11px;font-weight:700">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════
+   EDIT ENTRY MODAL FUNCTIONS
+════════════════════════════════════════════ */
+function openEditEntryModal(entryId){
+  const entry = entries.find(e => e.id === entryId);
+  if(!entry) return;
+  
+  editingEntryId = entryId;
+  editFormTMs = entry.teamMembers ? [...entry.teamMembers] : [];
+  editFormType = entry.workType;
+  editPaymentStatus = entry.paymentStatus;
+  
+  // Populate form fields
+  document.getElementById('edit-f-date').value = entry.date;
+  document.getElementById('edit-f-dur').value = entry.duration;
+  document.getElementById('edit-f-amount').value = entry.amount;
+  document.getElementById('edit-f-desc').value = entry.description || '';
+  
+  // Set work type buttons
+  setEditFormType(entry.workType);
+  
+  // Set payment status buttons
+  setEditPaymentStatus(entry.paymentStatus);
+  
+  // Populate suggestions
+  populateEditSuggestions();
+  
+  updateEditSubmitBtn();
+  openModal('edit-entry-modal');
+}
+
+function setEditFormType(type){
+  editFormType = type;
+  document.getElementById('edit-ft-solo').className = 'tbtn' + (type === 'solo' ? ' t-solo' : '');
+  document.getElementById('edit-ft-team').className = 'tbtn' + (type === 'team' ? ' t-team' : '');
+  const sec = document.getElementById('edit-team-members-section');
+  sec.style.display = (type === 'team') ? '' : 'none';
+  if(type === 'team') populateEditTMDatalist();
+}
+
+function setEditPaymentStatus(status){
+  editPaymentStatus = status;
+  document.getElementById('edit-status-pending').className = 'tbtn' + (status === 'pending' ? ' t-solo' : '');
+  document.getElementById('edit-status-paid').className = 'tbtn' + (status === 'paid' ? ' t-solo' : '');
+}
+
+function populateEditSuggestions(){
+  const descs = [...new Set([...DESCS_DEF, ...getAllDescriptions()])];
+  document.getElementById('edit-desc-dl').innerHTML = descs.map(d => `<option value="${d}">`).join('');
+}
+
+function populateEditTMDatalist(){
+  const all = getAllTMHistory();
+  document.getElementById('edit-tm-dl').innerHTML = all.map(n => `<option value="${n}">`).join('');
+}
+
+function addEditTeamMember(){
+  const inp = document.getElementById('edit-tm-input');
+  const name = inp.value.trim();
+  if(!name) return;
+  if(!editFormTMs.includes(name)) editFormTMs.push(name);
+  inp.value = '';
+  renderEditTMChips();
+}
+
+function removeEditTM(name){
+  editFormTMs = editFormTMs.filter(n => n !== name);
+  renderEditTMChips();
+}
+
+function renderEditTMChips(){
+  const el = document.getElementById('edit-tm-chips');
+  if(!el) return;
+  el.innerHTML = editFormTMs.map(n => `
+    <div class="tm-chip">${n} <span class="tm-chip-x" onclick="removeEditTM('${n.replace(/'/g, "\\'")}')">×</span></div>
+  `).join('');
+}
+
+function updateEditSubmitBtn(){
+  const date = document.getElementById('edit-f-date').value;
+  const amount = document.getElementById('edit-f-amount').value;
+  const duration = document.getElementById('edit-f-dur').value;
+  const valid = !!(date && amount && duration);
+  
+  const btn = document.getElementById('edit-f-submit');
+  const hint = document.getElementById('edit-f-hint');
+  
+  btn.style.background = valid ? 'linear-gradient(135deg,#7C6FED,#5a4dd6)' : 'var(--s2)';
+  btn.style.color = valid ? '#07070A' : 'var(--t2)';
+  btn.style.cursor = valid ? 'pointer' : 'not-allowed';
+  hint.style.display = valid ? 'none' : 'block';
+}
+
+function submitEditEntry(){
+  const date = document.getElementById('edit-f-date').value;
+  const dur = parseFloat(document.getElementById('edit-f-dur').value) || 0;
+  const amount = parseFloat(document.getElementById('edit-f-amount').value) || 0;
+  const desc = document.getElementById('edit-f-desc').value.trim();
+  
+  if(!date || !amount || !dur){
+    showToast('⚠ Please fill in all required fields');
+    return;
+  }
+  
+  const entry = entries.find(e => e.id === editingEntryId);
+  if(!entry) return;
+  
+  // Store old data for undo
+  const oldEntry = {...entry};
+  
+  // Update entry
+  entry.date = date;
+  entry.duration = dur;
+  entry.amount = amount;
+  entry.description = desc;
+  entry.workType = editFormType;
+  entry.teamMembers = editFormType === 'team' ? [...editFormTMs] : [];
+  entry.paymentStatus = editPaymentStatus;
+  
+  // Save for undo
+  lastAction = 'editEntry';
+  lastActionData = {entryId, oldEntry, newEntry: {...entry}};
+  showUndoToast();
+  
+  // Update storage and UI
+  entries.sort((a, b) => b.date.localeCompare(a.date));
+  saveLS();
+  fbUpdateEntry(editingEntryId, entry);
+  closeModal('edit-entry-modal');
+  renderAll();
+  if(currentView === 'client-details') renderClientDetails();
+  showToast('✓ Entry updated successfully');
+}
+
+function confirmDeleteEntry(entryId){
+  const entry = entries.find(e => e.id === entryId);
+  if(!entry) return;
+  
+  showConfirm({
+    title: 'Delete Entry?',
+    body: `You're about to delete the entry for <strong style="color:var(--t1)">${entry.clientId}</strong> on <strong style="color:var(--t1)">${fmtDate(entry.date)}</strong> worth <strong style="color:var(--danger)">${fmtRs(entry.amount)}</strong>.<br><br>Please wait 10 seconds to prevent accidental deletion.`,
+    countdown: true,
+    okStyle: 'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
+    okText: '🗑 Delete Entry',
+    fn: () => deleteEntry(entryId)
+  });
+}
+
+function deleteEntry(entryId){
+  const entryIndex = entries.findIndex(e => e.id === entryId);
+  if(entryIndex === -1) return;
+  
+  const deletedEntry = entries[entryIndex];
+  
+  // Save for undo
+  lastAction = 'deleteEntry';
+  lastActionData = {entry: deletedEntry};
+  showUndoToast();
+  
+  // Remove entry
+  entries.splice(entryIndex, 1);
+  saveLS();
+  if(fbDB) fbDeleteEntry(entryId);
+  renderAll();
+  if(currentView === 'client-details') renderClientDetails();
+  showToast('🗑 Entry deleted successfully');
+}
+
+/* ════════════════════════════════════════════
    RENDER: CLIENTS VIEW
 ════════════════════════════════════════════ */
 let _clientFilter='all';
@@ -1100,7 +1510,7 @@ function renderClientsView(){
   el.innerHTML=arr.map(([name,d])=>{
     const col=cColor(name), init=name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
     const pct=d.total>0?Math.round(d.paid/d.total*100):0;
-    return `<div class="cfl-row">
+    return `<div class="cfl-row" onclick="openClientDetails('${name.replace(/'/g, "\\'")}')" style="cursor:pointer">
       <div class="cfl-avatar" style="background:${col}">${init}</div>
       <div class="cfl-info">
         <div class="cfl-name">${name}</div>
@@ -1735,8 +2145,31 @@ function performUndo(){
         e.paymentStatus = lastActionData.oldStatus;
         saveLS(); fbUpdateEntry(lastActionData.id,{paymentStatus:lastActionData.oldStatus});
         renderAll();
+        if(currentView === 'client-details') renderClientDetails();
         showToast('↶ Status change undone');
       }
+      break;
+      
+    case 'editEntry':
+      const editedEntry = entries.find(x=>x.id===lastActionData.entryId);
+      if(editedEntry){
+        Object.assign(editedEntry, lastActionData.oldEntry);
+        saveLS();
+        if(fbDB) fbUpdateEntry(lastActionData.entryId, lastActionData.oldEntry);
+        renderAll();
+        if(currentView === 'client-details') renderClientDetails();
+        showToast('↶ Entry edit undone');
+      }
+      break;
+      
+    case 'deleteEntry':
+      entries.push(lastActionData.entry);
+      entries.sort((a, b) => b.date.localeCompare(a.date));
+      saveLS();
+      if(fbDB) fbSaveEntry(lastActionData.entry);
+      renderAll();
+      if(currentView === 'client-details') renderClientDetails();
+      showToast('↶ Entry deletion undone');
       break;
       
     case 'clearData':
@@ -1816,6 +2249,7 @@ function renderAll(){
   if(currentView==='clients') renderClientsView();
   if(currentView==='stats')   renderStatsView();
   if(currentView==='more')    renderMoreView();
+  if(currentView==='client-details') renderClientDetails();
 }
 
 /* ════════════════════════════════════════════
