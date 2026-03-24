@@ -3326,28 +3326,22 @@ function handleSystemBack() {
     return true; // Prevent default back
   }
   
-  // Check if we're in a special view that needs back handling
-  if (currentView === 'clients' || currentView === 'stats' || currentView === 'more') {
-    // Go back to dashboard
-    switchTab('dashboard');
-    return true; // Prevent default back
-  }
-  
   // Check if we're in client details view
-  if (document.querySelector('.view.active #client-details-content')) {
+  if (currentView === 'client-details') {
     // Close client details and go back to clients
     closeClientDetails();
     return true; // Prevent default back
   }
   
-  // Check if we're in entry modal
-  if (document.querySelector('#entry-modal.open')) {
-    closeModal('entry-modal');
+  // Check if we're in any special view (clients, stats, more)
+  if (currentView === 'clients' || currentView === 'stats' || currentView === 'more') {
+    // Go back to dashboard/home
+    switchTab('dashboard');
     return true; // Prevent default back
   }
   
-  // If we're on dashboard and there's no more history, show exit confirmation
-  if (currentView === 'dashboard' && navigationHistory.length === 0) {
+  // If we're on dashboard/home, show exit confirmation
+  if (currentView === 'dashboard') {
     showExitConfirmation();
     return true; // Prevent default back
   }
