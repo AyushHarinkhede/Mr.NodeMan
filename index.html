@@ -2618,14 +2618,14 @@ function showConfirm({title,body,countdown,okStyle,okText,fn}){
   if(countdown){
     cdSec.style.display='';
     okBtn.disabled=true;
-    okBtn.textContent='Confirm (10s)';
+    okBtn.innerHTML='Confirm (10s)';
     okBtn.style.opacity='.4';
     okBtn.style.cursor='not-allowed';
     startCountdown(okBtn,okText);
   } else {
     cdSec.style.display='none';
     okBtn.disabled=false;
-    okBtn.textContent=okText;
+    okBtn.innerHTML=okText;
     okBtn.style.opacity='1';
     okBtn.style.cursor='pointer';
   }
@@ -2676,7 +2676,7 @@ function startCountdown(btn,finalText){
     if(cdVal<=0){
       clearInterval(cdInterval);
       btn.disabled=false;
-      btn.textContent=finalText;
+      btn.innerHTML=finalText;
       btn.style.opacity='1';
       btn.style.cursor='pointer';
       document.getElementById('cd-label').textContent='Confirm button is now active.';
