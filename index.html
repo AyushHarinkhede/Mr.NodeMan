@@ -2929,85 +2929,130 @@ class SoundManager {
   constructor() {
     this.audioContext = null;
     this.enabled = true;
+    this.masterGainNode = null;
     this.initAudioContext();
+    this.preloadSounds();
   }
 
   initAudioContext() {
     try {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.masterGainNode = this.audioContext.createGain();
+      this.masterGainNode.connect(this.audioContext.destination);
+      this.masterGainNode.gain.value = 0.3; // Lower volume for better quality
+      
+      // Resume context on user interaction
+      if (this.audioContext.state === 'suspended') {
+        this.resumeContext();
+      }
     } catch (e) {
       console.log('Audio not supported:', e);
       this.enabled = false;
     }
   }
 
-  playSound(type) {
-    if (!this.enabled || !this.audioContext) return;
-
-    const oscillator = this.audioContext.createOscillator();
-    const gainNode = this.audioContext.createGain();
+  resumeContext() {
+    const resumeAudio = () => {
+      if (this.audioContext && this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+    };
     
-    oscillator.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
+    // Resume on first user interaction
+    document.addEventListener('click', resumeAudio, { once: true });
+    document.addEventListener('touchstart', resumeAudio, { once: true });
+  }
 
-    const currentTime = this.audioContext.currentTime;
+  preloadSounds() {
+    // Create a silent buffer to warm up the audio system
+    if (this.audioContext) {
+      const silentBuffer = this.audioContext.createBuffer(1, 1, this.audioContext.sampleRate);
+      const silentSource = this.audioContext.createBufferSource();
+      silentSource.buffer = silentBuffer;
+      silentSource.connect(this.masterGainNode);
+      silentSource.start(0);
+    }
+  }
 
-    switch(type) {
-      case 'tap':
-        oscillator.frequency.setValueAtTime(800, currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.1);
-        gainNode.gain.setValueAtTime(0.1, currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
-        oscillator.start(currentTime);
-        oscillator.stop(currentTime + 0.1);
-        break;
-        
-      case 'success':
-        oscillator.frequency.setValueAtTime(523.25, currentTime); // C5
-        oscillator.frequency.setValueAtTime(659.25, currentTime + 0.1); // E5
-        oscillator.frequency.setValueAtTime(783.99, currentTime + 0.2); // G5
-        gainNode.gain.setValueAtTime(0.1, currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
-        oscillator.start(currentTime);
-        oscillator.stop(currentTime + 0.3);
-        break;
-        
-      case 'error':
-        oscillator.frequency.setValueAtTime(300, currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.2);
-        gainNode.gain.setValueAtTime(0.1, currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.2);
-        oscillator.start(currentTime);
-        oscillator.stop(currentTime + 0.2);
-        break;
-        
-      case 'navigation':
-        oscillator.frequency.setValueAtTime(440, currentTime); // A4
-        gainNode.gain.setValueAtTime(0.05, currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
-        oscillator.start(currentTime);
-        oscillator.stop(currentTime + 0.05);
-        break;
-        
-      case 'modal':
-        oscillator.frequency.setValueAtTime(600, currentTime);
-        gainNode.gain.setValueAtTime(0.08, currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
-        oscillator.start(currentTime);
-        oscillator.stop(currentTime + 0.15);
-        break;
-        
-      case 'delete':
-        oscillator.frequency.setValueAtTime(200, currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.3);
-        gainNode.gain.setValueAtTime(0.1, currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
-        oscillator.start(currentTime);
-        oscillator.stop(currentTime + 0.3);
-        break;
+  playSound(type) {
+    if (!this.enabled || !this.audioContext || this.audioContext.state !== 'running') {
+      return;
     }
 
-    this.showSoundIndicator();
+    try {
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(this.masterGainNode);
+
+      const currentTime = this.audioContext.currentTime;
+
+      switch(type) {
+        case 'tap':
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(1200, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(800, currentTime + 0.05);
+          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.05);
+          break;
+          
+        case 'success':
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(659.25, currentTime); // E5
+          oscillator.frequency.setValueAtTime(783.99, currentTime + 0.1); // G5
+          oscillator.frequency.setValueAtTime(987.77, currentTime + 0.2); // B5
+          gainNode.gain.setValueAtTime(0.25, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.3);
+          break;
+          
+        case 'error':
+          oscillator.type = 'sawtooth';
+          oscillator.frequency.setValueAtTime(400, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.15);
+          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.15);
+          break;
+          
+        case 'navigation':
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(600, currentTime); 
+          gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.03);
+          break;
+          
+        case 'modal':
+          oscillator.type = 'triangle';
+          oscillator.frequency.setValueAtTime(800, currentTime);
+          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.1);
+          break;
+          
+        case 'delete':
+          oscillator.type = 'sawtooth';
+          oscillator.frequency.setValueAtTime(300, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(150, currentTime + 0.2);
+          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.2);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.2);
+          break;
+      }
+
+      this.showSoundIndicator();
+    } catch (error) {
+      console.log('Sound play error:', error);
+    }
   }
 
   showSoundIndicator() {
@@ -3019,12 +3064,27 @@ class SoundManager {
 class HapticManager {
   constructor() {
     this.enabled = true;
+    this.vibrationSupported = false;
+    this.gamepadSupported = false;
     this.checkHapticSupport();
+    this.initializeHaptic();
   }
 
   checkHapticSupport() {
-    this.vibrateSupported = 'vibrate' in navigator;
+    this.vibrationSupported = 'vibrate' in navigator;
     this.gamepadSupported = 'getGamepads' in navigator;
+  }
+
+  initializeHaptic() {
+    // Test vibration capability on first user interaction
+    const testHaptic = () => {
+      if (this.vibrationSupported) {
+        navigator.vibrate(1); // Minimal test vibration
+      }
+    };
+    
+    document.addEventListener('click', testHaptic, { once: true });
+    document.addEventListener('touchstart', testHaptic, { once: true });
   }
 
   triggerHaptic(type) {
@@ -3032,60 +3092,79 @@ class HapticManager {
 
     this.showHapticIndicator();
 
-    // Vibration API (most common)
-    if (this.vibrateSupported) {
-      switch(type) {
-        case 'light':
-          navigator.vibrate(10);
-          break;
-        case 'medium':
-          navigator.vibrate(25);
-          break;
-        case 'strong':
-          navigator.vibrate(50);
-          break;
-        case 'double':
-          navigator.vibrate([15, 50, 15]);
-          break;
-        case 'success':
-          navigator.vibrate([20, 30, 20, 30, 20]);
-          break;
-        case 'error':
-          navigator.vibrate([100, 50, 100]);
-          break;
-        case 'navigation':
-          navigator.vibrate(15);
-          break;
-        default:
-          navigator.vibrate(20);
+    // Enhanced Vibration API patterns
+    if (this.vibrationSupported) {
+      try {
+        switch(type) {
+          case 'light':
+            navigator.vibrate(5);
+            break;
+          case 'medium':
+            navigator.vibrate(15);
+            break;
+          case 'strong':
+            navigator.vibrate(30);
+            break;
+          case 'double':
+            navigator.vibrate([10, 30, 10]);
+            break;
+          case 'success':
+            navigator.vibrate([15, 20, 15, 20, 15]);
+            break;
+          case 'error':
+            navigator.vibrate([80, 40, 80]);
+            break;
+          case 'navigation':
+            navigator.vibrate(8);
+            break;
+          case 'tap':
+            navigator.vibrate(3);
+            break;
+          default:
+            navigator.vibrate(12);
+        }
+      } catch (error) {
+        console.log('Vibration error:', error);
       }
     }
 
-    // Gamepad API for devices with rumble
+    // Enhanced Gamepad API support
     if (this.gamepadSupported) {
       this.triggerGamepadRumble(type);
     }
   }
 
   triggerGamepadRumble(type) {
-    const gamepads = navigator.getGamepads();
-    gamepads.forEach(gamepad => {
-      if (gamepad && gamepad.vibrationActuator) {
-        switch(type) {
-          case 'light':
-            gamepad.vibrationActuator.pulse(0.2, 100);
-            break;
-          case 'medium':
-            gamepad.vibrationActuator.pulse(0.5, 200);
-            break;
-          case 'strong':
-            gamepad.vibrationActuator.pulse(0.8, 300);
-            break;
-          default:
-            gamepad.vibrationActuator.pulse(0.3, 150);
+    try {
+      const gamepads = navigator.getGamepads();
+      gamepads.forEach(gamepad => {
+        if (gamepad && gamepad.vibrationActuator) {
+          switch(type) {
+            case 'light':
+              gamepad.vibrationActuator.pulse(0.15, 80);
+              break;
+            case 'medium':
+              gamepad.vibrationActuator.pulse(0.4, 150);
+              break;
+            case 'strong':
+              gamepad.vibrationActuator.pulse(0.7, 250);
+              break;
+            case 'double':
+              gamepad.vibrationActuator.pulse(0.3, 100);
+              setTimeout(() => {
+                if (gamepad.vibrationActuator) {
+                  gamepad.vibrationActuator.pulse(0.3, 100);
+                }
+              }, 150);
+              break;
+            default:
+              gamepad.vibrationActuator.pulse(0.25, 120);
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.log('Gamepad rumble error:', error);
+    }
   }
 
   showHapticIndicator() {
@@ -3110,6 +3189,24 @@ function playSoundAndHaptic(soundType, hapticType) {
   playSound(soundType);
   triggerHaptic(hapticType);
 }
+
+// Immediate touch response system
+function setupImmediateFeedback() {
+  document.addEventListener('touchstart', (e) => {
+    if (e.target.closest('.ss-btn, .nitem, .fab, .pill, .tm-add-btn, .reuse-btn')) {
+      playSoundAndHaptic('tap', 'tap');
+    }
+  }, { passive: true });
+
+  document.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.ss-btn, .nitem, .fab, .pill, .tm-add-btn, .reuse-btn')) {
+      playSoundAndHaptic('tap', 'tap');
+    }
+  });
+}
+
+// Initialize immediate feedback
+setupImmediateFeedback();
 
 /* ════════════════════════════════════════════
    SMOOTH ANIMATION HELPERS
