@@ -8,6 +8,237 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ════════════════════════════════════════════════
+   SMOOTH ANIMATIONS
+════════════════════════════════════════════════ */
+/* Global animation settings */
+* {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth page transitions */
+.view {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view.active {
+  animation: viewSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes viewSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card animations */
+.card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Button animations */
+.ss-btn, .nitem, .fchip, .mhandle {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ss-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ss-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Navigation animations */
+.nitem {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nitem.active {
+  animation: navPulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes navPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Modal animations */
+.moverlay {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.msheet {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.moverlay.show .msheet {
+  animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Input animations */
+input, select, textarea {
+  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+input:focus, select:focus, textarea:focus {
+  animation: inputFocus 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes inputFocus {
+  0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Staggered animations for lists */
+.anim:nth-child(1) { animation-delay: 0.05s; }
+.anim:nth-child(2) { animation-delay: 0.1s; }
+.anim:nth-child(3) { animation-delay: 0.15s; }
+.anim:nth-child(4) { animation-delay: 0.2s; }
+.anim:nth-child(5) { animation-delay: 0.25s; }
+.anim:nth-child(6) { animation-delay: 0.3s; }
+.anim:nth-child(7) { animation-delay: 0.35s; }
+.anim:nth-child(8) { animation-delay: 0.4s; }
+
+/* Loading animations */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Smooth scroll behavior */
+.scroll-area {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Toast animations */
+#toast {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#toast.show {
+  animation: toastSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Tooltip animations */
+#tooltip {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+/* Sync dot animations */
+.sync-dot {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sync-dot.live {
+  animation: syncPulse 2s infinite;
+}
+
+@keyframes syncPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Fab button animations */
+.fab {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fab:hover {
+  transform: rotate(90deg) scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.fab:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+/* Heatmap cell animations */
+.hm-cell {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hm-cell:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+/* Entry item animations */
+.entry-item, .client-item {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.entry-item:hover, .client-item:hover {
+  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Smooth color transitions */
+:root {
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Performance optimizations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* ════════════════════════════════════════════════
    TEXT PROTECTION
 ════════════════════════════════════════════════ */ 
 body{
@@ -75,6 +306,13 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 .view.active{display:flex}
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px;padding-bottom:calc(var(--nav-h) + 28px)}
 .scroll-area::-webkit-scrollbar{display:none}
+
+/* Apply GPU acceleration to key elements */
+.card, .ss-btn, .nitem, .moverlay, .msheet, .hm-cell, .entry-item, .client-item {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
 
 /* ════════════════════════════════════════════════
    HEADER
@@ -2653,7 +2891,65 @@ function seedSampleData(){
 }
 
 /* ════════════════════════════════════════════
-   INIT
+   SMOOTH ANIMATION HELPERS
+════════════════════════════════════════════ */
+function animateElement(element, keyframes, options = {}) {
+  const defaultOptions = {
+    duration: 300,
+    easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    fill: 'forwards'
+  };
+  
+  return element.animate(keyframes, { ...defaultOptions, ...options });
+}
+
+function smoothShow(element) {
+  element.style.display = '';
+  return animateElement(element, [
+    { opacity: 0, transform: 'translateY(20px)' },
+    { opacity: 1, transform: 'translateY(0)' }
+  ]);
+}
+
+function smoothHide(element) {
+  return animateElement(element, [
+    { opacity: 1, transform: 'translateY(0)' },
+    { opacity: 0, transform: 'translateY(20px)' }
+  ]).onfinish = () => {
+    element.style.display = 'none';
+  };
+}
+
+function staggeredAnimation(elements, staggerDelay = 100) {
+  return elements.map((element, index) => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        smoothShow(element).onfinish = resolve;
+      }, index * staggerDelay);
+    });
+  });
+}
+
+function pulseAnimation(element) {
+  return animateElement(element, [
+    { transform: 'scale(1)' },
+    { transform: 'scale(1.05)' },
+    { transform: 'scale(1)' }
+  ], { duration: 400 });
+}
+
+function shakeAnimation(element) {
+  return animateElement(element, [
+    { transform: 'translateX(0)' },
+    { transform: 'translateX(-5px)' },
+    { transform: 'translateX(5px)' },
+    { transform: 'translateX(-5px)' },
+    { transform: 'translateX(0)' }
+  ], { duration: 300 });
+}
+
+/* ════════════════════════════════════════════
+   INIT & RENDER
 ════════════════════════════════════════════ */
 // Clear potentially corrupted localStorage on first load with new clients
 const currentClients = ['Raisoni Polythechnic College','Raisoni Business Managment College','Raisoni Sadar ','YCCE College','Vainganga College','CP Berar College', 'PW Vidyapeeth'];
