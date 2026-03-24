@@ -2397,7 +2397,7 @@ function onClientChange(){
 
 function quickAddClient(){
   // Open the add client modal instead of using system prompt
-  openModal('add-client-modal');
+  openModal('client-modal');
   
   // Focus on the name input field
   setTimeout(() => {
@@ -2527,9 +2527,6 @@ function submitEntry(){
 ════════════════════════════════════════════ */
 function submitAddClient(){
   const name=document.getElementById('nc-name').value.trim();
-  const ind=document.getElementById('nc-ind').value.trim();
-  const rate=document.getElementById('nc-rate').value.trim();
-  
   if(!name){showToast('⚠ Enter a client name');return;}
   if(CLIENTS.includes(name)){showToast('Client already exists');return;}
   CLIENTS.push(name); cColor(name);
@@ -2540,20 +2537,11 @@ function submitAddClient(){
   showUndoToast();
   
   saveLS(); fbSaveClients();
-  closeModal('add-client-modal');  // Fixed: was 'client-modal'
+  closeModal('client-modal');
   document.getElementById('nc-name').value='';
   document.getElementById('nc-ind').value='';
   document.getElementById('nc-rate').value='';
   renderAll(); 
-  
-  // Update the entry modal dropdown to include new client
-  const select = document.getElementById('f-client');
-  const option = document.createElement('option');
-  option.value = name;
-  option.textContent = name;
-  option.selected = true;
-  select.appendChild(option);
-  
   showToast(`✓ ${name} added`);
   playSoundAndHaptic('success', 'success');
 }
