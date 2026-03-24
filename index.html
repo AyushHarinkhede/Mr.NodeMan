@@ -1962,7 +1962,8 @@ function updateEditSubmitBtn(){
   const date = document.getElementById('edit-f-date').value;
   const amount = document.getElementById('edit-f-amount').value;
   const duration = document.getElementById('edit-f-dur').value;
-  const valid = !!(date && amount && duration);
+  // Only date is required, amount and duration are optional
+  const valid = !!(date);
   
   const btn = document.getElementById('edit-f-submit');
   const hint = document.getElementById('edit-f-hint');
@@ -1980,8 +1981,9 @@ function submitEditEntry(){
   const advance = parseFloat(document.getElementById('edit-f-advance').value) || 0;
   const desc = document.getElementById('edit-f-desc').value.trim();
   
-  if(!date || !amount || !dur){
-    showToast('⚠ Please fill in all required fields');
+  // Only date is required
+  if(!date){
+    showToast('⚠ Please select a date');
     return;
   }
   
@@ -1991,10 +1993,10 @@ function submitEditEntry(){
   // Store old data for undo
   const oldEntry = {...entry};
   
-  // Update entry
+  // Update entry with new values (keep existing values if not provided)
   entry.date = date;
-  entry.duration = dur;
-  entry.amount = amount;
+  entry.duration = dur || entry.duration; // Keep existing duration if not provided
+  entry.amount = amount || entry.amount; // Keep existing amount if not provided
   entry.advance = advance;
   entry.description = desc;
   entry.workType = editFormType;
@@ -2006,14 +2008,23 @@ function submitEditEntry(){
   lastActionData = {entryId, oldEntry, newEntry: {...entry}};
   showUndoToast();
   
-  // Update storage and UI
+  // Update storage and UI immediately
   entries.sort((a, b) => b.date.localeCompare(a.date));
   saveLS();
-  fbUpdateEntry(editingEntryId, entry);
+  
+  // Update Firebase asynchronously (non-blocking)
+  if(fbDB) {
+    fbUpdateEntry(editingEntryId, entry);
+  }
+  
+  // Close modal and update UI immediately
   closeModal('edit-entry-modal');
   renderAll();
   if(currentView === 'client-details') renderClientDetails();
-  showToast('✓ Entry updated successfully');
+  
+  // Show success message immediately
+  showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"></polyline></svg>Entry updated successfully');
+  playSoundAndHaptic('success', 'success');
 }
 
 function confirmDeleteEntry(entryId){
