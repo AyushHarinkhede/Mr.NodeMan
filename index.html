@@ -1720,7 +1720,7 @@ function renderManagedEntities(){
              <div style="font-size:10px;color:var(--t2)">${fmtShort(e.date)}</div></div>
         <div class="mono" style="font-size:13px;font-weight:500">${fmtRs(e.amount)}</div>
         <div class="pill ${e.paymentStatus}" onclick="handlePillClick('${e.id}')" title="Tap to change status">
-          ${e.paymentStatus==='paid'?'✓ Paid':'⌛ Pend'}
+          ${e.paymentStatus==='paid'?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="20 6 9 17 4 12"></polyline></svg>Paid':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Pend'}
         </div>
       </div>`).join('');
   }
@@ -1863,7 +1863,7 @@ function renderClientEntries(){
             ${teamMembersHtml}
           </div>
           <div class="pill ${entry.paymentStatus}" style="flex-shrink:0;cursor:pointer" onclick="handlePillClickInClientDetails('${entry.id}')" title="Tap to change status">
-            ${entry.paymentStatus === 'paid' ? '✓ Paid' : '⌛ Pending'}
+            ${entry.paymentStatus === 'paid' ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><polyline points="20 6 9 17 4 12"></polyline></svg>Paid' : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>Pending'}
           </div>
         </div>
         <div style="display:flex;gap:8px">
@@ -2025,7 +2025,7 @@ function confirmDeleteEntry(entryId){
     body: `You're about to delete the entry for <strong style="color:var(--t1)">${entry.clientId}</strong> on <strong style="color:var(--t1)">${fmtDate(entry.date)}</strong> worth <strong style="color:var(--danger)">${fmtRs(entry.amount)}</strong>.<br><br>Please wait 10 seconds to prevent accidental deletion.`,
     countdown: true,
     okStyle: 'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
-    okText: '🗑 Delete Entry',
+    okText: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete Entry',
     fn: () => deleteEntry(entryId)
   });
 }
@@ -2047,7 +2047,7 @@ function deleteEntry(entryId){
   if(fbDB) fbDeleteEntry(entryId);
   renderAll();
   if(currentView === 'client-details') renderClientDetails();
-  showToast('🗑 Entry deleted successfully');
+  showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Entry deleted successfully');
 }
 
 function handlePillClickInClientDetails(entryId){
@@ -2060,7 +2060,7 @@ function handlePillClickInClientDetails(entryId){
       body: `Mark <strong style="color:var(--t1)">${e.clientId}</strong>'s entry of <strong style="color:var(--paid)">${fmtRs(e.amount)}</strong> as <strong style="color:var(--paid)">Paid</strong>?`,
       countdown: false,
       okStyle: 'background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid)',
-      okText: '✓ Mark as Paid',
+      okText: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"></polyline></svg>Mark as Paid',
       fn: ()=>{ setStatusInClientDetails(entryId,'paid'); }
     });
   } else {
@@ -2568,7 +2568,7 @@ function handlePillClick(id){
       body: `Mark <strong style="color:var(--t1)">${e.clientId}</strong>'s entry of <strong style="color:var(--paid)">${fmtRs(e.amount)}</strong> as <strong style="color:var(--paid)">Paid</strong>?`,
       countdown: false,
       okStyle: 'background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid)',
-      okText: '✓ Mark as Paid',
+      okText: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="20 6 9 17 4 12"></polyline></svg>Mark as Paid',
       fn: ()=>{ setStatus(id,'paid'); }
     });
   } else {
@@ -2727,7 +2727,7 @@ function confirmClearData(){
     body:'This will permanently delete all work entries and cannot be undone.<br><br>Please wait 10 seconds to prevent accidental changes.',
     countdown:true,
     okStyle:'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
-    okText:'🗑 Delete All',
+    okText: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete All',
     fn:()=>{
       // Save for undo
       lastAction = 'clearData';
@@ -2736,7 +2736,7 @@ function confirmClearData(){
       
       if(fbDB) fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries').remove();
       entries=[]; nextId=Date.now(); saveLS(); renderAll(); 
-      showToast('🗑 All data cleared');
+      showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>All data cleared');
     }
   });
 }
