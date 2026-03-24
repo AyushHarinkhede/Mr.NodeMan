@@ -608,7 +608,7 @@ select option{background:var(--s)}
     <div style="margin-bottom:14px">
       <!-- Add Client button section -->
       <div style="display:flex;justify-content:flex-start;margin-bottom:12px">
-        <button class="ss-btn" onclick="openModal('client-modal')" style="padding:10px 18px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:700;white-space:nowrap;min-width:fit-content">
+        <button class="ss-btn" onclick="openModal('client-modal'); triggerHaptic('light')" style="padding:10px 18px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:700;white-space:nowrap;min-width:fit-content">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client
         </button>
       </div>
@@ -769,7 +769,7 @@ select option{background:var(--s)}
     <div style="background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px" class="anim">
       <div style="flex:1"><div style="font-size:11px;color:var(--t2);margin-bottom:3px">Workspace ID</div>
         <div class="mono" id="ws-id-label" style="font-size:11px;color:var(--t1);word-break:break-all"></div></div>
-      <button class="ss-btn" onclick="copyWsId()" style="padding:7px 12px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-size:11px;font-weight:700">Copy</button>
+      <button class="ss-btn" onclick="copyWsId(); triggerHaptic('light')" style="padding:7px 12px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-size:11px;font-weight:700">Copy</button>
     </div>
     <!-- Actions -->
     <div class="anim" id="more-actions"></div>
@@ -788,7 +788,7 @@ select option{background:var(--s)}
     <div class="nlbl">Clients</div>
   </div>
   <div style="flex:1;display:flex;justify-content:center">
-    <button class="ss-btn fab" onclick="openEntryModal(null)" aria-label="Add entry">+</button>
+    <button class="ss-btn fab" onclick="openEntryModal(null); triggerHaptic('medium')" aria-label="Add entry">+</button>
   </div>
   <div class="nitem" id="nav-stats" onclick="switchTab('stats')">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -2224,7 +2224,7 @@ function renderMoreView(){
       <div class="mchev">›</div>
     </div>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)"/>
-    <div class="more-row" onclick="openModal('client-modal')">
+    <div class="more-row" onclick="openModal('client-modal'); triggerHaptic('light')">
       <div class="micon" style="background:var(--acc-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg></div>
       <div><div class="mico-label">Add New Client</div><div class="mico-sub">Register a new client</div></div>
       <div class="mchev">›</div>
@@ -2929,21 +2929,22 @@ class SoundManager {
   constructor() {
     this.audioContext = null;
     this.enabled = true;
-    this.masterGainNode = null;
+    this.isInitialized = false;
     this.initAudioContext();
-    this.preloadSounds();
   }
 
   initAudioContext() {
     try {
+      // Create audio context immediately
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      this.masterGainNode = this.audioContext.createGain();
-      this.masterGainNode.connect(this.audioContext.destination);
-      this.masterGainNode.gain.value = 0.3; // Lower volume for better quality
       
-      // Resume context on user interaction
+      // Resume context if suspended (common in mobile browsers)
       if (this.audioContext.state === 'suspended') {
-        this.resumeContext();
+        this.audioContext.resume().then(() => {
+          this.isInitialized = true;
+        });
+      } else {
+        this.isInitialized = true;
       }
     } catch (e) {
       console.log('Audio not supported:', e);
@@ -2951,107 +2952,87 @@ class SoundManager {
     }
   }
 
-  resumeContext() {
-    const resumeAudio = () => {
-      if (this.audioContext && this.audioContext.state === 'suspended') {
-        this.audioContext.resume();
+  ensureAudioContext() {
+    if (!this.isInitialized && this.audioContext) {
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume().then(() => {
+          this.isInitialized = true;
+        });
       }
-    };
-    
-    // Resume on first user interaction
-    document.addEventListener('click', resumeAudio, { once: true });
-    document.addEventListener('touchstart', resumeAudio, { once: true });
-  }
-
-  preloadSounds() {
-    // Create a silent buffer to warm up the audio system
-    if (this.audioContext) {
-      const silentBuffer = this.audioContext.createBuffer(1, 1, this.audioContext.sampleRate);
-      const silentSource = this.audioContext.createBufferSource();
-      silentSource.buffer = silentBuffer;
-      silentSource.connect(this.masterGainNode);
-      silentSource.start(0);
     }
   }
 
   playSound(type) {
-    if (!this.enabled || !this.audioContext || this.audioContext.state !== 'running') {
-      return;
-    }
-
+    if (!this.enabled || !this.audioContext) return;
+    
+    this.ensureAudioContext();
+    
+    // Use a simpler, more reliable approach
     try {
       const oscillator = this.audioContext.createOscillator();
       const gainNode = this.audioContext.createGain();
       
       oscillator.connect(gainNode);
-      gainNode.connect(this.masterGainNode);
+      gainNode.connect(this.audioContext.destination);
 
       const currentTime = this.audioContext.currentTime;
 
       switch(type) {
         case 'tap':
-          oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(1200, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(800, currentTime + 0.05);
-          gainNode.gain.setValueAtTime(0.2, currentTime);
+          oscillator.frequency.setValueAtTime(800, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.05);
+          gainNode.gain.setValueAtTime(0.1, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.05);
           break;
           
         case 'success':
-          oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(659.25, currentTime); // E5
-          oscillator.frequency.setValueAtTime(783.99, currentTime + 0.1); // G5
-          oscillator.frequency.setValueAtTime(987.77, currentTime + 0.2); // B5
-          gainNode.gain.setValueAtTime(0.25, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.3);
-          break;
-          
-        case 'error':
-          oscillator.type = 'sawtooth';
-          oscillator.frequency.setValueAtTime(400, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.15);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
+          oscillator.frequency.setValueAtTime(523.25, currentTime);
+          oscillator.frequency.setValueAtTime(659.25, currentTime + 0.05);
+          oscillator.frequency.setValueAtTime(783.99, currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.1, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.15);
           break;
           
-        case 'navigation':
-          oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(600, currentTime); 
+        case 'error':
+          oscillator.frequency.setValueAtTime(300, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.1);
           gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.1);
+          break;
+          
+        case 'navigation':
+          oscillator.frequency.setValueAtTime(440, currentTime);
+          gainNode.gain.setValueAtTime(0.05, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.03);
           break;
           
         case 'modal':
-          oscillator.type = 'triangle';
-          oscillator.frequency.setValueAtTime(800, currentTime);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+          oscillator.frequency.setValueAtTime(600, currentTime);
+          gainNode.gain.setValueAtTime(0.08, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
           oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.1);
+          oscillator.stop(currentTime + 0.08);
           break;
           
         case 'delete':
-          oscillator.type = 'sawtooth';
-          oscillator.frequency.setValueAtTime(300, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(150, currentTime + 0.2);
-          gainNode.gain.setValueAtTime(0.2, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.2);
+          oscillator.frequency.setValueAtTime(200, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.15);
+          gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
           oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.2);
+          oscillator.stop(currentTime + 0.15);
           break;
       }
-
-      this.showSoundIndicator();
-    } catch (error) {
-      console.log('Sound play error:', error);
+    } catch (e) {
+      console.log('Sound play error:', e);
     }
   }
 
@@ -3064,73 +3045,53 @@ class SoundManager {
 class HapticManager {
   constructor() {
     this.enabled = true;
-    this.vibrationSupported = false;
-    this.gamepadSupported = false;
     this.checkHapticSupport();
-    this.initializeHaptic();
   }
 
   checkHapticSupport() {
-    this.vibrationSupported = 'vibrate' in navigator;
+    this.vibrateSupported = 'vibrate' in navigator;
     this.gamepadSupported = 'getGamepads' in navigator;
-  }
-
-  initializeHaptic() {
-    // Test vibration capability on first user interaction
-    const testHaptic = () => {
-      if (this.vibrationSupported) {
-        navigator.vibrate(1); // Minimal test vibration
-      }
-    };
-    
-    document.addEventListener('click', testHaptic, { once: true });
-    document.addEventListener('touchstart', testHaptic, { once: true });
   }
 
   triggerHaptic(type) {
     if (!this.enabled) return;
 
-    this.showHapticIndicator();
-
-    // Enhanced Vibration API patterns
-    if (this.vibrationSupported) {
-      try {
+    try {
+      // Vibration API (most common)
+      if (this.vibrateSupported) {
         switch(type) {
           case 'light':
-            navigator.vibrate(5);
+            navigator.vibrate(10);
             break;
           case 'medium':
-            navigator.vibrate(15);
+            navigator.vibrate(25);
             break;
           case 'strong':
-            navigator.vibrate(30);
+            navigator.vibrate(50);
             break;
           case 'double':
-            navigator.vibrate([10, 30, 10]);
+            navigator.vibrate([15, 50, 15]);
             break;
           case 'success':
-            navigator.vibrate([15, 20, 15, 20, 15]);
+            navigator.vibrate([20, 30, 20, 30, 20]);
             break;
           case 'error':
-            navigator.vibrate([80, 40, 80]);
+            navigator.vibrate([100, 50, 100]);
             break;
           case 'navigation':
-            navigator.vibrate(8);
-            break;
-          case 'tap':
-            navigator.vibrate(3);
+            navigator.vibrate(15);
             break;
           default:
-            navigator.vibrate(12);
+            navigator.vibrate(20);
         }
-      } catch (error) {
-        console.log('Vibration error:', error);
       }
-    }
 
-    // Enhanced Gamepad API support
-    if (this.gamepadSupported) {
-      this.triggerGamepadRumble(type);
+      // Gamepad API for devices with rumble
+      if (this.gamepadSupported) {
+        this.triggerGamepadRumble(type);
+      }
+    } catch (e) {
+      console.log('Haptic error:', e);
     }
   }
 
@@ -3141,29 +3102,21 @@ class HapticManager {
         if (gamepad && gamepad.vibrationActuator) {
           switch(type) {
             case 'light':
-              gamepad.vibrationActuator.pulse(0.15, 80);
+              gamepad.vibrationActuator.pulse(0.2, 100);
               break;
             case 'medium':
-              gamepad.vibrationActuator.pulse(0.4, 150);
+              gamepad.vibrationActuator.pulse(0.5, 200);
               break;
             case 'strong':
-              gamepad.vibrationActuator.pulse(0.7, 250);
-              break;
-            case 'double':
-              gamepad.vibrationActuator.pulse(0.3, 100);
-              setTimeout(() => {
-                if (gamepad.vibrationActuator) {
-                  gamepad.vibrationActuator.pulse(0.3, 100);
-                }
-              }, 150);
+              gamepad.vibrationActuator.pulse(0.8, 300);
               break;
             default:
-              gamepad.vibrationActuator.pulse(0.25, 120);
+              gamepad.vibrationActuator.pulse(0.3, 150);
           }
         }
       });
-    } catch (error) {
-      console.log('Gamepad rumble error:', error);
+    } catch (e) {
+      console.log('Gamepad rumble error:', e);
     }
   }
 
@@ -3175,6 +3128,22 @@ class HapticManager {
 // Initialize managers
 const soundManager = new SoundManager();
 const hapticManager = new HapticManager();
+
+// Initialize audio context on first user interaction
+function initializeAudioContext() {
+  if (soundManager.audioContext && soundManager.audioContext.state === 'suspended') {
+    soundManager.audioContext.resume().then(() => {
+      soundManager.isInitialized = true;
+    });
+  }
+}
+
+// Add touch event listener for mobile
+if ('ontouchstart' in window) {
+  document.addEventListener('touchstart', initializeAudioContext, { once: true });
+} else {
+  document.addEventListener('click', initializeAudioContext, { once: true });
+}
 
 // Utility functions
 function playSound(type) {
@@ -3189,24 +3158,6 @@ function playSoundAndHaptic(soundType, hapticType) {
   playSound(soundType);
   triggerHaptic(hapticType);
 }
-
-// Immediate touch response system
-function setupImmediateFeedback() {
-  document.addEventListener('touchstart', (e) => {
-    if (e.target.closest('.ss-btn, .nitem, .fab, .pill, .tm-add-btn, .reuse-btn')) {
-      playSoundAndHaptic('tap', 'tap');
-    }
-  }, { passive: true });
-
-  document.addEventListener('mousedown', (e) => {
-    if (e.target.closest('.ss-btn, .nitem, .fab, .pill, .tm-add-btn, .reuse-btn')) {
-      playSoundAndHaptic('tap', 'tap');
-    }
-  });
-}
-
-// Initialize immediate feedback
-setupImmediateFeedback();
 
 /* ════════════════════════════════════════════
    SMOOTH ANIMATION HELPERS
