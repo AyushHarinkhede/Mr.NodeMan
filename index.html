@@ -3034,14 +3034,13 @@ class SoundManager {
     this.enabled = true;
     this.isInitialized = false;
     this.initAudioContext();
+    this.audioQueue = [];
+    this.isPlaying = false;
   }
 
   initAudioContext() {
     try {
-      // Create audio context immediately
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      
-      // Resume context if suspended (common in mobile browsers)
       if (this.audioContext.state === 'suspended') {
         this.audioContext.resume().then(() => {
           this.isInitialized = true;
@@ -3067,130 +3066,144 @@ class SoundManager {
 
   playSound(type) {
     if (!this.enabled || !this.audioContext) return;
-    
     this.ensureAudioContext();
     
-    // Use a simpler, more reliable approach
+    // Queue the sound for immediate playback
+    this.audioQueue.push(type);
+    this.processQueue();
+  }
+
+  processQueue() {
+    if (this.isPlaying || this.audioQueue.length === 0) return;
+    
+    this.isPlaying = true;
+    const type = this.audioQueue.shift();
+    
     try {
       const oscillator = this.audioContext.createOscillator();
       const gainNode = this.audioContext.createGain();
-      
       oscillator.connect(gainNode);
       gainNode.connect(this.audioContext.destination);
-
       const currentTime = this.audioContext.currentTime;
 
       switch(type) {
         case 'tap':
           oscillator.frequency.setValueAtTime(800, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.05);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.05);
-          break;
-          
-        case 'success':
-          oscillator.frequency.setValueAtTime(523.25, currentTime);
-          oscillator.frequency.setValueAtTime(659.25, currentTime + 0.05);
-          oscillator.frequency.setValueAtTime(783.99, currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.15);
-          break;
-          
-        case 'error':
-          oscillator.frequency.setValueAtTime(300, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.1);
-          break;
-          
-        case 'navigation':
-          oscillator.frequency.setValueAtTime(440, currentTime);
-          gainNode.gain.setValueAtTime(0.08, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.03);
+          gainNode.gain.setValueAtTime(0.2, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.03);
           break;
           
-        case 'modal':
-          oscillator.frequency.setValueAtTime(600, currentTime);
-          gainNode.gain.setValueAtTime(0.12, currentTime);
+        case 'success':
+          oscillator.frequency.setValueAtTime(523.25, currentTime);
+          oscillator.frequency.setValueAtTime(659.25, currentTime + 0.04);
+          oscillator.frequency.setValueAtTime(783.99, currentTime + 0.08);
+          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.1);
+          break;
+          
+        case 'error':
+          oscillator.frequency.setValueAtTime(300, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.08);
+          gainNode.gain.setValueAtTime(0.2, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.08);
           break;
           
-        case 'delete':
-          oscillator.frequency.setValueAtTime(200, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.15);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.15);
-          break;
-          
-        case 'countdown-tick':
-          oscillator.frequency.setValueAtTime(1000, currentTime);
-          gainNode.gain.setValueAtTime(0.08, currentTime);
+        case 'navigation':
+          oscillator.frequency.setValueAtTime(440, currentTime);
+          gainNode.gain.setValueAtTime(0.1, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.02);
           break;
           
-        case 'countdown-5':
-          oscillator.frequency.setValueAtTime(1200, currentTime);
-          gainNode.gain.setValueAtTime(0.12, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.03);
-          break;
-          
-        case 'countdown-4':
-          oscillator.frequency.setValueAtTime(1100, currentTime);
-          gainNode.gain.setValueAtTime(0.12, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.03);
-          break;
-          
-        case 'countdown-3':
-          oscillator.frequency.setValueAtTime(900, currentTime);
-          gainNode.gain.setValueAtTime(0.14, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.04);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.04);
-          break;
-          
-        case 'countdown-2':
-          oscillator.frequency.setValueAtTime(700, currentTime);
-          gainNode.gain.setValueAtTime(0.16, currentTime);
+        case 'modal':
+          oscillator.frequency.setValueAtTime(600, currentTime);
+          gainNode.gain.setValueAtTime(0.15, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.05);
           break;
           
+        case 'delete':
+          oscillator.frequency.setValueAtTime(200, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.12);
+          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.12);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.12);
+          break;
+          
+        case 'countdown-tick':
+          oscillator.frequency.setValueAtTime(1000, currentTime);
+          gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.015);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.015);
+          break;
+          
+        case 'countdown-5':
+          oscillator.frequency.setValueAtTime(1200, currentTime);
+          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.02);
+          break;
+          
+        case 'countdown-4':
+          oscillator.frequency.setValueAtTime(1100, currentTime);
+          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.02);
+          break;
+          
+        case 'countdown-3':
+          oscillator.frequency.setValueAtTime(900, currentTime);
+          gainNode.gain.setValueAtTime(0.17, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.03);
+          break;
+          
+        case 'countdown-2':
+          oscillator.frequency.setValueAtTime(700, currentTime);
+          gainNode.gain.setValueAtTime(0.19, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.04);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.04);
+          break;
+          
         case 'countdown-1':
           oscillator.frequency.setValueAtTime(500, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(400, currentTime + 0.1);
-          gainNode.gain.setValueAtTime(0.18, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+          oscillator.frequency.exponentialRampToValueAtTime(400, currentTime + 0.08);
+          gainNode.gain.setValueAtTime(0.22, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
           oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.1);
+          oscillator.stop(currentTime + 0.08);
           break;
       }
+      
+      // Mark as done after sound finishes
+      setTimeout(() => {
+        this.isPlaying = false;
+        this.processQueue(); // Process next sound in queue
+      }, 200);
+      
     } catch (e) {
       console.log('Sound play error:', e);
+      this.isPlaying = false;
+      this.processQueue(); // Continue with next sound
     }
   }
-
-  showSoundIndicator() {
-    // Visual indicator removed - only play sound
-  }
+  
+  showSoundIndicator() { /* Removed visual indicator */ }
 }
 
 // Haptic Feedback System
@@ -3209,36 +3222,36 @@ class HapticManager {
     if (!this.enabled) return;
 
     try {
-      // Vibration API (most common)
+      // Vibration API (most common) - immediate trigger
       if (this.vibrateSupported) {
         switch(type) {
           case 'light':
-            navigator.vibrate(15);
-            break;
-          case 'medium':
-            navigator.vibrate(35);
-            break;
-          case 'strong':
-            navigator.vibrate(70);
-            break;
-          case 'double':
-            navigator.vibrate([20, 60, 20]);
-            break;
-          case 'success':
-            navigator.vibrate([25, 40, 25, 40, 25]);
-            break;
-          case 'error':
-            navigator.vibrate([120, 60, 120]);
-            break;
-          case 'navigation':
             navigator.vibrate(20);
             break;
+          case 'medium':
+            navigator.vibrate(40);
+            break;
+          case 'strong':
+            navigator.vibrate(80);
+            break;
+          case 'double':
+            navigator.vibrate([25, 70, 25]);
+            break;
+          case 'success':
+            navigator.vibrate([30, 50, 30, 50, 30]);
+            break;
+          case 'error':
+            navigator.vibrate([150, 70, 150]);
+            break;
+          case 'navigation':
+            navigator.vibrate(25);
+            break;
           default:
-            navigator.vibrate(30);
+            navigator.vibrate(35);
         }
       }
 
-      // Gamepad API for devices with rumble
+      // Gamepad API for devices with rumble - immediate trigger
       if (this.gamepadSupported) {
         this.triggerGamepadRumble(type);
       }
