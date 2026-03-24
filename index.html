@@ -943,6 +943,7 @@ function loadLS(){
     entries.forEach(e=>cColor(e.clientId));
   }catch(e){ 
     console.error('Error loading from localStorage:', e);
+    showToast('localStorage error: ' + e.message);
     entries = []; 
     // Reset to default clients on error
     CLIENTS = ['Raisoni Polythechnic College','Raisoni Business Managment College','Raisoni Sadar ','YCCE College','Vainganga College','CP Berar College', 'PW Vidyapeeth'];
