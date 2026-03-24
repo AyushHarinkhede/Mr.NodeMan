@@ -239,6 +239,62 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ════════════════════════════════════════════════
+   SOUND & HAPTIC EFFECTS
+════════════════════════════════════════════════ */
+/* Sound effect styles */
+.sound-indicator {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--acc);
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 1000;
+}
+
+.sound-indicator.active {
+  animation: soundPulse 0.3s ease-out;
+}
+
+@keyframes soundPulse {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(0.8); }
+}
+
+/* Haptic feedback visual indicator */
+.haptic-indicator {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--t1);
+  opacity: 0;
+  transition: all 0.2s;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.haptic-indicator.show {
+  opacity: 1;
+  animation: hapticRipple 0.4s ease-out;
+}
+
+@keyframes hapticRipple {
+  0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+  50% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 0; }
+}
+
+/* ════════════════════════════════════════════════
    TEXT PROTECTION
 ════════════════════════════════════════════════ */ 
 body{
@@ -513,6 +569,10 @@ select option{background:var(--s)}
 </style>
 </head>
 <body>
+<!-- Sound & Haptic Indicators -->
+<div class="sound-indicator" id="sound-indicator"></div>
+<div class="haptic-indicator" id="haptic-indicator">📳</div>
+
 <div id="app">
 
 <!-- ══════════════ DASHBOARD VIEW ══════════════ -->
@@ -2343,9 +2403,11 @@ function quickAddClient(){
 ════════════════════════════════════════════ */
 function openModal(id){
   document.getElementById(id).classList.add('open');
+  playSoundAndHaptic('modal', 'medium');
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
+  playSoundAndHaptic('tap', 'light');
 }
 function overlayClose(ev,id){
   if(ev.target===document.getElementById(id)) closeModal(id);
@@ -2445,6 +2507,7 @@ function submitEntry(){
   closeModal('entry-modal');
   renderAll();
   showToast('✓ Entry logged — marked as Pending');
+  playSoundAndHaptic('success', 'success');
 }
 
 /* ════════════════════════════════════════════
@@ -2713,6 +2776,10 @@ function switchTab(id){
   document.querySelectorAll('.nitem').forEach(n=>n.classList.remove('active'));
   const nav=document.getElementById('nav-'+id);
   if(nav) nav.classList.add('active');
+  
+  // Sound and haptic feedback
+  playSoundAndHaptic('navigation', 'navigation');
+  
   if(id==='stats')   renderStatsView();
   if(id==='clients') renderClientsView();
   if(id==='more')    renderMoreView();
@@ -2849,6 +2916,16 @@ let toastT;
 function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
+  
+  // Add sound and haptic based on message type
+  if(msg.includes('✓') || msg.includes('success')) {
+    playSoundAndHaptic('success', 'success');
+  } else if(msg.includes('✗') || msg.includes('error') || msg.includes('⚠')) {
+    playSoundAndHaptic('error', 'error');
+  } else {
+    playSoundAndHaptic('tap', 'light');
+  }
+  
   clearTimeout(toastT);
   toastT=setTimeout(()=>t.classList.remove('show'),2400);
 }
@@ -2888,6 +2965,200 @@ function seedSampleData(){
   }
   entries.sort((a,b)=>b.date.localeCompare(a.date));
   saveLS();
+}
+
+/* ════════════════════════════════════════════
+   SOUND & HAPTIC EFFECTS
+════════════════════════════════════════════ */
+// Sound System
+class SoundManager {
+  constructor() {
+    this.audioContext = null;
+    this.enabled = true;
+    this.initAudioContext();
+  }
+
+  initAudioContext() {
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch (e) {
+      console.log('Audio not supported:', e);
+      this.enabled = false;
+    }
+  }
+
+  playSound(type) {
+    if (!this.enabled || !this.audioContext) return;
+
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    const currentTime = this.audioContext.currentTime;
+
+    switch(type) {
+      case 'tap':
+        oscillator.frequency.setValueAtTime(800, currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.1, currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + 0.1);
+        break;
+        
+      case 'success':
+        oscillator.frequency.setValueAtTime(523.25, currentTime); // C5
+        oscillator.frequency.setValueAtTime(659.25, currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(783.99, currentTime + 0.2); // G5
+        gainNode.gain.setValueAtTime(0.1, currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + 0.3);
+        break;
+        
+      case 'error':
+        oscillator.frequency.setValueAtTime(300, currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.1, currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.2);
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + 0.2);
+        break;
+        
+      case 'navigation':
+        oscillator.frequency.setValueAtTime(440, currentTime); // A4
+        gainNode.gain.setValueAtTime(0.05, currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + 0.05);
+        break;
+        
+      case 'modal':
+        oscillator.frequency.setValueAtTime(600, currentTime);
+        gainNode.gain.setValueAtTime(0.08, currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + 0.15);
+        break;
+        
+      case 'delete':
+        oscillator.frequency.setValueAtTime(200, currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.1, currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.3);
+        oscillator.start(currentTime);
+        oscillator.stop(currentTime + 0.3);
+        break;
+    }
+
+    this.showSoundIndicator();
+  }
+
+  showSoundIndicator() {
+    const indicator = document.getElementById('sound-indicator');
+    indicator.classList.add('active');
+    setTimeout(() => indicator.classList.remove('active'), 300);
+  }
+}
+
+// Haptic Feedback System
+class HapticManager {
+  constructor() {
+    this.enabled = true;
+    this.checkHapticSupport();
+  }
+
+  checkHapticSupport() {
+    this.vibrateSupported = 'vibrate' in navigator;
+    this.gamepadSupported = 'getGamepads' in navigator;
+  }
+
+  triggerHaptic(type) {
+    if (!this.enabled) return;
+
+    this.showHapticIndicator();
+
+    // Vibration API (most common)
+    if (this.vibrateSupported) {
+      switch(type) {
+        case 'light':
+          navigator.vibrate(10);
+          break;
+        case 'medium':
+          navigator.vibrate(25);
+          break;
+        case 'strong':
+          navigator.vibrate(50);
+          break;
+        case 'double':
+          navigator.vibrate([15, 50, 15]);
+          break;
+        case 'success':
+          navigator.vibrate([20, 30, 20, 30, 20]);
+          break;
+        case 'error':
+          navigator.vibrate([100, 50, 100]);
+          break;
+        case 'navigation':
+          navigator.vibrate(15);
+          break;
+        default:
+          navigator.vibrate(20);
+      }
+    }
+
+    // Gamepad API for devices with rumble
+    if (this.gamepadSupported) {
+      this.triggerGamepadRumble(type);
+    }
+  }
+
+  triggerGamepadRumble(type) {
+    const gamepads = navigator.getGamepads();
+    gamepads.forEach(gamepad => {
+      if (gamepad && gamepad.vibrationActuator) {
+        switch(type) {
+          case 'light':
+            gamepad.vibrationActuator.pulse(0.2, 100);
+            break;
+          case 'medium':
+            gamepad.vibrationActuator.pulse(0.5, 200);
+            break;
+          case 'strong':
+            gamepad.vibrationActuator.pulse(0.8, 300);
+            break;
+          default:
+            gamepad.vibrationActuator.pulse(0.3, 150);
+        }
+      }
+    });
+  }
+
+  showHapticIndicator() {
+    const indicator = document.getElementById('haptic-indicator');
+    indicator.classList.add('show');
+    setTimeout(() => indicator.classList.remove('show'), 400);
+  }
+}
+
+// Initialize managers
+const soundManager = new SoundManager();
+const hapticManager = new HapticManager();
+
+// Utility functions
+function playSound(type) {
+  soundManager.playSound(type);
+}
+
+function triggerHaptic(type) {
+  hapticManager.triggerHaptic(type);
+}
+
+function playSoundAndHaptic(soundType, hapticType) {
+  playSound(soundType);
+  triggerHaptic(hapticType);
 }
 
 /* ════════════════════════════════════════════
