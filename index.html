@@ -20,7 +20,6 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="mask-icon" href="safari-pinned-tab.svg" color="#7C6FED">
-  
   <!-- Preconnect for fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3359,8 +3358,32 @@ function showExitConfirmation() {
     okStyle: 'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
     okText: 'Exit App',
     fn: () => {
-      // Allow the app to close
-      window.history.back();
+      // Remove the popstate listener temporarily to allow actual back
+      window.removeEventListener('popstate', handlePopState);
+      
+      // Try multiple methods to exit
+      try {
+        // Method 1: Close window/tab
+        window.close();
+        
+        // Method 2: Go back in history
+        setTimeout(() => {
+          window.history.back();
+        }, 100);
+        
+        // Method 3: Navigate away (last resort)
+        setTimeout(() => {
+          window.location.href = 'about:blank';
+        }, 200);
+      } catch (e) {
+        // Fallback: go back in history
+        window.history.back();
+      }
+      
+      // Re-add the listener after a delay
+      setTimeout(() => {
+        window.addEventListener('popstate', handlePopState);
+      }, 500);
     }
   });
 }
@@ -3386,27 +3409,25 @@ closeModal = function(id) {
   trackModal(id, false);
 };
 
+// Handle popstate events
+function handlePopState(event) {
+  if (handleSystemBack()) {
+    // Prevent the default back behavior
+    window.history.pushState(null, null, window.location.pathname);
+    event.preventDefault();
+  }
+}
+
 // Add system back button listener
 if ('ontouchstart' in window) {
   // Mobile - handle back button
-  window.addEventListener('popstate', function(event) {
-    if (handleSystemBack()) {
-      // Prevent the default back behavior
-      window.history.pushState(null, null, window.location.pathname);
-      event.preventDefault();
-    }
-  });
+  window.addEventListener('popstate', handlePopState);
   
   // Initialize history state
   window.history.pushState(null, null, window.location.pathname);
 } else {
   // Desktop - handle back button
-  window.addEventListener('popstate', function(event) {
-    if (handleSystemBack()) {
-      window.history.pushState(null, null, window.location.pathname);
-      event.preventDefault();
-    }
-  });
+  window.addEventListener('popstate', handlePopState);
   
   window.history.pushState(null, null, window.location.pathname);
 }
