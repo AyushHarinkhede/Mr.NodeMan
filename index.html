@@ -1698,6 +1698,11 @@ function openClientDetails(clientName){
   renderClientDetails();
 }
 
+function closeClientDetails() {
+  currentClient = null;
+  switchTab('clients');
+}
+
 function setClientDetailsTab(tab){
   clientDetailsTab = tab;
   document.querySelectorAll('#view-client-details .tabbtn').forEach(btn => btn.classList.remove('active'));
@@ -3214,6 +3219,135 @@ if ('ontouchstart' in window) {
 } else {
   document.addEventListener('click', initializeAudioContext, { once: true });
 }
+
+// Navigation history management
+let navigationHistory = [];
+let currentModal = null;
+
+// Track navigation
+function trackNavigation(from, to) {
+  navigationHistory.push({ from, to, timestamp: Date.now() });
+  
+  // Keep only last 10 entries
+  if (navigationHistory.length > 10) {
+    navigationHistory.shift();
+  }
+}
+
+// Track modal state
+function trackModal(modalId, isOpen) {
+  currentModal = isOpen ? modalId : null;
+}
+
+// Handle system back button
+function handleSystemBack() {
+  // Check if any modal is open
+  if (currentModal) {
+    closeModal(currentModal);
+    trackModal(currentModal, false);
+    return true; // Prevent default back
+  }
+  
+  // Check if we're in a special view that needs back handling
+  if (currentView === 'clients' || currentView === 'stats' || currentView === 'more') {
+    // Go back to dashboard
+    switchTab('dashboard');
+    return true; // Prevent default back
+  }
+  
+  // Check if we're in client details view
+  if (document.querySelector('.view.active #client-details-content')) {
+    // Close client details and go back to clients
+    closeClientDetails();
+    return true; // Prevent default back
+  }
+  
+  // Check if we're in entry modal
+  if (document.querySelector('#entry-modal.open')) {
+    closeModal('entry-modal');
+    return true; // Prevent default back
+  }
+  
+  // If we're on dashboard and there's no more history, show exit confirmation
+  if (currentView === 'dashboard' && navigationHistory.length === 0) {
+    showExitConfirmation();
+    return true; // Prevent default back
+  }
+  
+  // Allow default back behavior
+  return false;
+}
+
+// Show exit confirmation
+function showExitConfirmation() {
+  showConfirm({
+    title: 'Exit Mr.NodeMan?',
+    body: 'Are you sure you want to exit the app? Your data is automatically saved.',
+    countdown: false,
+    okStyle: 'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
+    okText: 'Exit App',
+    fn: () => {
+      // Allow the app to close
+      window.history.back();
+    }
+  });
+}
+
+// Update switchTab to track navigation
+const originalSwitchTab = switchTab;
+switchTab = function(id) {
+  const previousView = currentView;
+  originalSwitchTab(id);
+  trackNavigation(previousView, id);
+};
+
+// Update modal functions to track state
+const originalOpenModal = openModal;
+openModal = function(id) {
+  originalOpenModal(id);
+  trackModal(id, true);
+};
+
+const originalCloseModal = closeModal;
+closeModal = function(id) {
+  originalCloseModal(id);
+  trackModal(id, false);
+};
+
+// Add system back button listener
+if ('ontouchstart' in window) {
+  // Mobile - handle back button
+  window.addEventListener('popstate', function(event) {
+    if (handleSystemBack()) {
+      // Prevent the default back behavior
+      window.history.pushState(null, null, window.location.pathname);
+      event.preventDefault();
+    }
+  });
+  
+  // Initialize history state
+  window.history.pushState(null, null, window.location.pathname);
+} else {
+  // Desktop - handle back button
+  window.addEventListener('popstate', function(event) {
+    if (handleSystemBack()) {
+      window.history.pushState(null, null, window.location.pathname);
+      event.preventDefault();
+    }
+  });
+  
+  window.history.pushState(null, null, window.location.pathname);
+}
+
+// Handle browser back/forward buttons
+window.addEventListener('beforeunload', function(event) {
+  // This is a last resort - won't work on mobile
+  if (currentView === 'dashboard' && !currentModal) {
+    // User is trying to close the browser/tab
+    event.preventDefault();
+    event.returnValue = '';
+  }
+});
 
 // Utility functions
 function playSound(type) {
