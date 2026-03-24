@@ -3364,17 +3364,24 @@ function showExitConfirmation() {
       // Try multiple methods to exit
       try {
         // Method 1: Close window/tab
-        window.close();
+        if (window.close) {
+          window.close();
+        }
         
         // Method 2: Go back in history
         setTimeout(() => {
           window.history.back();
         }, 100);
         
-        // Method 3: Navigate away (last resort)
+        // Method 3: Navigate to blank page (opens new tab)
         setTimeout(() => {
-          window.location.href = 'about:blank';
+          window.open('about:blank', '_self');
         }, 200);
+        
+        // Method 4: Navigate to Google (fallback)
+        setTimeout(() => {
+          window.open('https://google.com', '_self');
+        }, 300);
       } catch (e) {
         // Fallback: go back in history
         window.history.back();
@@ -3432,15 +3439,15 @@ if ('ontouchstart' in window) {
   window.history.pushState(null, null, window.location.pathname);
 }
 
-// Handle browser back/forward buttons
-window.addEventListener('beforeunload', function(event) {
-  // This is a last resort - won't work on mobile
-  if (currentView === 'dashboard' && !currentModal) {
-    // User is trying to close the browser/tab
-    event.preventDefault();
-    event.returnValue = '';
-  }
-});
+// Handle browser back/forward buttons - removed system leave confirmation
+// window.addEventListener('beforeunload', function(event) {
+//   // This is a last resort - won't work on mobile
+//   if (currentView === 'dashboard' && !currentModal) {
+//     // User is trying to close the browser/tab
+//     event.preventDefault();
+//     event.returnValue = '';
+//   }
+// });
 
 // Utility functions
 function playSound(type) {
