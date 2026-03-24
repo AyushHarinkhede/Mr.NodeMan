@@ -9,15 +9,25 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#07070A">
   <meta name="msapplication-TileColor" content="#07070A">
-  <meta name="msapplication-navbutton-color" content="#07070A">
-  <meta name="apple-status-bar-style" content="black-translucent">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="description" content="Professional freelance work tracker">
-  <title>Mr.NodeMan</title>
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <title>Mr.NodeMan - Work Ledger</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="mask-icon" href="safari-pinned-tab.svg" color="#7C6FED">
+  
+  <!-- Preconnect for fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
+<style>
 /* ════════════════════════════════════════════════
    SMOOTH ANIMATIONS
 ════════════════════════════════════════════════ */
@@ -250,45 +260,31 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* ════════════════════════════════════════════════
-   FULLSCREEN & IMMERSIVE MODE
+   FULL SCREEN & EDGE-TO-EDGE DISPLAY
 ════════════════════════════════════════════════ */
-/* Fullscreen setup */
+/* Full screen setup */
 html, body {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  -webkit-overflow-scrolling: touch;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Safe area support for notched devices */
-#app {
-  height: 100vh;
-  width: 100vw;
-  max-width: 100vw;
+/* Safe area insets for notched devices */
+body {
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  box-sizing: border-box;
 }
 
-/* Hide scrollbars completely */
-::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-* {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-/* Prevent zoom and selection */
+/* Hide browser UI */
 body {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -303,16 +299,64 @@ body {
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  overscroll-behavior: contain;
-  overscroll-behavior-x: none;
-  overscroll-behavior-y: none;
+}
+
+/* Prevent scroll bounce */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Full screen app container */
+#app {
+  height: 100vh;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: #07070A;
+}
+
+/* Status bar handling */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: max(env(safe-area-inset-top), 0px);
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    padding-left: max(env(safe-area-inset-left), 0px);
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   TEXT PROTECTION
+════════════════════════════════════════════════ */
+
+/* Allow text selection for input fields and textareas */
+input, textarea, select {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Allow text selection for specific editable content */
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 /* ════════════════════════════════════════════════
    RESET & BASE
 ════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100vh;overflow:hidden;background:#07070A}
+html,body{height:100%;overflow:hidden;background:#07070A}
 body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:#1A1A24;border-radius:2px}
@@ -335,7 +379,7 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 /* ════════════════════════════════════════════════
    APP SHELL
 ════════════════════════════════════════════════ */
-#app{display:flex;flex-direction:column;height:100vh;width:100vw;max-width:100vw;position:relative;overflow:hidden;box-sizing:border-box}
+#app{display:flex;flex-direction:column;height:100vh;width:100vw;max-width:100vw;margin:0;position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;background:#07070A}
 .view{display:none;flex-direction:column;height:100%;overflow:hidden}
 .view.active{display:flex}
 .scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 16px;padding-bottom:calc(var(--nav-h) + 28px)}
@@ -460,7 +504,7 @@ select option{background:var(--s)}
 /* ════════════════════════════════════════════════
    BOTTOM NAV
 ════════════════════════════════════════════════ */
-#bnav{position:fixed;bottom:0;left:0;right:0;width:100%;background:rgba(7,7,10,.92);border-top:1px solid var(--b);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);display:flex;align-items:center;z-index:100;padding:6px 0 22px;padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+#bnav{position:fixed;bottom:0;left:0;right:0;width:100%;background:rgba(7,7,10,.92);border-top:1px solid var(--b);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);display:flex;align-items:center;z-index:100;padding:6px 0 calc(6px + env(safe-area-inset-bottom))}
 .nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:5px 0;transition:opacity .15s;-webkit-tap-highlight-color:transparent}
 .nitem.active{opacity:1}
 .nitem:not(.active){opacity:.38}
@@ -3382,101 +3426,6 @@ window.addEventListener('beforeunload', function(event) {
     event.returnValue = '';
   }
 });
-
-/* ════════════════════════════════════════════
-   FULLSCREEN & IMMERSIVE MODE
-════════════════════════════════════════════ */
-
-// Request fullscreen on load
-function requestFullscreen() {
-  const elem = document.documentElement;
-  
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  } else if (elem.webkitRequestFullscreen) {
-    elem.webkitRequestFullscreen();
-  } else if (elem.msRequestFullscreen) {
-    elem.msRequestFullscreen();
-  } else if (elem.mozRequestFullScreen) {
-    elem.mozRequestFullScreen();
-  }
-}
-
-// Request immersive mode on mobile
-function requestImmersiveMode() {
-  // iOS Safari - standalone mode
-  if ('standalone' in window.navigator && window.navigator.standalone) {
-    // Already in standalone mode
-    return;
-  }
-  
-  // Android Chrome - fullscreen API
-  if (document.fullscreenEnabled || document.webkitFullscreenEnabled) {
-    requestFullscreen();
-  }
-}
-
-// Handle fullscreen changes
-function handleFullscreenChange() {
-  if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
-    console.log('Entered fullscreen mode');
-    document.body.classList.add('fullscreen-active');
-  } else {
-    console.log('Exited fullscreen mode');
-    document.body.classList.remove('fullscreen-active');
-  }
-}
-
-// Add fullscreen event listeners
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-document.addEventListener('MSFullscreenChange', handleFullscreenChange);
-
-// Request fullscreen on user interaction (required by browsers)
-function requestFullscreenOnInteraction() {
-  requestFullscreenOnInteraction = function() {}; // Run only once
-  requestImmersiveMode();
-}
-
-// Add interaction listeners for fullscreen
-if ('ontouchstart' in window) {
-  document.addEventListener('touchstart', requestFullscreenOnInteraction, { once: true });
-} else {
-  document.addEventListener('click', requestFullscreenOnInteraction, { once: true });
-}
-
-// Prevent pull-to-refresh and overscroll
-document.addEventListener('touchmove', function(event) {
-  if (event.scale !== 1) {
-    event.preventDefault();
-  }
-}, { passive: false });
-
-// Prevent double-tap zoom
-document.addEventListener('touchend', function(event) {
-  const now = Date.now();
-  if (now - lastTouchEnd <= 300) {
-    event.preventDefault();
-  }
-  lastTouchEnd = now;
-}, false);
-
-// Hide address bar on mobile
-function hideAddressBar() {
-  if (document.height <= window.outerHeight + 10) {
-    // Small screen, hide address bar
-    window.scrollTo(0, 1);
-    setTimeout(function() {
-      window.scrollTo(0, 1);
-    }, 100);
-  }
-}
-
-// Hide address bar on load and resize
-window.addEventListener('load', hideAddressBar);
-window.addEventListener('resize', hideAddressBar);
-window.addEventListener('orientationchange', hideAddressBar);
 
 // Utility functions
 function playSound(type) {
