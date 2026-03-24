@@ -196,12 +196,12 @@ input:focus, select:focus, textarea:focus {
 }
 
 .fab:hover {
-  transform: rotate(90deg) scale(1.1);
+  transform: scale(1.1);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .fab:active {
-  transform: rotate(90deg) scale(0.95);
+  transform: scale(0.95);
 }
 
 /* Heatmap cell animations */
@@ -409,7 +409,7 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 ════════════════════════════════════════════════ */
 .ss-btn{border:none;cursor:pointer;font-family:'Syne',sans-serif;transition:opacity .15s,transform .12s;-webkit-tap-highlight-color:transparent}
 .ss-btn:active{transform:scale(.96);opacity:.85}
-.fab{width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#36DFAF,#1BA880);color:#07070A;font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px rgba(45,212,168,.08),0 0 28px rgba(45,212,168,.3),0 4px 14px rgba(0,0,0,.5);position:relative;top:-10px}
+.fab{width:58px;height:58px;border-radius:50%;background:linear-gradient(145deg,#36DFAF,#1BA880);color:#07070A;font-size:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px rgba(45,212,168,.08),0 0 28px rgba(45,212,168,.3),0 4px 14px rgba(0,0,0,.5);position:relative;top:-10px}
 .fab:active{transform:scale(.93)!important}
 
 /* ════════════════════════════════════════════════
@@ -571,7 +571,7 @@ select option{background:var(--s)}
 <body>
 <!-- Sound & Haptic Indicators -->
 <div class="sound-indicator" id="sound-indicator"></div>
-<div class="haptic-indicator" id="haptic-indicator">📳</div>
+<div class="haptic-indicator" id="haptic-indicator"></div>
 
 <div id="app">
 
@@ -2529,7 +2529,9 @@ function submitAddClient(){
   document.getElementById('nc-name').value='';
   document.getElementById('nc-ind').value='';
   document.getElementById('nc-rate').value='';
-  renderAll(); showToast(`✓ ${name} added`);
+  renderAll(); 
+  showToast(`✓ ${name} added`);
+  playSoundAndHaptic('success', 'success');
 }
 
 /* ════════════════════════════════════════════
@@ -2621,6 +2623,13 @@ function startCountdown(btn,finalText){
     num.textContent=cdVal;
     const pct=(10-cdVal)/10;
     arc.style.strokeDashoffset=(FULL*pct).toFixed(2);
+    
+    // Play tick sound for each second
+    if(cdVal > 0) {
+      playSound('tap');
+      triggerHaptic('light');
+    }
+    
     if(cdVal<=0){
       clearInterval(cdInterval);
       btn.disabled=false;
@@ -2628,6 +2637,8 @@ function startCountdown(btn,finalText){
       btn.style.opacity='1';
       btn.style.cursor='pointer';
       document.getElementById('cd-label').textContent='Confirm button is now active.';
+      // Play completion sound
+      playSoundAndHaptic('success', 'double');
     }
   },1000);
 }
@@ -2763,7 +2774,10 @@ function connectFirebase_UI(){
 document.querySelector('#firebase-setup-card button').onclick=connectFirebase_UI;
 
 function copyWsId(){
-  navigator.clipboard&&navigator.clipboard.writeText(WORKSPACE_ID).then(()=>showToast('✓ Workspace ID copied'));
+  navigator.clipboard&&navigator.clipboard.writeText(WORKSPACE_ID).then(()=>{
+    showToast('✓ Workspace ID copied');
+    playSoundAndHaptic('success', 'double');
+  });
 }
 
 /* ════════════════════════════════════════════
