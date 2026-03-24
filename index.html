@@ -2396,40 +2396,18 @@ function onClientChange(){
 }
 
 function quickAddClient(){
-  const name = prompt('Enter new client name:');
-  if(!name || !name.trim()){
-    return;
-  }
+  // Open the add client modal instead of using system prompt
+  openModal('add-client-modal');
   
-  const clientName = name.trim();
+  // Focus on the name input field
+  setTimeout(() => {
+    document.getElementById('nc-name').focus();
+  }, 350);
   
-  // Check if client already exists
-  if(CLIENTS.includes(clientName)){
-    showToast('⚠ Client already exists');
-    return;
-  }
-  
-  // Add to CLIENTS array
-  CLIENTS.push(clientName);
-  cColor(clientName); // Assign color
-  
-  // Update the dropdown
-  const select = document.getElementById('f-client');
-  const option = document.createElement('option');
-  option.value = clientName;
-  option.textContent = clientName;
-  option.selected = true;
-  select.appendChild(option);
-  
-  // Save and update
-  saveLS();
-  fbSaveClients();
-  renderAll();
-  
-  // Trigger client change to show amount suggestion
-  onClientChange();
-  
-  showToast(`✓ Client "${clientName}" added successfully`);
+  // Clear any previous values
+  document.getElementById('nc-name').value = '';
+  document.getElementById('nc-ind').value = '';
+  document.getElementById('nc-rate').value = '';
 }
 
 /* ════════════════════════════════════════════
