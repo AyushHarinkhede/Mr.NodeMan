@@ -851,7 +851,40 @@ select option{background:var(--s)}
     </div>
     <!-- Actions -->
     <div class="anim" id="more-actions"></div>
-    <div style="margin-top:16px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:.05em" id="more-footer"></div>
+    <div style="margin-top:24px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:.05em" id="more-footer"></div>
+    
+    <!-- Footer Section -->
+    <div style="margin-top:20px;padding:20px;background:var(--s2);border-radius:14px;border:1px solid var(--b);">
+      <!-- Logo -->
+      <div style="display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        <span style="margin-left:8px;font-size:14px;font-weight:700;color:var(--t1)">Mr.NodeMan</span>
+      </div>
+      
+      <!-- App Info -->
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Professional Work Ledger & Client Management</div>
+        <div style="font-size:10px;color:var(--t3)">Version 1.0.0 • Built with modern web technologies</div>
+      </div>
+      
+      <!-- Developer Credit -->
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:10px;color:var(--t3);margin-bottom:4px">Created with ❤️ by</div>
+        <div style="font-size:12px;font-weight:600;color:var(--t1)">Ayush Harinkhede</div>
+      </div>
+      
+      <!-- Legal Links -->
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap">
+        <a href="#" onclick="event.preventDefault(); showTermsAndConditions()" style="font-size:11px;color:var(--acc);text-decoration:none;cursor:pointer">Terms & Conditions</a>
+        <span style="font-size:11px;color:var(--t3)">•</span>
+        <a href="#" onclick="event.preventDefault(); showPrivacyPolicy()" style="font-size:11px;color:var(--acc);text-decoration:none;cursor:pointer">Privacy Policy</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -974,7 +1007,7 @@ select option{background:var(--s)}
     <div class="mhandle"></div>
     <div class="mtitle">Add New Client</div>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="fgrp"><label class="ss-label">Client Name</label><input class="ss-input" type="text" id="nc-name" placeholder="e.g. Ayush Enterprises"/></div>
+      <div class="fgrp"><label class="ss-label">Client Name</label><input class="ss-input" type="text" id="nc-name" placeholder="e.g. Ayush Managments "/></div>
       <div class="fg2">
         <div class="fgrp"><label class="ss-label">Industry</label><input class="ss-input" type="text" id="nc-ind" placeholder="Design"/></div>
         <div class="fgrp"><label class="ss-label">Rate/hr (₹)</label><input class="ss-input" type="number" id="nc-rate" placeholder="500" min="0"/></div>
@@ -2408,6 +2441,79 @@ function quickAddClient(){
   document.getElementById('nc-name').value = '';
   document.getElementById('nc-ind').value = '';
   document.getElementById('nc-rate').value = '';
+}
+
+/* ════════════════════════════════════════════
+   TERMS & CONDITIONS / PRIVACY POLICY
+════════════════════════════════════════════ */
+function showTermsAndConditions() {
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Terms & Conditions',
+    body: `
+      <div style="text-align:left;max-height:350px;overflow-y:auto;padding:10px;font-size:12px;line-height:1.5">
+        <h3 style="color:var(--t1);margin-bottom:10px">1. Acceptance of Terms</h3>
+        <p style="color:var(--t2);margin-bottom:15px">By using Mr.NodeMan, you agree to these terms and conditions.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">2. Data Usage</h3>
+        <p style="color:var(--t2);margin-bottom:15px">All work data is stored locally on your device. If you enable Firebase sync, data will be stored on Firebase servers.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">3. Data Responsibility</h3>
+        <p style="color:var(--t2);margin-bottom:15px">You are responsible for maintaining accurate work records and client information.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">4. Privacy</h3>
+        <p style="color:var(--t2);margin-bottom:15px">Your work data is private and will not be shared with third parties.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">5. Content Protection</h3>
+        <p style="color:var(--t2);margin-bottom:15px">This webapp is protected against unauthorized copying or modification. Users cannot alter webapp content through browser developer tools or external means.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">6. Limitation of Liability</h3>
+        <p style="color:var(--t2);margin-bottom:15px">Mr.NodeMan is provided as-is without warranties. Use at your own risk.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">7. Contact</h3>
+        <p style="color:var(--t2);margin-bottom:15px">For questions about these terms, contact: <strong>ayushharinkhede2005@gmail.com</strong></p>
+      </div>
+    `,
+    countdown: false,
+    okStyle: 'background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc)',
+    okText: 'I Understand',
+    fn: () => {}
+  });
+}
+
+function showPrivacyPolicy() {
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Privacy Policy',
+    body: `
+      <div style="text-align:left;max-height:350px;overflow-y:auto;padding:10px;font-size:12px;line-height:1.5">
+        <h3 style="color:var(--t1);margin-bottom:10px">Data Collection</h3>
+        <p style="color:var(--t2);margin-bottom:15px">Mr.NodeMan only collects data you explicitly enter: work entries, client information, and workspace details.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">Data Storage</h3>
+        <p style="color:var(--t2);margin-bottom:15px">All data is stored locally on your device by default. Firebase sync is optional and stores data on secure Firebase servers.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">Data Security</h3>
+        <p style="color:var(--t2);margin-bottom:15px">We implement reasonable security measures to protect your data, but cannot guarantee absolute security.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">Data Sharing</h3>
+        <p style="color:var(--t2);margin-bottom:15px">We do not sell, rent, or share your personal data with third parties for marketing purposes.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">Content Protection</h3>
+        <p style="color:var(--t2);margin-bottom:15px">This webapp is protected against unauthorized copying. Users cannot copy or modify webapp content through browser tools. All content modifications are controlled through the application interface only.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">Your Rights</h3>
+        <p style="color:var(--t2);margin-bottom:15px">You have the right to access, export, and delete your data at any time.</p>
+        
+        <h3 style="color:var(--t1);margin-bottom:10px">Contact</h3>
+        <p style="color:var(--t2);margin-bottom:15px">For privacy concerns, contact: <strong>ayushharinkhede2005@gmail.com</strong></p>
+      </div>
+    `,
+    countdown: false,
+    okStyle: 'background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc)',
+    okText: 'I Understand',
+    fn: () => {}
+  });
 }
 
 /* ════════════════════════════════════════════
