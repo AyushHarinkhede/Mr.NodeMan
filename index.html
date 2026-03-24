@@ -2564,10 +2564,31 @@ function startCountdown(btn,finalText){
     const pct=(10-cdVal)/10;
     arc.style.strokeDashoffset=(FULL*pct).toFixed(2);
     
-    // Play tick sound for each second
-    if(cdVal > 0) {
-      playSound('tap');
+    // Play unique sound for each second with haptic
+    if(cdVal > 5) {
+      // Normal ticks for 9, 8, 7, 6
+      playSound('countdown-tick');
       triggerHaptic('light');
+    } else if(cdVal === 5) {
+      // 5 seconds - higher pitch
+      playSound('countdown-5');
+      triggerHaptic('medium');
+    } else if(cdVal === 4) {
+      // 4 seconds - slightly lower
+      playSound('countdown-4');
+      triggerHaptic('medium');
+    } else if(cdVal === 3) {
+      // 3 seconds - medium pitch
+      playSound('countdown-3');
+      triggerHaptic('strong');
+    } else if(cdVal === 2) {
+      // 2 seconds - lower pitch
+      playSound('countdown-2');
+      triggerHaptic('strong');
+    } else if(cdVal === 1) {
+      // 1 second - dramatic descending tone
+      playSound('countdown-1');
+      triggerHaptic('double');
     }
     
     if(cdVal<=0){
@@ -2578,7 +2599,7 @@ function startCountdown(btn,finalText){
       btn.style.cursor='pointer';
       document.getElementById('cd-label').textContent='Confirm button is now active.';
       // Play completion sound
-      playSoundAndHaptic('success', 'double');
+      playSoundAndHaptic('success', 'success');
     }
   },1000);
 }
@@ -3029,6 +3050,55 @@ class SoundManager {
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.15);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.15);
+          break;
+          
+        case 'countdown-tick':
+          oscillator.frequency.setValueAtTime(1000, currentTime);
+          gainNode.gain.setValueAtTime(0.05, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.02);
+          break;
+          
+        case 'countdown-5':
+          oscillator.frequency.setValueAtTime(1200, currentTime);
+          gainNode.gain.setValueAtTime(0.08, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.03);
+          break;
+          
+        case 'countdown-4':
+          oscillator.frequency.setValueAtTime(1100, currentTime);
+          gainNode.gain.setValueAtTime(0.08, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.03);
+          break;
+          
+        case 'countdown-3':
+          oscillator.frequency.setValueAtTime(900, currentTime);
+          gainNode.gain.setValueAtTime(0.09, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.04);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.04);
+          break;
+          
+        case 'countdown-2':
+          oscillator.frequency.setValueAtTime(700, currentTime);
+          gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.05);
+          break;
+          
+        case 'countdown-1':
+          oscillator.frequency.setValueAtTime(500, currentTime);
+          oscillator.frequency.exponentialRampToValueAtTime(400, currentTime + 0.1);
+          gainNode.gain.setValueAtTime(0.12, currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+          oscillator.start(currentTime);
+          oscillator.stop(currentTime + 0.1);
           break;
       }
     } catch (e) {
