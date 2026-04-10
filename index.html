@@ -530,6 +530,12 @@ select option{background:var(--s)}
 .cd-svg{display:block;margin:0 auto}
 .cd-label{font-size:11px;color:var(--t2);margin-top:8px}
 
+/* Blinking animation for countdown */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
 /* ════════════════════════════════════════════════
    STATS
 ════════════════════════════════════════════════ */
@@ -2614,6 +2620,22 @@ function openModal(id){
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
   playSoundAndHaptic('tap', 'light');
+  
+  // Stop countdown if confirm modal is closed
+  if(id === 'confirm-modal') {
+    clearInterval(cdInterval);
+    pendingConfirmFn = null;
+    
+    // Reset countdown styles to prevent blink persisting
+    const arc = document.getElementById('cd-arc');
+    const num = document.getElementById('cd-num');
+    if(arc && num) {
+      arc.style.animation = 'none';
+      num.style.animation = 'none';
+      arc.style.stroke = 'var(--pend)';
+      num.style.color = 'var(--pend)';
+    }
+  }
 }
 function overlayClose(ev,id){
   if(ev.target===document.getElementById(id)) closeModal(id);
@@ -2835,6 +2857,23 @@ function startCountdown(btn,finalText){
     num.textContent=cdVal;
     const pct=(10-cdVal)/10;
     arc.style.strokeDashoffset=(FULL*pct).toFixed(2);
+    
+    // Change color based on time remaining
+    if(cdVal > 3) {
+      // 10, 9, 8, 7, 6, 5, 4 seconds - ORANGE color
+      arc.style.stroke = 'var(--pend)'; // Orange color
+      arc.style.animation = 'none';
+      num.style.color = 'var(--pend)';
+      num.style.animation = 'none';
+    } else {
+      // Last 3 seconds - INTENSE RED color with BLINKING
+      arc.style.stroke = '#FF4444'; // More intense red
+      num.style.color = '#FF4444'; // More intense red for number
+      
+      // Add blinking animation ONLY for last 3 seconds
+      arc.style.animation = 'blink 0.5s infinite';
+      num.style.animation = 'blink 0.5s infinite';
+    }
     
     // Play unique sound for each second with haptic
     if(cdVal > 5) {
@@ -3277,14 +3316,27 @@ function hideUndoToast(){
 }
 
 function performUndo(){
-  console.log('performUndo called', { lastAction, lastActionData });
-  if(!lastAction || !lastActionData) {
-    console.log('No lastAction or lastActionData');
+  console.log('=== UNDO START ===');
+  console.log('lastAction:', lastAction);
+  console.log('lastActionData:', lastActionData);
+  console.log('entries before undo:', entries.length);
+  
+  if(!lastAction) {
+    console.error('ERROR: No lastAction found');
+    showToast('✗ Nothing to undo');
+    return;
+  }
+  
+  if(!lastActionData) {
+    console.error('ERROR: No lastActionData found');
+    showToast('✗ Nothing to undo');
     return;
   }
   
   console.log('Performing undo for action:', lastAction);
-  switch(lastAction){
+  
+  try {
+    switch(lastAction){
     case 'setStatus':
       const e = entries.find(x=>x.id===lastActionData.id);
       if(e){
@@ -3376,6 +3428,14 @@ function performUndo(){
       showToast('↶ Bulk mark paid undone');
       break;
   }
+    
+  } catch (error) {
+    console.error('ERROR during undo:', error);
+    showToast('✗ Undo failed: ' + error.message);
+  }
+  
+  console.log('entries after undo:', entries.length);
+  console.log('=== UNDO END ===');
   
   hideUndoToast();
 }
@@ -3643,28 +3703,28 @@ class HapticManager {
       if (this.vibrateSupported) {
         switch(type) {
           case 'light':
-            navigator.vibrate(20);
+            navigator.vibrate(35);
             break;
           case 'medium':
-            navigator.vibrate(40);
+            navigator.vibrate(60);
             break;
           case 'strong':
-            navigator.vibrate(80);
+            navigator.vibrate(120);
             break;
           case 'double':
-            navigator.vibrate([25, 70, 25]);
+            navigator.vibrate([40, 100, 40]);
             break;
           case 'success':
-            navigator.vibrate([30, 50, 30, 50, 30]);
+            navigator.vibrate([50, 70, 50, 70, 50]);
             break;
           case 'error':
-            navigator.vibrate([150, 70, 150]);
+            navigator.vibrate([200, 100, 200]);
             break;
           case 'navigation':
-            navigator.vibrate(25);
+            navigator.vibrate(40);
             break;
           default:
-            navigator.vibrate(35);
+            navigator.vibrate(50);
         }
       }
 
@@ -3684,16 +3744,16 @@ class HapticManager {
         if (gamepad && gamepad.vibrationActuator) {
           switch(type) {
             case 'light':
-              gamepad.vibrationActuator.pulse(0.2, 100);
+              gamepad.vibrationActuator.pulse(0.4, 150);
               break;
             case 'medium':
-              gamepad.vibrationActuator.pulse(0.5, 200);
+              gamepad.vibrationActuator.pulse(0.7, 250);
               break;
             case 'strong':
-              gamepad.vibrationActuator.pulse(0.8, 300);
+              gamepad.vibrationActuator.pulse(1.0, 350);
               break;
             default:
-              gamepad.vibrationActuator.pulse(0.3, 150);
+              gamepad.vibrationActuator.pulse(0.5, 200);
           }
         }
       });
@@ -4014,6 +4074,26 @@ if(typeof BroadcastChannel!=='undefined'){
 window.performUndo = performUndo;
 window.hideUndoToast = hideUndoToast;
 window.showUndoToast = showUndoToast;
+
+// Test function to verify undo works
+window.testUndo = function() {
+  console.log('=== TEST UNDO ===');
+  console.log('Current lastAction:', lastAction);
+  console.log('Current lastActionData:', lastActionData);
+  
+  if (!lastAction) {
+    console.log('Setting test action...');
+    lastAction = 'setStatus';
+    lastActionData = {
+      id: 'test123',
+      oldStatus: 'pending',
+      newStatus: 'paid'
+    };
+    console.log('Test action set. Now click undo button.');
+  } else {
+    console.log('Action already exists, will be undone.');
+  }
+};
 
 </script>
 </body>
