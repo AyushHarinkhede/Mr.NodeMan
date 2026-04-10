@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#07070A">
   <meta name="msapplication-TileColor" content="#07070A">
   <meta name="msapplication-config" content="/browserconfig.xml">
-  <title>Mr.NodeMan - Work Ledger</title> 
+  <title>Mr.NodeMan</title> 
   
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -3462,6 +3462,47 @@ function showToast(msg){
 }
 
 /* ════════════════════════════════════════════
+   DYNAMIC TITLE UPDATES
+════════════════════════════════════════════ */
+function updateDynamicTitle(){
+  const total = entries.length;
+  const pending = entries.filter(e => e.paymentStatus === 'pending').length;
+  const paid = entries.filter(e => e.paymentStatus === 'paid').length;
+  
+  let title = '📊 Mr.NodeMan';
+  
+  // Add activity indicator
+  if(total > 0) {
+    if(pending > 0) {
+      title += ` (${pending} pending)`;
+    } else {
+      title += ` ✅`;
+    }
+  }
+  
+  // Add current view indicator
+  switch(currentView) {
+    case 'dashboard':
+      title += ' - Dashboard';
+      break;
+    case 'clients':
+      title += ' - Clients';
+      break;
+    case 'stats':
+      title += ' - Analytics';
+      break;
+    case 'more':
+      title += ' - More';
+      break;
+    case 'client-details':
+      title += ` - ${currentClient || 'Client'}`;
+      break;
+  }
+  
+  document.title = title;
+}
+
+/* ════════════════════════════════════════════
    RENDER ALL
 ════════════════════════════════════════════ */
 function renderAll(){
@@ -3470,6 +3511,9 @@ function renderAll(){
   if(currentView==='stats')   renderStatsView();
   if(currentView==='more')    renderMoreView();
   if(currentView==='client-details') renderClientDetails();
+  
+  // Update dynamic title
+  updateDynamicTitle();
 }
 
 /* ════════════════════════════════════════════
