@@ -2926,7 +2926,12 @@ function confirmClearData(){
       lastActionData = {entries: [...entries], nextId: nextId};
       
       if(fbDB) fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries').remove();
-      entries=[]; nextId=Date.now(); saveLS(); renderAll(); 
+      entries=[]; nextId=Date.now(); saveLS(); 
+      
+      // Set flag to prevent sample data from reappearing
+      localStorage.setItem('_mnm_data_cleared', 'true');
+      
+      renderAll(); 
       showToast('<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>All data cleared');
       
       // Show undo toast after success message
@@ -3317,6 +3322,10 @@ function performUndo(){
       entries = lastActionData.entries;
       nextId = lastActionData.nextId;
       saveLS(); 
+      
+      // Remove the flag when undo is performed
+      localStorage.removeItem('_mnm_data_cleared');
+      
       if(fbDB){
         lastActionData.entries.forEach(entry => fbSaveEntry(entry));
       }
