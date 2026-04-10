@@ -16,9 +16,10 @@
   <link rel="manifest" href="manifest.json">
   
   <!-- Icons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="Shinchan.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="Shinchan.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="Shinchan.png">
+  <link rel="shortcut icon" href="Shinchan.png">
   <link rel="mask-icon" href="safari-pinned-tab.svg" color="#7C6FED">
   <!-- Preconnect for fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3469,37 +3470,10 @@ function updateDynamicTitle(){
   const pending = entries.filter(e => e.paymentStatus === 'pending').length;
   const paid = entries.filter(e => e.paymentStatus === 'paid').length;
   
-  let title = '📊 Mr.NodeMan';
+  let title = 'Mr.NodeMan';
   
-  // Add activity indicator
-  if(total > 0) {
-    if(pending > 0) {
-      title += ` (${pending} pending)`;
-    } else {
-      title += ` ✅`;
-    }
-  }
-  
-  // Add current view indicator
-  switch(currentView) {
-    case 'dashboard':
-      title += ' - Dashboard';
-      break;
-    case 'clients':
-      title += ' - Clients';
-      break;
-    case 'stats':
-      title += ' - Analytics';
-      break;
-    case 'more':
-      title += ' - More';
-      break;
-    case 'client-details':
-      title += ` - ${currentClient || 'Client'}`;
-      break;
-  }
-  
-  document.title = title;
+  // Keep title simple - only Mr.NodeMan
+  document.title = 'Mr.NodeMan';
 }
 
 /* ════════════════════════════════════════════
