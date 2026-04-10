@@ -26,6 +26,9 @@
   
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <style>
 /* ════════════════════════════════════════════════
    SMOOTH ANIMATIONS
@@ -796,6 +799,11 @@ select option{background:var(--s)}
           <div id="total-pending" class="mono" style="font-size:16px;font-weight:500;color:var(--pend)">₹0</div>
         </div>
       </div>
+
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <div id="client-team-totals" style="flex:1;background:var(--acc-bg);border:1px solid var(--acc-bd);border-radius:12px;padding:10px;min-height:44px"></div>
+        <button class="ss-btn" onclick="openPdfExportModal({client: currentClient})" style="flex-shrink:0;padding:10px 12px;border-radius:12px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-size:12px;font-weight:800;white-space:nowrap">Export PDF</button>
+      </div>
     </div>
 
     <!-- Filter Tabs -->
@@ -1157,6 +1165,67 @@ select option{background:var(--s)}
 <!-- ══════════════ TOAST ══════════════ -->
 <div id="toast"></div>
 
+<!-- ══════════════ PDF EXPORT MODAL ══════════════ -->
+<div class="moverlay" id="pdf-export-modal" onclick="overlayClose(event,'pdf-export-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle">Export PDF</div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="fgrp">
+        <label class="ss-label">Client</label>
+        <select class="ss-input" id="pdf-client"></select>
+      </div>
+
+      <div class="fgrp">
+        <label class="ss-label">Filter</label>
+        <div class="tgroup">
+          <button class="tbtn t-solo" id="pdf-filter-all" onclick="setPdfFilter('all')">All</button>
+          <button class="tbtn" id="pdf-filter-paid" onclick="setPdfFilter('paid')">Paid</button>
+          <button class="tbtn" id="pdf-filter-pending" onclick="setPdfFilter('pending')">Pending</button>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--t2);line-height:1.5">The PDF will be exported in the same theme as the app (cards, pills, colors) like a screenshot.</div>
+
+      <div style="display:flex;gap:10px">
+        <button class="ss-btn" onclick="closeModal('pdf-export-modal')" style="flex:1;padding:14px;border-radius:13px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:14px;font-weight:700">Cancel</button>
+        <button class="ss-btn" id="pdf-export-btn" onclick="exportPDFFromModal()" style="flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;background:linear-gradient(135deg,#7C6FED,#5a4dd6);color:#07070A">Export PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden PDF sheet renderer -->
+<div id="pdf-sheet-root" style="position:fixed;left:-10000px;top:0;width:900px;max-width:900px;z-index:-1"></div>
+
+<!-- ══════════════ CLIENT DETAILS MODAL ══════════════ -->
+<div class="moverlay" id="client-details-modal" onclick="overlayClose(event,'client-details-modal')">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="client-details-title"></div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Client Summary -->
+      <div id="client-summary" style="background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div id="client-name" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500"></div>
+          <div id="client-total" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--acc)"></div>
+        </div>
+        <div id="client-stats" style="display:flex;gap:12px;font-size:11px"></div>
+        <div id="client-tm-total" style="display:flex;gap:12px;font-size:11px"></div>
+      </div>
+      
+      <!-- Entries List -->
+      <div id="client-entries-list"></div>
+      
+      <!-- Actions -->
+      <div style="display:flex;gap:10px">
+        <button class="ss-btn" onclick="closeModal('client-details-modal')" style="flex:1;padding:12px;border-radius:11px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:700">Close</button>
+        <button class="ss-btn" onclick="openPdfExportModal()" style="flex:1;padding:12px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:13px;font-weight:700">Export to PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ════════════════════════════════════════════
    PREVENT ZOOM FUNCTIONALITY
@@ -1254,6 +1323,7 @@ let editFormType = 'solo';
 let editFormTMs = []; // team members in edit form
 let editingEntryId = null;
 let editPaymentStatus = 'pending';
+let pdfFilter = 'all';
 let fbDB         = null;
 let fbConnected  = false;
 let ttTimer;
@@ -1844,6 +1914,11 @@ function renderClientDetails(){
   document.getElementById('total-days').textContent = totalDays;
   document.getElementById('total-paid').textContent = fmtRs(totalPaid);
   document.getElementById('total-pending').textContent = fmtRs(totalPending);
+
+  const tmBox = document.getElementById('client-team-totals');
+  if(tmBox){
+    tmBox.innerHTML = buildTeamTotalsHTML(clientEntries);
+  }
   
   renderClientEntries();
 }
@@ -2347,6 +2422,11 @@ function renderMoreView(){
     <div class="more-row" onclick="exportJSON()">
       <div class="micon" style="background:rgba(124,111,237,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
       <div><div class="mico-label">Export JSON</div><div class="mico-sub">Full backup for sharing</div></div>
+      <div class="mchev">›</div>
+    </div>
+    <div class="more-row" onclick="openPdfExportModal()">
+      <div class="micon" style="background:rgba(255,185,48,.10)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></div>
+      <div><div class="mico-label">Export PDF</div><div class="mico-sub">Themed client report</div></div>
       <div class="mchev">›</div>
     </div>
     <div class="more-row" onclick="document.getElementById('import-file').click()">
@@ -2877,6 +2957,197 @@ function exportJSON(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='mrnodeman-backup.json'; a.click();
   URL.revokeObjectURL(url); showToast('📤 JSON exported');
+}
+
+function openPdfExportModal(opts={}){
+  const sel = document.getElementById('pdf-client');
+  if(!sel) return;
+  sel.innerHTML = CLIENTS.map(c=>`<option value="${c.replace(/"/g,'&quot;')}">${c}</option>`).join('');
+  const pre = opts.client || currentClient || CLIENTS[0];
+  if(pre) sel.value = pre;
+  setPdfFilter('all');
+  openModal('pdf-export-modal');
+}
+
+function setPdfFilter(f){
+  pdfFilter = f;
+  const a = document.getElementById('pdf-filter-all');
+  const p = document.getElementById('pdf-filter-paid');
+  const pn = document.getElementById('pdf-filter-pending');
+  if(a) a.className = 'tbtn' + (f==='all' ? ' t-solo' : '');
+  if(p) p.className = 'tbtn' + (f==='paid' ? ' t-solo' : '');
+  if(pn) pn.className = 'tbtn' + (f==='pending' ? ' t-solo' : '');
+}
+
+function buildTeamTotalsHTML(clientEntries){
+  const teamEntries = (clientEntries||[]).filter(e=>e.workType==='team' && e.teamMembers && e.teamMembers.length);
+  if(!teamEntries.length){
+    return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div style="font-size:9px;color:var(--acc);text-transform:uppercase;letter-spacing:.07em;font-weight:800">Team Totals</div>
+      <div style="font-size:11px;color:var(--t2)">No team entries</div>
+    </div>`;
+  }
+  const m = {};
+  teamEntries.forEach(e=>{
+    const amt = (e.amount||0);
+    e.teamMembers.forEach(n=>{ m[n]=(m[n]||0)+amt; });
+  });
+  const arr = Object.entries(m).sort((a,b)=>b[1]-a[1]);
+  const total = arr.reduce((s,[,v])=>s+v,0);
+  const top = arr.slice(0,3).map(([n,v])=>`<div style="display:flex;justify-content:space-between;gap:10px"><div style="font-size:11px;font-weight:800;color:var(--t1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px">${n}</div><div class="mono" style="font-size:11px;color:var(--acc)">${fmtRs(Math.round(v))}</div></div>`).join('');
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+      <div style="font-size:9px;color:var(--acc);text-transform:uppercase;letter-spacing:.07em;font-weight:800">Team Totals</div>
+      <div class="mono" style="font-size:12px;font-weight:700;color:var(--acc)">${fmtRs(Math.round(total))}</div>
+    </div>
+    ${top}
+  `;
+}
+
+function getPdfEntriesForClient(clientName){
+  let arr = entries.filter(e=>e.clientId===clientName);
+  if(pdfFilter==='paid') arr = arr.filter(e=>e.paymentStatus==='paid');
+  if(pdfFilter==='pending') arr = arr.filter(e=>e.paymentStatus==='pending');
+  arr = arr.slice().sort((a,b)=>b.date.localeCompare(a.date));
+  return arr;
+}
+
+function buildPdfSheetHTML(clientName, list){
+  const totalPaid = list.filter(e=>e.paymentStatus==='paid').reduce((s,e)=>s+(e.amount||0),0);
+  const totalPending = list.filter(e=>e.paymentStatus==='pending').reduce((s,e)=>s+(e.amount||0),0);
+  const total = totalPaid + totalPending;
+  const tmHTML = buildTeamTotalsHTML(list);
+  const filterLbl = pdfFilter==='all' ? 'All' : (pdfFilter==='paid' ? 'Paid' : 'Pending');
+
+  const rows = list.map(e=>{
+    const isTeam = e.workType==='team';
+    const teamMembersHtml = isTeam && e.teamMembers && e.teamMembers.length
+      ? `<div style="font-size:10px;color:var(--acc);margin-top:6px;padding:8px;background:var(--acc-bg);border-radius:10px;border:1px solid var(--acc-bd)">
+          <div style="font-size:8px;font-weight:900;color:var(--acc);margin-bottom:4px;text-transform:uppercase;letter-spacing:.08em">Team Members</div>
+          ${e.teamMembers.map(m=>`<div style="margin-bottom:2px">${m}</div>`).join('')}
+        </div>`
+      : '';
+
+    const pill = e.paymentStatus==='paid'
+      ? `<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--paid-bg);color:var(--paid);border:1px solid var(--paid-bd)">Paid</span>`
+      : `<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:var(--pend-bg);color:var(--pend);border:1px solid var(--pend-bd)">Pending</span>`;
+
+    return `
+      <div style="background:var(--s);border:1px solid var(--b);border-radius:18px;padding:14px;margin-bottom:12px;overflow:hidden">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="min-width:0">
+            <div style="font-size:14px;font-weight:900;color:var(--t1);margin-bottom:5px">${fmtDate(e.date)}</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+              <div class="mono" style="font-size:16px;font-weight:700;color:var(--t1)">${fmtRs(e.amount||0)}</div>
+              <div style="font-size:11px;color:var(--t2)">• ${e.duration||0}h</div>
+              <div style="font-size:11px;color:var(--t2)">• ${isTeam?'Team':'Solo'}</div>
+              ${(e.advance||0)>0?`<div style="font-size:11px;color:var(--acc)">• Advance ${fmtRs(e.advance||0)}</div>`:''}
+            </div>
+            ${e.description?`<div style="font-size:12px;color:var(--t2);margin-bottom:6px">${e.description}</div>`:''}
+            ${teamMembersHtml}
+          </div>
+          <div style="flex-shrink:0">${pill}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="width:900px;padding:20px;background:var(--bg);color:var(--t1);font-family:Syne,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.18em;font-weight:900">Mr.NodeMan</div>
+          <div style="font-size:26px;font-weight:900;letter-spacing:-.02em;margin-top:6px">${clientName}</div>
+          <div style="font-size:12px;color:var(--t2);margin-top:6px">Filter: <strong style="color:var(--t1)">${filterLbl}</strong> • Entries: <strong style="color:var(--t1)">${list.length}</strong></div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;font-weight:900">Total</div>
+          <div class="mono" style="font-size:22px;font-weight:700;color:var(--acc)">${fmtRs(total)}</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+        <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:14px;padding:12px">
+          <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.1em;font-weight:900;margin-bottom:6px">Collected</div>
+          <div class="mono" style="font-size:18px;font-weight:700;color:var(--paid)">${fmtRs(totalPaid)}</div>
+        </div>
+        <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:14px;padding:12px">
+          <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.1em;font-weight:900;margin-bottom:6px">Pending</div>
+          <div class="mono" style="font-size:18px;font-weight:700;color:var(--pend)">${fmtRs(totalPending)}</div>
+        </div>
+        <div style="background:var(--acc-bg);border:1px solid var(--acc-bd);border-radius:14px;padding:12px">
+          ${tmHTML}
+        </div>
+      </div>
+
+      ${rows || `<div style="text-align:center;padding:40px;color:var(--t3);font-size:14px">No entries for this filter.</div>`}
+
+      <div style="margin-top:12px;font-size:10px;color:var(--t3);display:flex;justify-content:space-between">
+        <div>Workspace: ${WORKSPACE_ID}</div>
+        <div>${new Date().toLocaleString('en-IN')}</div>
+      </div>
+
+      <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--b);text-align:center">
+        <div style="font-size:12px;font-weight:900;color:var(--t1);letter-spacing:.02em">Mr.NodeMan</div>
+        <div style="font-size:10px;color:var(--t2);margin-top:4px;letter-spacing:.08em;text-transform:uppercase">Professional Work Ledger</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:6px">Created with by <strong style="color:var(--t2)">Ayush Harinkhede</strong></div>
+      </div>
+    </div>
+  `;
+}
+
+async function exportPDFFromModal(){
+  const sel = document.getElementById('pdf-client');
+  if(!sel || !sel.value){ showToast('⚠ Select a client'); return; }
+  const clientName = sel.value;
+  const list = getPdfEntriesForClient(clientName);
+  const root = document.getElementById('pdf-sheet-root');
+  if(!root){ showToast('✗ PDF renderer missing'); return; }
+
+  if(!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF){
+    showToast('✗ PDF engine not loaded');
+    return;
+  }
+
+  const btn = document.getElementById('pdf-export-btn');
+  if(btn){ btn.disabled=true; btn.style.opacity='.65'; }
+
+  root.innerHTML = buildPdfSheetHTML(clientName, list);
+  const sheet = root.firstElementChild;
+  try{
+    const canvas = await html2canvas(sheet, {backgroundColor: '#07070A', scale: 2, useCORS: true});
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p','mm','a4');
+
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    let y = 0;
+    let remaining = imgH;
+    while(remaining > 0){
+      pdf.addImage(imgData,'PNG',0,y,imgW,imgH);
+      remaining -= pageH;
+      if(remaining > 0){
+        pdf.addPage();
+        y -= pageH;
+      }
+    }
+
+    const safeName = clientName.replace(/[^a-z0-9]+/gi,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+    const f = pdfFilter==='all' ? 'all' : pdfFilter;
+    pdf.save(`mrnodeman-${safeName}-${f}.pdf`);
+    closeModal('pdf-export-modal');
+    showToast('📄 PDF downloaded');
+  }catch(err){
+    console.error(err);
+    showToast('✗ PDF export failed');
+  }finally{
+    if(btn){ btn.disabled=false; btn.style.opacity='1'; }
+    root.innerHTML='';
+  }
 }
 function importJSON(ev){
   const file=ev.target.files[0]; if(!file) return;
