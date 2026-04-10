@@ -585,6 +585,26 @@ select option{background:var(--s)}
 .setup-step::before{content:counter(step);counter-increment:step;position:absolute;left:0;color:var(--acc);font-weight:700;font-size:10px}
 .setup-steps{counter-reset:step;display:flex;flex-direction:column;gap:4px}
 
+/* Custom Cursor Styling */
+* {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="%237C6FED" opacity="0.8"/><circle cx="12" cy="12" r="3" fill="%23EEEEF5"/></svg>') 12 12, auto;
+}
+
+/* Custom cursor for interactive elements */
+button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="%237C6FED" opacity="0.9"/><circle cx="12" cy="12" r="4" fill="%23EEEEF5"/><path d="M12 2 L12 8 M12 16 L12 22 M8 12 L16 12" stroke="%237C6FED" stroke-width="2" stroke-linecap="round"/></svg>') 14 14, pointer;
+}
+
+/* Custom cursor for text inputs */
+input, textarea, select {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="20" stroke="%237C6FED" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2" fill="%237C6FED"/></svg>') 10 10, text;
+}
+
+/* Custom cursor for links/anchors */
+a {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24"><path d="M12 2 L8 12 L12 10 L16 12 L12 22" stroke="%237C6FED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="3" fill="%23EEEEF5"/></svg>') 13 13, pointer;
+}
+
 /* Animations */
 @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .anim{animation:slideUp .3s ease both}
@@ -712,7 +732,7 @@ select option{background:var(--s)}
 <!-- ══════════════ STATS VIEW ══════════════ -->
 <div class="view" id="view-stats">
   <div class="vhdr">
-    <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">Analytics</div></div>
+    <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">Stats</div></div>
   </div>
   <div class="scroll-area">
     <div class="card anim">
