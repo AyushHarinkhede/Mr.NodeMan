@@ -591,47 +591,68 @@ select option{background:var(--s)}
 
 /* Base arrow cursor - purple theme */
 * {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><path d="M6 4 L6 26 L12 20 L16 28 L20 26 L16 18 L26 18 Z" fill="%237C6FED" filter="url(%23shadow)"/><path d="M6 4 L6 26 L12 20 L16 28 L20 26 L16 18 L26 18 Z" fill="%237C6FED" opacity="0.9"/></svg>') 6 4, auto;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs><path d="M4 4 L4 22 L10 16 L14 24 L18 22 L14 14 L22 14 Z" fill="%237C6FED" filter="url(%23shadow)"/></svg>') 4 4, auto;
 }
 
-/* Interactive elements - orange arrow on hover */
-button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><path d="M6 4 L6 26 L12 20 L16 28 L20 26 L16 18 L26 18 Z" fill="%23FFB930" filter="url(%23shadow)"/><path d="M6 4 L6 26 L12 20 L16 28 L20 26 L16 18 L26 18 Z" fill="%23FFB930" opacity="0.9"/></svg>') 6 4, pointer;
-  transition: cursor 0.2s ease;
+/* Interactive elements - orange arrow */
+button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn,
+button *, .ss-btn *, .nitem *, .pill *, .fchip *, .more-row *, .cfl-row *, .entry-item *, .client-item *, .hm-cell *, .reuse-btn *, .tm-chip *, .tm-add-btn *, .tabbtn *,
+.hdr-icon, .fab, .mhandle, .tm-chip-x, [onclick], [role="button"], [data-action] {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs><path d="M4 4 L4 22 L10 16 L14 24 L18 22 L14 14 L22 14 Z" fill="%23FFB930" filter="url(%23shadow)"/></svg>') 4 4, pointer !important;
 }
 
-button:hover, .ss-btn:hover, .nitem:hover, .pill:hover, .fchip:hover, .more-row:hover, .cfl-row:hover, .entry-item:hover, .client-item:hover, .hm-cell:hover, .reuse-btn:hover, .tm-chip:hover, .tm-add-btn:hover, .tabbtn:hover {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 32 32"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.4"/></filter></defs><path d="M6 4 L6 26 L12 20 L16 28 L20 26 L16 18 L26 18 Z" fill="%23FFB930" filter="url(%23shadow)"/><path d="M6 4 L6 26 L12 20 L16 28 L20 26 L16 18 L26 18 Z" fill="%23FFB930" opacity="1"/></svg>') 6 4, pointer;
+/* Enhanced hover state for interactive elements */
+button:hover, .ss-btn:hover, .nitem:hover, .pill:hover, .fchip:hover, .more-row:hover, .cfl-row:hover, .entry-item:hover, .client-item:hover, .hm-cell:hover, .reuse-btn:hover, .tm-chip:hover, .tm-add-btn:hover, .tabbtn:hover,
+.hdr-icon:hover, .fab:hover, .mhandle:hover, .tm-chip-x:hover, [onclick]:hover, [role="button"]:hover, [data-action]:hover {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><path d="M4 4 L4 22 L10 16 L14 24 L18 22 L14 14 L22 14 Z" fill="%23FFB930" filter="url(%23shadow)"/></svg>') 4 4, pointer !important;
 }
 
 /* Text input cursor - I-beam with purple accent */
-input, textarea, select {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/></filter></defs><rect x="10" y="2" width="4" height="20" rx="1" fill="%237C6FED" filter="url(%23shadow)"/><rect x="10" y="2" width="4" height="20" rx="1" fill="%237C6FED" opacity="0.9"/><rect x="8" y="0" width="8" height="4" rx="1" fill="%237C6FED"/><rect x="8" y="20" width="8" height="4" rx="1" fill="%237C6FED"/></svg>') 12 12, text;
+input, textarea, select, [contenteditable="true"] {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="0.5" flood-opacity="0.2"/></filter></defs><rect x="8" y="2" width="4" height="16" rx="1" fill="%237C6FED" filter="url(%23shadow)"/><rect x="6" y="0" width="8" height="3" rx="1" fill="%237C6FED"/><rect x="6" y="17" width="8" height="3" rx="1" fill="%237C6FED"/></svg>') 10 10, text !important;
 }
 
 /* Links/anchors - pointing hand arrow */
-a {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><path d="M8 2 L8 18 L12 14 L16 22 L20 20 L16 12 L24 12 L16 4 L12 6 L8 2 Z" fill="%237C6FED" filter="url(%23shadow)"/><circle cx="18" cy="8" r="2" fill="%23EEEEF5"/></svg>') 8 2, pointer;
+a, a * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.25"/></filter></defs><path d="M6 2 L6 16 L10 12 L14 20 L17 18 L13 10 L20 10 L13 3 L10 5 L6 2 Z" fill="%237C6FED" filter="url(%23shadow)"/></svg>') 6 2, pointer !important;
 }
 
-/* Grab cursor - hand grabbing */
-.grabbing {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><path d="M8 8 C8 6 10 4 12 4 C12 2 14 0 16 0 C18 0 20 2 20 4 C22 4 24 6 24 8 L24 16 C24 20 20 24 16 24 L12 24 C8 24 4 20 4 16 L4 10 C4 8 6 6 8 6 Z" fill="%237C6FED" filter="url(%23shadow)"/><path d="M8 8 C8 6 10 4 12 4 C12 2 14 0 16 0 C18 0 20 2 20 4 C22 4 24 6 24 8 L24 16 C24 20 20 24 16 24 L12 24 C8 24 4 20 4 16 L4 10 C4 8 6 6 8 6 Z" fill="%237C6FED" opacity="0.9"/></svg>') 14 14, grabbing;
+/* Hand cursor for dragging/grabbing operations */
+.hand-cursor, [data-hand="true"], .drag-area, .resize-handle {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.25"/></filter></defs><path d="M8 10 C8 8 9 7 10 7 C10 6 11 5 12 5 C13 5 14 6 14 7 C15 7 16 8 16 10 L16 15 C16 17 14 19 12 19 C10 19 8 17 8 15 Z" fill="%237C6FED" filter="url(%23shadow)"/><path d="M8 10 C8 8 9 7 10 7 C10 6 11 5 12 5 C13 5 14 6 14 7 C15 7 16 8 16 10 L16 15 C16 17 14 19 12 19 C10 19 8 17 8 15 Z" fill="%237C6FED" opacity="0.9"/></svg>') 12 12, grab !important;
+}
+
+.hand-cursor:active, [data-hand="true"]:active, .drag-area:active, .resize-handle:active {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.25"/></filter></defs><path d="M8 10 C8 8 9 7 10 7 C10 6 11 5 12 5 C13 5 14 6 14 7 C15 7 16 8 16 10 L16 15 C16 17 14 19 12 19 C10 19 8 17 8 15 Z" fill="%23FFB930" filter="url(%23shadow)"/><path d="M8 10 C8 8 9 7 10 7 C10 6 11 5 12 5 C13 5 14 6 14 7 C15 7 16 8 16 10 L16 15 C16 17 14 19 12 19 C10 19 8 17 8 15 Z" fill="%23FFB930" opacity="0.9"/></svg>') 12 12, grabbing !important;
+}
+
+/* Grab cursor - hand grabbing (alternative style) */
+.grabbing, [draggable="true"] {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.25"/></filter></defs><path d="M6 8 C6 6 8 4 10 4 C10 2 12 0 14 0 C16 0 18 2 18 4 C20 4 22 6 22 8 L22 14 C22 18 18 22 14 22 L10 22 C6 22 2 18 2 14 L2 10 C2 8 4 6 6 6 Z" fill="%237C6FED" filter="url(%23shadow)"/></svg>') 12 12, grabbing !important;
 }
 
 /* Not allowed cursor - circle with slash */
-.not-allowed {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><circle cx="14" cy="14" r="12" fill="%23F87171" filter="url(%23shadow)" opacity="0.8"/><circle cx="14" cy="14" r="10" fill="none" stroke="%23EEEEF5" stroke-width="2"/><path d="M8 8 L20 20" stroke="%23EEEEF5" stroke-width="2" stroke-linecap="round"/></svg>') 14 14, not-allowed;
+.not-allowed, [disabled] {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.25"/></filter></defs><circle cx="12" cy="12" r="10" fill="%23F87171" filter="url(%23shadow)" opacity="0.8"/><circle cx="12" cy="12" r="8" fill="none" stroke="%23EEEEF5" stroke-width="1.5"/><path d="M7 7 L17 17" stroke="%23EEEEF5" stroke-width="1.5" stroke-linecap="round"/></svg>') 12 12, not-allowed !important;
 }
 
 /* Loading/wait cursor - spinning circle */
 .loading {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><circle cx="14" cy="14" r="12" fill="none" stroke="%237C6FED" stroke-width="2" opacity="0.3" filter="url(%23shadow)"/><path d="M14 2 A12 12 0 0 1 26 14" stroke="%237C6FED" stroke-width="2" stroke-linecap="round" fill="none"><animateTransform attributeName="transform" type="rotate" from="0 14 14" to="360 14 14" dur="1s" repeatCount="indefinite"/></path></svg>') 14 14, wait;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.25"/></filter></defs><circle cx="12" cy="12" r="10" fill="none" stroke="%237C6FED" stroke-width="1.5" opacity="0.3" filter="url(%23shadow)"/><path d="M12 2 A10 10 0 0 1 22 12" stroke="%237C6FED" stroke-width="1.5" stroke-linecap="round" fill="none"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite"/></path></svg>') 12 12, wait !important;
 }
 
 /* Precision cursor - crosshair */
 .precision {
-  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/></filter></defs><path d="M14 2 L14 10 M14 18 L14 26 M2 14 L10 14 M18 14 L26 14" stroke="%237C6FED" stroke-width="2" stroke-linecap="round" filter="url(%23shadow)"/><circle cx="14" cy="14" r="2" fill="%237C6FED"/></svg>') 14 14, crosshair;
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="0.5" flood-opacity="0.2"/></filter></defs><path d="M12 2 L12 8 M12 16 L12 22 M2 12 L8 12 M16 12 L22 12" stroke="%237C6FED" stroke-width="1.5" stroke-linecap="round" filter="url(%23shadow)"/><circle cx="12" cy="12" r="1.5" fill="%237C6FED"/></svg>') 12 12, crosshair !important;
+}
+
+/* Ensure all child elements inherit parent cursor behavior */
+button *, .ss-btn *, .nitem *, .pill *, .fchip *, .more-row *, .cfl-row *, .entry-item *, .client-item *, .hm-cell *, .reuse-btn *, .tm-chip *, .tm-add-btn *, .tabbtn *, a * {
+  pointer-events: none;
+}
+
+button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn, a {
+  position: relative;
 }
 
 /* Animations */
@@ -3634,7 +3655,7 @@ class SoundManager {
         case 'tap':
           oscillator.frequency.setValueAtTime(800, currentTime);
           oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.03);
-          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.setValueAtTime(0.4, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.03);
@@ -3644,7 +3665,7 @@ class SoundManager {
           oscillator.frequency.setValueAtTime(523.25, currentTime);
           oscillator.frequency.setValueAtTime(659.25, currentTime + 0.04);
           oscillator.frequency.setValueAtTime(783.99, currentTime + 0.08);
-          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.setValueAtTime(0.4, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.1);
@@ -3653,7 +3674,7 @@ class SoundManager {
         case 'error':
           oscillator.frequency.setValueAtTime(300, currentTime);
           oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.08);
-          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.setValueAtTime(0.4, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.08);
@@ -3661,7 +3682,7 @@ class SoundManager {
           
         case 'navigation':
           oscillator.frequency.setValueAtTime(440, currentTime);
-          gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.setValueAtTime(0.25, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.02);
@@ -3669,7 +3690,7 @@ class SoundManager {
           
         case 'modal':
           oscillator.frequency.setValueAtTime(600, currentTime);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.setValueAtTime(0.35, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.05);
@@ -3678,7 +3699,7 @@ class SoundManager {
         case 'delete':
           oscillator.frequency.setValueAtTime(200, currentTime);
           oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.12);
-          gainNode.gain.setValueAtTime(0.2, currentTime);
+          gainNode.gain.setValueAtTime(0.4, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.12);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.12);
@@ -3686,7 +3707,7 @@ class SoundManager {
           
         case 'countdown-tick':
           oscillator.frequency.setValueAtTime(1000, currentTime);
-          gainNode.gain.setValueAtTime(0.1, currentTime);
+          gainNode.gain.setValueAtTime(0.25, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.015);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.015);
@@ -3694,7 +3715,7 @@ class SoundManager {
           
         case 'countdown-5':
           oscillator.frequency.setValueAtTime(1200, currentTime);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.setValueAtTime(0.35, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.02);
@@ -3702,7 +3723,7 @@ class SoundManager {
           
         case 'countdown-4':
           oscillator.frequency.setValueAtTime(1100, currentTime);
-          gainNode.gain.setValueAtTime(0.15, currentTime);
+          gainNode.gain.setValueAtTime(0.35, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.02);
@@ -3710,7 +3731,7 @@ class SoundManager {
           
         case 'countdown-3':
           oscillator.frequency.setValueAtTime(900, currentTime);
-          gainNode.gain.setValueAtTime(0.17, currentTime);
+          gainNode.gain.setValueAtTime(0.37, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.03);
@@ -3718,7 +3739,7 @@ class SoundManager {
           
         case 'countdown-2':
           oscillator.frequency.setValueAtTime(700, currentTime);
-          gainNode.gain.setValueAtTime(0.19, currentTime);
+          gainNode.gain.setValueAtTime(0.39, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.04);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.04);
@@ -3727,7 +3748,7 @@ class SoundManager {
         case 'countdown-1':
           oscillator.frequency.setValueAtTime(500, currentTime);
           oscillator.frequency.exponentialRampToValueAtTime(400, currentTime + 0.08);
-          gainNode.gain.setValueAtTime(0.22, currentTime);
+          gainNode.gain.setValueAtTime(0.42, currentTime);
           gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
           oscillator.start(currentTime);
           oscillator.stop(currentTime + 0.08);
