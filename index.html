@@ -2686,11 +2686,11 @@ function showPrivacyPolicy() {
 ════════════════════════════════════════════ */
 function openModal(id){
   document.getElementById(id).classList.add('open');
-  playSoundAndHaptic('modal', 'medium');
+  playSoundAndHaptic('modal', 'modal-open');
 }
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
-  playSoundAndHaptic('tap', 'light');
+  playSoundAndHaptic('tap', 'modal-close');
   
   // Stop countdown if confirm modal is closed
   if(id === 'confirm-modal') {
@@ -3771,11 +3771,13 @@ class SoundManager {
   showSoundIndicator() { /* Removed visual indicator */ }
 }
 
-// Haptic Feedback System
+// Enhanced Haptic Feedback System
 class HapticManager {
   constructor() {
     this.enabled = true;
     this.checkHapticSupport();
+    this.hapticQueue = [];
+    this.isProcessing = false;
   }
 
   checkHapticSupport() {
@@ -3786,72 +3788,156 @@ class HapticManager {
   triggerHaptic(type) {
     if (!this.enabled) return;
 
+    // Queue haptic for perfect sync with sound
+    this.hapticQueue.push({ type, timestamp: Date.now() });
+    this.processHapticQueue();
+  }
+
+  processHapticQueue() {
+    if (this.isProcessing || this.hapticQueue.length === 0) return;
+    
+    this.isProcessing = true;
+    const { type } = this.hapticQueue.shift();
+    
     try {
-      // Vibration API (most common) - immediate trigger
+      // Enhanced Vibration API - stronger patterns
       if (this.vibrateSupported) {
         switch(type) {
           case 'light':
-            navigator.vibrate(35);
+            // Quick, sharp tap - perfect for button clicks
+            navigator.vibrate([25, 10, 15]);
             break;
           case 'medium':
-            navigator.vibrate(60);
+            // Firm press - for modal opens and important actions
+            navigator.vibrate([50, 20, 30, 20, 25]);
             break;
           case 'strong':
-            navigator.vibrate(120);
+            // Powerful pulse - for countdown and critical actions
+            navigator.vibrate([80, 30, 60, 30, 40, 20, 30]);
             break;
           case 'double':
-            navigator.vibrate([40, 100, 40]);
+            // Double tap pattern - for success confirmation
+            navigator.vibrate([60, 80, 80, 80, 60]);
             break;
           case 'success':
-            navigator.vibrate([50, 70, 50, 70, 50]);
+            // Celebratory pattern - ascending pulses
+            navigator.vibrate([40, 50, 50, 40, 60, 30, 80, 20, 100]);
             break;
           case 'error':
-            navigator.vibrate([200, 100, 200]);
+            // Warning pattern - strong, attention-grabbing
+            navigator.vibrate([150, 100, 150, 100, 200]);
             break;
           case 'navigation':
-            navigator.vibrate(40);
+            // Navigation pulse - smooth transition feedback
+            navigator.vibrate([35, 15, 25]);
+            break;
+          case 'countdown-tick':
+            // Countdown tick - sharp, rhythmic
+            navigator.vibrate(20);
+            break;
+          case 'countdown-urgent':
+            // Urgent countdown - rapid pulses
+            navigator.vibrate([40, 20, 40, 20, 40]);
+            break;
+          case 'delete':
+            // Delete confirmation - descending pattern
+            navigator.vibrate([100, 50, 70, 50, 40]);
+            break;
+          case 'modal-open':
+            // Modal opening - smooth slide-in feel
+            navigator.vibrate([60, 40, 80]);
+            break;
+          case 'modal-close':
+            // Modal closing - gentle dismissal
+            navigator.vibrate([30, 20, 20]);
             break;
           default:
-            navigator.vibrate(50);
+            // Default enhanced feedback
+            navigator.vibrate([40, 20, 30]);
         }
       }
 
-      // Gamepad API for devices with rumble - immediate trigger
+      // Enhanced Gamepad API - stronger rumbles
       if (this.gamepadSupported) {
-        this.triggerGamepadRumble(type);
+        this.triggerEnhancedGamepadRumble(type);
       }
+      
+      // Process next haptic after short delay
+      setTimeout(() => {
+        this.isProcessing = false;
+        this.processHapticQueue();
+      }, 100);
+      
     } catch (e) {
-      console.log('Haptic error:', e);
+      console.log('Enhanced haptic error:', e);
+      this.isProcessing = false;
+      this.processHapticQueue();
     }
   }
 
-  triggerGamepadRumble(type) {
+  triggerEnhancedGamepadRumble(type) {
     try {
       const gamepads = navigator.getGamepads();
       gamepads.forEach(gamepad => {
         if (gamepad && gamepad.vibrationActuator) {
           switch(type) {
             case 'light':
-              gamepad.vibrationActuator.pulse(0.4, 150);
+              // Quick tap
+              gamepad.vibrationActuator.pulse(0.6, 200);
               break;
             case 'medium':
-              gamepad.vibrationActuator.pulse(0.7, 250);
+              // Firm pulse
+              gamepad.vibrationActuator.pulse(0.8, 350);
               break;
             case 'strong':
-              gamepad.vibrationActuator.pulse(1.0, 350);
+              // Maximum intensity
+              gamepad.vibrationActuator.pulse(1.0, 500);
+              break;
+            case 'double':
+              // Double pulse
+              gamepad.vibrationActuator.pulse(0.9, 250);
+              setTimeout(() => {
+                if (gamepad.vibrationActuator) {
+                  gamepad.vibrationActuator.pulse(0.9, 250);
+                }
+              }, 150);
+              break;
+            case 'success':
+              // Celebratory rumble
+              gamepad.vibrationActuator.pulse(0.7, 200);
+              setTimeout(() => {
+                if (gamepad.vibrationActuator) {
+                  gamepad.vibrationActuator.pulse(0.9, 300);
+                }
+              }, 100);
+              break;
+            case 'error':
+              // Warning rumble
+              gamepad.vibrationActuator.pulse(1.0, 400);
+              break;
+            case 'navigation':
+              // Navigation feedback
+              gamepad.vibrationActuator.pulse(0.5, 250);
               break;
             default:
-              gamepad.vibrationActuator.pulse(0.5, 200);
+              gamepad.vibrationActuator.pulse(0.7, 300);
           }
         }
       });
     } catch (e) {
-      console.log('Gamepad rumble error:', e);
+      console.log('Enhanced gamepad rumble error:', e);
     }
   }
 
+  // Sync haptic with sound timing
+  triggerHapticWithDelay(type, delay = 0) {
+    setTimeout(() => {
+      this.triggerHaptic(type);
+    }, delay);
+  }
+
   showHapticIndicator() {
-    // Visual indicator removed - only provide haptic feedback
+    // Visual indicator removed - only provide enhanced haptic feedback
   }
 }
 
@@ -4036,10 +4122,77 @@ function triggerHaptic(type) {
   hapticManager.triggerHaptic(type);
 }
 
-function playSoundAndHaptic(soundType, hapticType) {
+function playSoundAndHaptic(soundType, hapticType, syncDelay = 0) {
+  // Play sound immediately
   playSound(soundType);
-  triggerHaptic(hapticType);
+  
+  // Trigger haptic with perfect sync timing
+  if (syncDelay > 0) {
+    hapticManager.triggerHapticWithDelay(hapticType, syncDelay);
+  } else {
+    // Immediate trigger for most interactions
+    hapticManager.triggerHaptic(hapticType);
+  }
 }
+
+// Enhanced countdown with perfect sound-haptic sync
+function updateCountdown() {
+  const cdVal = parseInt(document.getElementById('countdown').dataset.value || 0);
+  const btn = document.getElementById('confirm-btn');
+  const num = document.getElementById('countdown-number');
+  
+  if (cdVal > 0) {
+    const newVal = cdVal - 1;
+    document.getElementById('countdown').dataset.value = newVal;
+    num.textContent = newVal;
+    
+    // Enhanced visual feedback
+    if(newVal <= 3) {
+      num.style.color = 'var(--pend)';
+      num.style.fontWeight = '800';
+      num.style.transform = 'scale(1.2)';
+      num.style.animation = 'blink 0.5s infinite';
+    }
+    
+    // Perfect sound-haptic sync for each second
+    if(cdVal > 5) {
+      // Normal ticks for 9, 8, 7, 6
+      playSound('countdown-tick');
+      hapticManager.triggerHaptic('countdown-tick');
+    } else if(cdVal === 5) {
+      // 5 seconds - higher pitch
+      playSound('countdown-5');
+      hapticManager.triggerHaptic('medium');
+    } else if(cdVal === 4) {
+      // 4 seconds - slightly lower
+      playSound('countdown-4');
+      hapticManager.triggerHaptic('medium');
+    } else if(cdVal === 3) {
+      // 3 seconds - medium pitch
+      playSound('countdown-3');
+      hapticManager.triggerHaptic('strong');
+    } else if(cdVal === 2) {
+      // 2 seconds - lower pitch
+      playSound('countdown-2');
+      hapticManager.triggerHaptic('strong');
+    } else if(cdVal === 1) {
+      // 1 second - dramatic descending tone
+      playSound('countdown-1');
+      hapticManager.triggerHaptic('countdown-urgent');
+    }
+  }
+    
+  if(cdVal<=0){
+    clearInterval(countdownInterval);
+    document.getElementById('countdown').style.display='none';
+    btn.disabled=false;
+    btn.style.opacity='1';
+    btn.style.cursor='pointer';
+    document.getElementById('cd-label').textContent='Confirm button is now active.';
+    // Enhanced completion feedback
+    playSoundAndHaptic('success', 'success');
+  }
+}, 1000);
 
 /* ════════════════════════════════════════════
    SMOOTH ANIMATION HELPERS
