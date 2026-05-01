@@ -516,26 +516,27 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 #fs-heatmap-vertical .heatmap-row{
   display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
   transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);cursor:pointer;
-  border:1px solid transparent;background:var(--s2);
+  border:1px solid var(--b);background:var(--s2);
 }
 
 #fs-heatmap-vertical .heatmap-row:hover{
-  background:var(--s1);border-color:var(--b);transform:translateX(8px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.1);
+  background:var(--s1);border-color:var(--acc-bd);transform:translateX(8px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
 }
 
 #fs-heatmap-vertical .heatmap-cell{
   width:18px;height:18px;border-radius:4px;transition:all 0.2s;flex-shrink:0;
-  border:1px solid rgba(255,255,255,0.1);cursor:pointer;
+  border:1px solid rgba(255,255,255,0.2);cursor:pointer;
+  background:var(--s1);
 }
 
 #fs-heatmap-vertical .heatmap-cell:hover{
-  transform:scale(1.3);box-shadow:0 4px 16px rgba(0,0,0,0.2);
+  transform:scale(1.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
   z-index:10;position:relative;
 }
 
 #fs-heatmap-vertical .row-label{
-  width:90px;font-size:12px;font-weight:600;color:var(--t2);
+  width:90px;font-size:12px;font-weight:600;color:var(--t1);
   flex-shrink:0;text-align:right;
 }
 
@@ -548,17 +549,18 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   position:relative;margin-bottom:20px;padding:12px;background:var(--s2);
   border-radius:10px;border:1px solid var(--b);font-size:11px;
   transition:all 0.2s;cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 #fs-timeline .timeline-item:hover{
   background:var(--acc-bg);border-color:var(--acc-bd);transform:translateX(8px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.1);
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
 }
 
 #fs-timeline .timeline-item::before{
   content:'';position:absolute;left:-20px;top:50%;transform:translateY(-50%);
   width:10px;height:10px;border-radius:50%;background:var(--acc);
-  border:3px solid var(--s2);
+  border:3px solid var(--s1);
 }
 
 #fs-timeline .timeline-item.active::before{
@@ -569,11 +571,20 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 #fs-period-details .period-card{
   background:var(--s2);border:1px solid var(--b);border-radius:10px;
   padding:12px;font-size:11px;transition:all 0.2s;cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 #fs-period-details .period-card:hover{
   background:var(--acc-bg);border-color:var(--acc-bd);transform:scale(1.02);
-  box-shadow:0 4px 16px rgba(0,0,0,0.1);
+  box-shadow:0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* Enhanced visibility for all content */
+#fs-vertical-heatmap > div{
+  background:var(--s1);
+  border-radius:12px;
+  padding:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.08);
 }
 
 /* Fullscreen responsive adjustments */
@@ -595,15 +606,88 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   }
   #fullscreen-heatmap-modal .msheet .left-sidebar{
     width:100%;height:auto;border-right:none;border-bottom:1px solid var(--b);
+    padding:16px;
   }
   #fs-vertical-heatmap{
     flex-direction:column !important;
+    gap:16px !important;
   }
   #fs-timeline{
     width:100%;border-left:none;border-top:2px solid var(--b);padding-left:0;padding-top:16px;
+    min-height:auto !important;
   }
   #fs-period-details{
     width:100%;
+  }
+  
+  /* Mobile-specific fixes */
+  #fs-heatmap-vertical .heatmap-row{
+    padding:12px 8px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+  
+  #fs-heatmap-vertical .row-label{
+    width:100%;
+    text-align:left;
+    font-size:14px;
+    font-weight:700;
+    color:var(--t1);
+  }
+  
+  #fs-heatmap-vertical .row-activity{
+    width:100%;
+    overflow-x:auto;
+    padding:8px 0;
+  }
+  
+  #fs-heatmap-vertical .heatmap-cell{
+    width:14px;height:14px;
+  }
+  
+  #fs-timeline .timeline-item{
+    padding:8px 12px;
+    margin-bottom:12px;
+  }
+  
+  #fs-period-details .period-card{
+    padding:10px;
+  }
+}
+
+@media (max-width:480px){
+  #fullscreen-heatmap-modal .msheet .left-sidebar{
+    padding:12px;
+  }
+  
+  #fs-heatmap-vertical .heatmap-row{
+    padding:8px;
+  }
+  
+  #fs-heatmap-vertical .row-label{
+    font-size:12px;
+  }
+  
+  #fs-heatmap-vertical .heatmap-cell{
+    width:12px;height:12px;
+  }
+  
+  #fs-timeline .timeline-item{
+    padding:6px 8px;
+    font-size:10px;
+  }
+  
+  #fs-period-details .period-card{
+    padding:8px;
+    font-size:10px;
+  }
+  
+  #fs-date-info{
+    width:calc(100vw - 40px) !important;
+    right:20px;
+    left:20px;
+    bottom:20px;
   }
 }
 
@@ -1048,7 +1132,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <!-- Activity Heatmap -->
     <div class="card anim">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
-        <div class="sec-title">Activity Heatmap</div>
+        <div class="sec-title">Activity</div>
         <div style="display:flex;gap:14px">
           <button class="ss-btn" onclick="openFullscreenHeatmap()" style="padding:6px 12px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:700">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:4px;vertical-align:middle">
@@ -2378,19 +2462,41 @@ function renderVerticalHeatmap(dm, maxAmt, now){
     
     const row=document.createElement('div');
     row.className='heatmap-row heatmap-interaction';
-    row.innerHTML=`
-      <div class="row-label">${monthName} ${year}</div>
-      <div class="row-activity">
-        ${monthData.dates.map(ds=>{
-          const date=new Date(ds);
-          const day=date.getDate();
-          const isFuture=date>now;
-          const dayData=dm[ds];
-          const color=cellColor(ds,isFuture,dm,maxAmt);
-          return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
-        }).join('')}
-      </div>
-    `;
+    
+    // Check if mobile for different layout
+    const isMobile = window.innerWidth <= 768;
+    
+    if(isMobile){
+      // Mobile layout - vertical stack
+      row.innerHTML=`
+        <div class="row-label">${monthName} ${year} • ${fmtRs(monthData.total)} • ${monthData.dates.length} days</div>
+        <div class="row-activity">
+          ${monthData.dates.map(ds=>{
+            const date=new Date(ds);
+            const day=date.getDate();
+            const isFuture=date>now;
+            const dayData=dm[ds];
+            const color=cellColor(ds,isFuture,dm,maxAmt);
+            return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
+          }).join('')}
+        </div>
+      `;
+    } else {
+      // Desktop layout - horizontal
+      row.innerHTML=`
+        <div class="row-label">${monthName} ${year}</div>
+        <div class="row-activity">
+          ${monthData.dates.map(ds=>{
+            const date=new Date(ds);
+            const day=date.getDate();
+            const isFuture=date>now;
+            const dayData=dm[ds];
+            const color=cellColor(ds,isFuture,dm,maxAmt);
+            return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
+          }).join('')}
+        </div>
+      `;
+    }
     
     // Add interaction handlers with sound and haptic feedback
     row.addEventListener('click', () => {
@@ -2413,13 +2519,16 @@ function renderTimeline(dm, now){
   // Create timeline items for important periods
   const sortedDates=Object.keys(dm).sort();
   if(sortedDates.length===0){
-    container.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px">No activity data available</div>';
+    container.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px;background:var(--s2);border-radius:8px">No activity data available</div>';
     return;
   }
   
   // Get current and previous periods
   const currentMonth=sortedDates[sortedDates.length-1].substring(0,7);
   const previousMonth=sortedDates.length>1 ? sortedDates[Math.max(0,sortedDates.length-13)].substring(0,7) : null;
+  
+  // Check if mobile for different layout
+  const isMobile = window.innerWidth <= 768;
   
   // Timeline items
   const timelineItems=[
@@ -2435,11 +2544,27 @@ function renderTimeline(dm, now){
     if(item.type==='current' || item.type==='today') div.classList.add('active');
     
     const itemData=dm[item.date] || {total:0,paid:0,pending:0,entries:[]};
-    div.innerHTML=`
-      <div style="font-weight:600;color:var(--t1);margin-bottom:4px">${item.label}</div>
-      <div style="color:var(--t2);font-size:10px">${fmtDate(item.date)}</div>
-      ${itemData.total>0?`<div style="color:var(--acc);font-weight:600;margin-top:4px;font-size:12px">${fmtRs(itemData.total)}</div>`:''}
-    `;
+    
+    if(isMobile){
+      // Mobile layout - more compact
+      div.innerHTML=`
+        <div style="font-weight:600;color:var(--t1);margin-bottom:2px;font-size:12px">${item.label}</div>
+        <div style="color:var(--t2);font-size:9px;margin-bottom:2px">${fmtDate(item.date)}</div>
+        ${itemData.total>0?`
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="color:var(--acc);font-weight:600;font-size:11px">${fmtRs(itemData.total)}</span>
+            <span style="color:var(--t3);font-size:9px">${itemData.entries.length} entries</span>
+          </div>
+        `:'<div style="color:var(--t3);font-size:9px">No activity</div>'}
+      `;
+    } else {
+      // Desktop layout
+      div.innerHTML=`
+        <div style="font-weight:600;color:var(--t1);margin-bottom:4px">${item.label}</div>
+        <div style="color:var(--t2);font-size:10px">${fmtDate(item.date)}</div>
+        ${itemData.total>0?`<div style="color:var(--acc);font-weight:600;margin-top:4px;font-size:12px">${fmtRs(itemData.total)}</div>`:''}
+      `;
+    }
     
     div.addEventListener('click', () => {
       playSoundAndHaptic('timeline_click', 'medium');
