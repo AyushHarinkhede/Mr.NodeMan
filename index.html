@@ -445,64 +445,36 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 /* Fullscreen heatmap container */
 #fullscreen-heatmap-modal .hmscroll{max-height:60vh;overflow:auto}
 
-/* Vertical heatmap styles */
-#fs-heatmap-vertical .heatmap-row{
-  display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;
-  transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);cursor:pointer;
-  border:1px solid transparent;
-}
-
-#fs-heatmap-vertical .heatmap-row:hover{
-  background:var(--s1);border-color:var(--b);transform:translateX(4px);
-}
-
-#fs-heatmap-vertical .heatmap-cell{
-  width:20px;height:20px;border-radius:4px;transition:all 0.2s;flex-shrink:0;
+/* Enhanced horizontal heatmap styles */
+#fs-hm-weeks .hcell{
+  width:16px;height:16px;border-radius:3px;transition:all 0.2s;flex-shrink:0;
   border:1px solid rgba(255,255,255,0.1);
 }
 
-#fs-heatmap-vertical .heatmap-cell:hover{
-  transform:scale(1.2);box-shadow:0 4px 12px rgba(0,0,0,0.2);
+#fs-hm-weeks .hcell:hover{
+  transform:scale(1.3);box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  z-index:10;position:relative;
 }
 
-#fs-heatmap-vertical .row-label{
-  width:80px;font-size:11px;font-weight:600;color:var(--t2);
-  flex-shrink:0;text-align:right;
+/* Enhanced fullscreen heatmap container */
+#fullscreen-heatmap-modal .hmscroll{
+  scrollbar-width:thin;scrollbar-color:var(--b) transparent;
 }
 
-#fs-heatmap-vertical .row-activity{
-  flex:1;display:flex;gap:2px;min-width:0;
+#fullscreen-heatmap-modal .hmscroll::-webkit-scrollbar{
+  width:8px;height:8px;
 }
 
-/* Timeline styles */
-#fs-timeline .timeline-item{
-  position:relative;margin-bottom:16px;padding:8px;background:var(--s1);
-  border-radius:8px;border:1px solid var(--b);font-size:10px;
-  transition:all 0.2s;cursor:pointer;
+#fullscreen-heatmap-modal .hmscroll::-webkit-scrollbar-track{
+  background:transparent;
 }
 
-#fs-timeline .timeline-item:hover{
-  background:var(--acc-bg);border-color:var(--acc-bd);transform:translateX(4px);
+#fullscreen-heatmap-modal .hmscroll::-webkit-scrollbar-thumb{
+  background:var(--b);border-radius:4px;
 }
 
-#fs-timeline .timeline-item::before{
-  content:'';position:absolute;left:-16px;top:50%;transform:translateY(-50%);
-  width:8px;height:8px;border-radius:50%;background:var(--acc);
-  border:2px solid var(--s2);
-}
-
-#fs-timeline .timeline-item.active::before{
-  background:var(--paid);width:10px;height:10px;
-}
-
-/* Period details styles */
-#fs-period-details .period-card{
-  background:var(--s1);border:1px solid var(--b);border-radius:8px;
-  padding:10px;font-size:10px;transition:all 0.2s;
-}
-
-#fs-period-details .period-card:hover{
-  background:var(--acc-bg);border-color:var(--acc-bd);transform:scale(1.02);
+#fullscreen-heatmap-modal .hmscroll::-webkit-scrollbar-thumb:hover{
+  background:var(--t2);
 }
 
 /* Enhanced fullscreen modal styles */
@@ -534,17 +506,14 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 /* Responsive adjustments for fullscreen modal */
 @media (max-width:768px){
   #fullscreen-heatmap-modal .msheet{max-width:98vw;max-height:98vh;padding:16px}
-  #fs-vertical-heatmap{flex-direction:column;gap:16px}
-  #fs-timeline{width:100%;border-left:none;border-top:2px solid var(--b);padding-left:0;padding-top:12px}
-  #fs-period-details{width:100%}
-  #fs-heatmap-vertical .heatmap-cell{width:16px;height:16px}
-  #fs-heatmap-vertical .row-label{width:60px;font-size:10px}
+  #fs-hm-weeks .hcell{width:14px;height:14px}
+  #fs-hm-dlabels div{width:11px;height:11px;font-size:8px}
 }
 
 @media (max-width:480px){
   #fullscreen-heatmap-modal .msheet{padding:12px}
-  #fs-heatmap-vertical .heatmap-cell{width:12px;height:12px}
-  #fs-heatmap-vertical .row-label{width:50px;font-size:9px}
+  #fs-hm-weeks .hcell{width:12px;height:12px}
+  #fs-hm-dlabels div{width:10px;height:10px;font-size:7px}
 }
 
 /* ════════════════════════════════════════════════
@@ -1026,52 +995,56 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
     </div>
     
-    <!-- Fullscreen Heatmap Container - Vertical Layout -->
-    <div style="max-height:65vh;overflow:auto;border:1px solid var(--b);border-radius:12px;padding:20px;background:var(--s2)">
-      <div id="fs-vertical-heatmap" style="display:flex;gap:20px;min-height:400px">
-        <!-- Timeline Column -->
-        <div style="flex-shrink:0;width:120px">
-          <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;text-align:center">Timeline</div>
-          <div id="fs-timeline" style="position:relative;border-left:2px solid var(--b);padding-left:12px;min-height:350px">
-            <!-- Timeline will be populated dynamically -->
-          </div>
+    <!-- Fullscreen Heatmap Container - Enhanced Horizontal Layout -->
+    <div style="max-height:70vh;overflow:auto;border:1px solid var(--b);border-radius:12px;padding:20px;background:var(--s2)">
+      <!-- Period Summary Cards -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
+        <div style="background:var(--s1);border:1px solid var(--b);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">This Month</div>
+          <div class="mono" id="fs-this-month" style="font-size:16px;font-weight:600;color:var(--acc)">₹0</div>
         </div>
-        
-        <!-- Heatmap Column -->
-        <div style="flex:1;min-width:0">
-          <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Activity Intensity</div>
-          <div id="fs-heatmap-vertical" style="display:flex;flex-direction:column;gap:8px;min-height:350px;overflow-y:auto;overflow-x:hidden">
-            <!-- Vertical heatmap will be populated dynamically -->
-          </div>
+        <div style="background:var(--s1);border:1px solid var(--b);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Last Month</div>
+          <div class="mono" id="fs-last-month" style="font-size:16px;font-weight:600;color:var(--t1)">₹0</div>
         </div>
-        
-        <!-- Details Column -->
-        <div style="flex-shrink:0;width:200px">
-          <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Period Summary</div>
-          <div id="fs-period-details" style="display:flex;flex-direction:column;gap:8px">
-            <!-- Period details will be populated dynamically -->
-          </div>
+        <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--paid);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Total Collected</div>
+          <div class="mono" id="fs-total-collected" style="font-size:16px;font-weight:600;color:var(--paid)">₹0</div>
+        </div>
+        <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--pend);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Total Pending</div>
+          <div class="mono" id="fs-total-pending" style="font-size:16px;font-weight:600;color:var(--pend)">₹0</div>
+        </div>
+      </div>
+      
+      <!-- Enhanced Horizontal Heatmap -->
+      <div class="hmscroll" style="max-height:40vh;overflow:auto;border:1px solid var(--b);border-radius:10px;padding:16px;background:var(--s1)">
+        <div id="fs-hm-years" style="position:relative;height:20px;margin-bottom:4px"></div>
+        <div id="fs-hm-months" style="position:relative;height:20px;margin-bottom:8px"></div>
+        <div style="display:flex;gap:3px">
+          <div id="fs-hm-dlabels" style="display:flex;flex-direction:column;gap:3px;margin-right:8px;flex-shrink:0"></div>
+          <div id="fs-hm-weeks" style="display:flex;gap:3px"></div>
         </div>
       </div>
     </div>
     
     <!-- Enhanced Legend -->
-    <div style="display:flex;gap:20px;margin-top:20px;align-items:center;flex-wrap:wrap;justify-content:center;background:var(--s1);border:1px solid var(--b);border-radius:12px;padding:12px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:12px;height:12px;border-radius:3px;background:var(--b);border:1px solid var(--b)"></div>
-        <span style="font-size:12px;color:var(--t2);font-weight:600">No Activity</span>
+    <div style="display:flex;gap:16px;margin-top:16px;align-items:center;flex-wrap:wrap;justify-content:center">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:2px;background:var(--b);border:1px solid var(--b)"></div>
+        <span style="font-size:11px;color:var(--t2);font-weight:600">No Activity</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:12px;height:12px;border-radius:3px;background:rgba(45,212,168,.75);border:1px solid rgba(45,212,168,.9)"></div>
-        <span style="font-size:12px;color:var(--t2);font-weight:600">Paid Work</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:2px;background:rgba(45,212,168,.75);border:1px solid rgba(45,212,168,.9)"></div>
+        <span style="font-size:11px;color:var(--t2);font-weight:600">Paid Work</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:12px;height:12px;border-radius:3px;background:rgba(255,185,48,.75);border:1px solid rgba(255,185,48,.9)"></div>
-        <span style="font-size:12px;color:var(--t2);font-weight:600">Pending Payment</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,185,48,.75);border:1px solid rgba(255,185,48,.9)"></div>
+        <span style="font-size:11px;color:var(--t2);font-weight:600">Pending Payment</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="width:12px;height:12px;border-radius:3px;background:rgba(160,200,120,.75);border:1px solid rgba(160,200,120,.9)"></div>
-        <span style="font-size:12px;color:var(--t2);font-weight:600">Mixed Activity</span>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:2px;background:rgba(160,200,120,.75);border:1px solid rgba(160,200,120,.9)"></div>
+        <span style="font-size:11px;color:var(--t2);font-weight:600">Mixed Activity</span>
       </div>
     </div>
     
@@ -2190,268 +2163,182 @@ function renderFullscreenHeatmap(){
   document.getElementById('fs-hm-total').textContent=fmtRs(total);
   document.getElementById('fs-hm-pending').textContent=fmtRs(pending);
 
-  // Render vertical heatmap
-  renderVerticalHeatmap(dm, maxAmt, now);
-  renderTimeline(dm, now);
-  renderPeriodDetails(dm, now);
+  // Update period summary cards
+  updatePeriodSummary(dm, now);
+
+  // Render enhanced horizontal heatmap
+  renderEnhancedHorizontalHeatmap(dm, maxAmt, now);
 }
 
-function renderVerticalHeatmap(dm, maxAmt, now){
-  const container=document.getElementById('fs-heatmap-vertical');
-  container.innerHTML='';
-  
-  // Group data by months for vertical display
-  const monthlyData={};
-  Object.keys(dm).forEach(ds=>{
-    const date=new Date(ds);
-    const monthKey=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`;
-    if(!monthlyData[monthKey]) monthlyData[monthKey]={dates:[],total:0,paid:0,pending:0};
-    monthlyData[monthKey].dates.push(ds);
-    monthlyData[monthKey].total+=dm[ds].total;
-    monthlyData[monthKey].paid+=dm[ds].paid;
-    monthlyData[monthKey].pending+=dm[ds].pending;
-  });
-
-  // Sort months and render
-  const sortedMonths=Object.keys(monthlyData).sort();
-  sortedMonths.forEach(monthKey=>{
-    const monthData=monthlyData[monthKey];
-    const [year,month]=monthKey.split('-');
-    const monthName=MTHS[parseInt(month)-1];
-    
-    const row=document.createElement('div');
-    row.className='heatmap-row heatmap-interaction';
-    row.innerHTML=`
-      <div class="row-label">${monthName} ${year}</div>
-      <div class="row-activity">
-        ${monthData.dates.map(ds=>{
-          const date=new Date(ds);
-          const day=date.getDate();
-          const isFuture=date>now;
-          const dayData=dm[ds];
-          const color=cellColor(ds,isFuture,dm,maxAmt);
-          return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
-        }).join('')}
-      </div>
-    `;
-    
-    // Add interaction handlers with sound and haptic feedback
-    row.addEventListener('click', () => {
-      playSoundAndHaptic('heatmap_click', 'light');
-      showMonthDetails(monthKey, monthData);
-    });
-    
-    row.addEventListener('mouseenter', () => {
-      playSoundAndHaptic('heatmap_hover', 'light');
-    });
-    
-    container.appendChild(row);
-  });
-}
-
-function renderTimeline(dm, now){
-  const container=document.getElementById('fs-timeline');
-  container.innerHTML='';
-  
-  // Create timeline items for important periods
+function updatePeriodSummary(dm, now){
   const sortedDates=Object.keys(dm).sort();
-  if(sortedDates.length===0){
-    container.innerHTML='<div style="text-align:center;color:var(--t3);padding:20px">No activity data available</div>';
-    return;
-  }
-  
-  // Get current and previous periods
-  const currentMonth=sortedDates[sortedDates.length-1].substring(0,7);
-  const previousMonth=sortedDates.length>1 ? sortedDates[Math.max(0,sortedDates.length-13)].substring(0,7) : null;
-  
-  // Timeline items
-  const timelineItems=[
-    {label:'Start', date:sortedDates[0], type:'start'},
-    {label:'This Month', date:currentMonth+'-01', type:'current'},
-    ...(previousMonth ? [{label:'12 Months Ago', date:previousMonth+'-01', type:'milestone'}] : []),
-    {label:'Today', date:dsOf(now), type:'today'}
-  ];
-  
-  timelineItems.forEach(item => {
-    const div=document.createElement('div');
-    div.className='timeline-item';
-    if(item.type==='current' || item.type==='today') div.classList.add('active');
-    
-    const itemData=dm[item.date] || {total:0,paid:0,pending:0,entries:[]};
-    div.innerHTML=`
-      <div style="font-weight:600;color:var(--t1);margin-bottom:2px">${item.label}</div>
-      <div style="color:var(--t2)">${fmtDate(item.date)}</div>
-      ${itemData.total>0?`<div style="color:var(--acc);font-weight:600;margin-top:2px">${fmtRs(itemData.total)}</div>`:''}
-    `;
-    
-    div.addEventListener('click', () => {
-      playSoundAndHaptic('timeline_click', 'medium');
-      showTimelineDetails(item, itemData);
-    });
-    
-    container.appendChild(div);
-  });
-}
-
-function renderPeriodDetails(dm, now){
-  const container=document.getElementById('fs-period-details');
-  container.innerHTML='';
-  
-  // Calculate period statistics
-  const sortedDates=Object.keys(dm).sort();
-  const thisMonth=sortedDates.filter(ds=>ds.startsWith(dsOf(now).substring(0,7)));
+  const currentMonth=sortedDates.filter(ds=>ds.startsWith(dsOf(now).substring(0,7)));
   const lastMonth=sortedDates.filter(ds=>{
     const date=new Date(now.getFullYear(), now.getMonth()-1, 1);
     return ds.startsWith(dsOf(date).substring(0,7));
   });
   
-  const periods=[
-    {name:'This Month', dates:thisMonth},
-    {name:'Last Month', dates:lastMonth},
-    {name:'Last 3 Months', dates:sortedDates.slice(-90)},
-    {name:'All Time', dates:sortedDates}
-  ];
+  // Calculate totals
+  const thisMonthTotal=currentMonth.reduce((sum, ds)=>sum+(dm[ds]?.total||0),0);
+  const lastMonthTotal=lastMonth.reduce((sum, ds)=>sum+(dm[ds]?.total||0),0);
+  const totalCollected=sortedDates.reduce((sum, ds)=>sum+(dm[ds]?.paid||0),0);
+  const totalPending=sortedDates.reduce((sum, ds)=>sum+(dm[ds]?.pending||0),0);
   
-  periods.forEach(period => {
-    const total=period.dates.reduce((sum, ds)=>sum+(dm[ds]?.total||0),0);
-    const paid=period.dates.reduce((sum, ds)=>sum+(dm[ds]?.paid||0),0);
-    const pending=period.dates.reduce((sum, ds)=>sum+(dm[ds]?.pending||0),0);
-    const activeDays=period.dates.length;
-    
-    const card=document.createElement('div');
-    card.className='period-card';
-    card.innerHTML=`
-      <div style="font-weight:600;color:var(--t1);margin-bottom:4px">${period.name}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:9px">
-        <div>Days: <span style="color:var(--acc);font-weight:600">${activeDays}</span></div>
-        <div>Total: <span style="color:var(--t1);font-weight:600">${fmtRs(total)}</span></div>
-        <div>Paid: <span style="color:var(--paid);font-weight:600">${fmtRs(paid)}</span></div>
-        <div>Pend: <span style="color:var(--pend);font-weight:600">${fmtRs(pending)}</span></div>
-      </div>
-    `;
-    
-    card.addEventListener('click', () => {
-      playSoundAndHaptic('period_click', 'light');
-      showPeriodAnalysis(period.name, period.dates, dm);
+  // Update UI
+  document.getElementById('fs-this-month').textContent=fmtRs(thisMonthTotal);
+  document.getElementById('fs-last-month').textContent=fmtRs(lastMonthTotal);
+  document.getElementById('fs-total-collected').textContent=fmtRs(totalCollected);
+  document.getElementById('fs-total-pending').textContent=fmtRs(totalPending);
+}
+
+function renderEnhancedHorizontalHeatmap(dm, maxAmt, now){
+  const grid=buildHMGrid(), mLabels=getHMMonthLabels(grid), CW=16; // Larger cells for fullscreen
+  const totalW=grid.length*CW+20;
+
+  // Enhanced year labels
+  const yEl=document.getElementById('fs-hm-years');
+  yEl.style.minWidth=totalW+'px'; yEl.innerHTML='';
+  if(window.currentYearLabels){
+    window.currentYearLabels.forEach((pos, year) => {
+      const d=document.createElement('div');
+      const width = (pos.end - pos.start + 1) * CW;
+      d.style.cssText=`position:absolute;left:${pos.start*CW+20}px;font-size:9px;font-weight:700;color:var(--acc);text-transform:uppercase;white-space:nowrap;top:0;width:${width}px;text-align:center;border-bottom:2px solid var(--acc-bd);padding-bottom:2px`;
+      d.textContent=year; yEl.appendChild(d);
     });
-    
-    container.appendChild(card);
+  }
+
+  // Enhanced month labels
+  const mEl=document.getElementById('fs-hm-months');
+  mEl.style.minWidth=totalW+'px'; mEl.innerHTML='';
+  mLabels.forEach(({col,label}, index) => {
+    const d=document.createElement('div');
+    const leftPos = index > 0 ? col*CW+20+6 : col*CW+20;
+    d.style.cssText=`position:absolute;left:${leftPos}px;font-size:10px;font-weight:700;color:var(--t2);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;top:0`;
+    d.textContent=label; mEl.appendChild(d);
   });
-}
 
-function showMonthDetails(monthKey, monthData){
-  const [year,month]=monthKey.split('-');
-  const monthName=MTHS[parseInt(month)-1];
-  
-  const infoEl=document.getElementById('fs-date-info');
-  const contentEl=document.getElementById('fs-date-content');
-  contentEl.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:700">${monthName} ${year}</div>
-      <div class="mono" style="font-size:16px;font-weight:600;color:var(--acc)">${fmtRs(monthData.total)}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Collected</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--paid)">${fmtRs(monthData.paid)}</div>
-      </div>
-      <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Pending</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--pend)">${fmtRs(monthData.pending)}</div>
-      </div>
-    </div>
-    <div style="margin-top:12px;font-size:12px;color:var(--t2)">
-      ${monthData.dates.length} active days • Average ${fmtRs(Math.round(monthData.total/monthData.dates.length))} per day
-    </div>
-  `;
-  infoEl.style.display='block';
-}
+  // Enhanced day labels
+  const dlEl=document.getElementById('fs-hm-dlabels');
+  dlEl.innerHTML=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((l,i)=>
+    `<div style="width:15px;height:15px;font-size:9px;font-weight:600;color:var(--t2);display:flex;align-items:center;justify-content:center">${l}</div>`
+  ).join('');
 
-function showTimelineDetails(item, itemData){
-  const infoEl=document.getElementById('fs-date-info');
-  const contentEl=document.getElementById('fs-date-content');
-  contentEl.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:700">${item.label}</div>
-      <div class="mono" style="font-size:16px;font-weight:600;color:var(--acc)">${fmtRs(itemData.total)}</div>
-    </div>
-    <div style="font-size:12px;color:var(--t2);margin-bottom:8px">${fmtDate(item.date)}</div>
-    ${itemData.total>0?`
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div>Collected: <span style="color:var(--paid);font-weight:600">${fmtRs(itemData.paid)}</span></div>
-        <div>Pending: <span style="color:var(--pend);font-weight:600">${fmtRs(itemData.pending)}</span></div>
-      </div>
-      <div style="margin-top:8px;font-size:11px;color:var(--t2)">
-        ${itemData.entries.length} work entr${itemData.entries.length!==1?'ies':'y'}
-      </div>
-    `:'<div style="font-size:12px;color:var(--t3);text-align:center;padding:8px">No work activity</div>'}
-  `;
-  infoEl.style.display='block';
-}
-
-function showPeriodAnalysis(periodName, dates, dm){
-  const total=dates.reduce((sum, ds)=>sum+(dm[ds]?.total||0),0);
-  const paid=dates.reduce((sum, ds)=>sum+(dm[ds]?.paid||0),0);
-  const pending=dates.reduce((sum, ds)=>sum+(dm[ds]?.pending||0),0);
-  
-  const infoEl=document.getElementById('fs-date-info');
-  const contentEl=document.getElementById('fs-date-content');
-  contentEl.innerHTML=`
-    <div style="font-size:16px;font-weight:700;margin-bottom:12px">${periodName} Analysis</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Work</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--t1)">${fmtRs(total)}</div>
-      </div>
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Active Days</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--acc)">${dates.length}</div>
-      </div>
-      <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Collected</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--paid)">${fmtRs(paid)}</div>
-      </div>
-      <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Pending</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--pend)">${fmtRs(pending)}</div>
-      </div>
-    </div>
-    <div style="margin-top:12px;font-size:12px;color:var(--t2)">
-      Average per day: ${fmtRs(dates.length>0?Math.round(total/dates.length):0)}
-    </div>
-  `;
-  infoEl.style.display='block';
-}
-
-// Enhanced interaction functions for vertical heatmap
-function addHeatmapInteractions(){
-  // Add click handlers to individual heatmap cells
-  document.querySelectorAll('#fs-heatmap-vertical .heatmap-cell').forEach(cell => {
-    const ds=cell.dataset.date;
-    if(!ds) return;
-    
-    cell.addEventListener('click', (e) => {
-      e.stopPropagation();
-      playSoundAndHaptic('cell_click', 'light');
+  // Enhanced weeks with larger cells and better interactions
+  const wEl=document.getElementById('fs-hm-weeks');
+  wEl.innerHTML=''; wEl.style.minWidth=(grid.length*CW)+'px';
+  const frag=document.createDocumentFragment();
+  grid.forEach(wk=>{
+    const col=document.createElement('div');
+    col.style.cssText='display:flex;flex-direction:column;gap:3px;flex-shrink:0';
+    wk.forEach(date=>{
+      const ds=dsOf(date), future=date>now, cell=document.createElement('div');
+      cell.className='hcell';
+      cell.style.background=cellColor(ds,future,dm,maxAmt);
+      cell.style.opacity=future?'0':'1';
+      cell.style.cursor=future?'default':'pointer';
       
-      // Show day details for this specific date
-      const dm=getDateMap();
-      const dayData=dm[ds];
-      showDayDetails(e, ds, dayData);
-      closeFullscreenHeatmap();
+      if(dm[ds]){
+        cell.onmouseenter=ev=>showEnhancedFSTooltip(ev,ds,dm[ds]);
+        cell.onmouseleave=hideFSTooltip;
+        cell.onclick=ev=>{
+          playSoundAndHaptic('cell_click', 'light');
+          showDayDetails(ev,ds,dm[ds]);
+          closeFullscreenHeatmap();
+        };
+      } else if(!future) {
+        cell.onmouseenter=ev=>showEnhancedFSEmptyDayTT(ev,ds);
+        cell.onmouseleave=hideFSTooltip;
+        cell.onclick=ev=>{
+          playSoundAndHaptic('cell_click', 'light');
+          showDayDetails(ev,ds,null);
+          closeFullscreenHeatmap();
+        };
+      }
+      col.appendChild(cell);
     });
-    
-    cell.addEventListener('mouseenter', () => {
-      playSoundAndHaptic('cell_hover', 'light');
-    });
+    frag.appendChild(col);
   });
+  wEl.appendChild(frag);
+  
+  // Auto-scroll to end with smooth animation
+  setTimeout(() => {
+    const sc = wEl.closest('.hmscroll');
+    if(sc) {
+      sc.scrollLeft = sc.scrollWidth;
+      playSoundAndHaptic('heatmap_ready', 'light');
+    }
+  }, 100);
 }
 
-// Initialize interactions when fullscreen heatmap opens
+function showEnhancedFSTooltip(ev, ds, dd){
+  clearTimeout(window.fsTTTimer);
+  const dateObj=new Date(ds);
+  const dayName=DAYS[dateObj.getDay()];
+  const monthName=MTHS[dateObj.getMonth()];
+  const year=dateObj.getFullYear();
+  const dateNum=dateObj.getDate();
+  
+  // Show enhanced date info
+  const infoEl=document.getElementById('fs-date-info');
+  const contentEl=document.getElementById('fs-date-content');
+  contentEl.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:700">${dayName}, ${monthName} ${dateNum}, ${year}</div>
+      <div class="mono" style="font-size:16px;font-weight:600;color:var(--acc)">${fmtRs(dd.total)}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Collected</div>
+        <div class="mono" style="font-size:14px;font-weight:600;color:var(--paid)">${fmtRs(dd.paid)}</div>
+      </div>
+      <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Pending</div>
+        <div class="mono" style="font-size:14px;font-weight:600;color:var(--pend)">${fmtRs(dd.pending)}</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--t2)">
+      ${dd.entries.length} work entr${dd.entries.length!==1?'ies':'y'} • ${dd.workTypes.map(t=>t==='team'?'Team':'Solo').join(' + ')}
+    </div>
+  `;
+  infoEl.style.display='block';
+  playSoundAndHaptic('tooltip_show', 'light');
+}
+
+function showEnhancedFSEmptyDayTT(ev, ds){
+  clearTimeout(window.fsTTTimer);
+  const dateObj=new Date(ds);
+  const dayName=DAYS[dateObj.getDay()];
+  const monthName=MTHS[dateObj.getMonth()];
+  const year=dateObj.getFullYear();
+  const dateNum=dateObj.getDate();
+  
+  const infoEl=document.getElementById('fs-date-info');
+  const contentEl=document.getElementById('fs-date-content');
+  contentEl.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:700">${dayName}, ${monthName} ${dateNum}, ${year}</div>
+      <div style="font-size:13px;color:var(--t3);font-weight:600">No Activity</div>
+    </div>
+    <div style="font-size:12px;color:var(--t3);text-align:center;padding:12px;background:var(--s2);border-radius:8px">
+      Rest day - Click to add work entry
+    </div>
+  `;
+  infoEl.style.display='block';
+  playSoundAndHaptic('tooltip_show', 'light');
+}
+
+function hideFSTooltip(){
+  clearTimeout(window.fsTTTimer);
+  window.fsTTTimer=setTimeout(()=>{
+    document.getElementById('fs-date-info').style.display='none';
+  }, 300);
+}
+
+// Initialize fullscreen heatmap when opened
 function initializeFullscreenInteractions(){
-  setTimeout(() => {
-    addHeatmapInteractions();
-  }, 100);
+  // Interactions are now handled directly in the renderEnhancedHorizontalHeatmap function
+  // This function is kept for compatibility but doesn't need to do anything special
+  playSoundAndHaptic('fullscreen_ready', 'light');
 }
 
 /* ════════════════════════════════════════════
