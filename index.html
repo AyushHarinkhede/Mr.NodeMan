@@ -587,77 +587,116 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   box-shadow:0 2px 12px rgba(0,0,0,0.08);
 }
 
-/* Fullscreen responsive adjustments */
+/* Mobile-first responsive adjustments */
 @media (max-width:1200px){
-  #fullscreen-heatmap-modal .msheet .left-sidebar{
-    width:240px;
-  }
-  #fullscreen-heatmap-modal .msheet .details-column{
-    width:180px;
+  #fullscreen-heatmap-modal .fullscreen-sheet{
+    padding:0;
   }
 }
 
 @media (max-width:768px){
-  #fullscreen-heatmap-modal .msheet{
+  #fullscreen-heatmap-modal .fullscreen-sheet{
     padding:0;
   }
-  #fullscreen-heatmap-modal .msheet .main-content{
-    flex-direction:column;
-  }
-  #fullscreen-heatmap-modal .msheet .left-sidebar{
-    width:100%;height:auto;border-right:none;border-bottom:1px solid var(--b);
-    padding:16px;
-  }
-  #fs-vertical-heatmap{
-    flex-direction:column !important;
-    gap:16px !important;
-  }
-  #fs-timeline{
-    width:100%;border-left:none;border-top:2px solid var(--b);padding-left:0;padding-top:16px;
-    min-height:auto !important;
-  }
-  #fs-period-details{
-    width:100%;
-  }
   
-  /* Mobile-specific fixes */
-  #fs-heatmap-vertical .heatmap-row{
-    padding:12px 8px;
+  #fullscreen-heatmap-modal .fullscreen-sheet .header-content{
     flex-direction:column;
     align-items:flex-start;
     gap:8px;
   }
   
+  #fullscreen-heatmap-modal .fullscreen-sheet .header-content .title-section{
+    min-width:0;
+    flex:1;
+  }
+  
+  /* Mobile heatmap rows */
+  #fs-heatmap-vertical .heatmap-row{
+    padding:12px;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+    border-radius:8px;
+  }
+  
   #fs-heatmap-vertical .row-label{
     width:100%;
     text-align:left;
-    font-size:14px;
-    font-weight:700;
+    font-size:13px;
+    font-weight:600;
     color:var(--t1);
+    line-height:1.3;
   }
   
   #fs-heatmap-vertical .row-activity{
     width:100%;
     overflow-x:auto;
     padding:8px 0;
+    display:flex;
+    gap:2px;
+    scrollbar-width:thin;
+  }
+  
+  #fs-heatmap-vertical .row-activity::-webkit-scrollbar{
+    height:4px;
+  }
+  
+  #fs-heatmap-vertical .row-activity::-webkit-scrollbar-track{
+    background:var(--b);
+    border-radius:2px;
+  }
+  
+  #fs-heatmap-vertical .row-activity::-webkit-scrollbar-thumb{
+    background:var(--t2);
+    border-radius:2px;
   }
   
   #fs-heatmap-vertical .heatmap-cell{
-    width:14px;height:14px;
+    width:12px;height:12px;border-radius:2px;
+    flex-shrink:0;
   }
   
+  /* Mobile timeline */
   #fs-timeline .timeline-item{
-    padding:8px 12px;
-    margin-bottom:12px;
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:6px;
+    font-size:11px;
   }
   
+  /* Mobile period details */
   #fs-period-details .period-card{
     padding:10px;
+    border-radius:6px;
+    font-size:10px;
+  }
+  
+  /* Mobile date info */
+  #fs-date-info{
+    transform:translateY(0);
+    max-height:30vh;
+    overflow-y:auto;
+  }
+  
+  #fs-date-info.show{
+    transform:translateY(0);
   }
 }
 
 @media (max-width:480px){
-  #fullscreen-heatmap-modal .msheet .left-sidebar{
+  #fullscreen-heatmap-modal .fullscreen-sheet .header-content{
+    padding:12px;
+  }
+  
+  #fullscreen-heatmap-modal .fullscreen-sheet .header-content .title-section .sec-title{
+    font-size:18px;
+  }
+  
+  #fullscreen-heatmap-modal .fullscreen-sheet .header-content .title-section .subtitle{
+    font-size:11px;
+  }
+  
+  #fullscreen-heatmap-modal .fullscreen-sheet .main-content{
     padding:12px;
   }
   
@@ -670,24 +709,33 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   }
   
   #fs-heatmap-vertical .heatmap-cell{
-    width:12px;height:12px;
+    width:10px;height:10px;
   }
   
   #fs-timeline .timeline-item{
-    padding:6px 8px;
+    padding:8px;
     font-size:10px;
   }
   
   #fs-period-details .period-card{
     padding:8px;
-    font-size:10px;
+    font-size:9px;
   }
   
-  #fs-date-info{
-    width:calc(100vw - 40px) !important;
-    right:20px;
-    left:20px;
-    bottom:20px;
+  /* Adjust grid layouts for small screens */
+  #fullscreen-heatmap-modal .fullscreen-sheet .stats-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:6px;
+  }
+  
+  #fullscreen-heatmap-modal .fullscreen-sheet .period-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:8px;
+  }
+  
+  #fullscreen-heatmap-modal .fullscreen-sheet .legend-grid{
+    grid-template-columns:repeat(2,1fr);
+    gap:6px;
   }
 }
 
@@ -1165,137 +1213,139 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
 <!-- ══════════════ FULLSCREEN HEATMAP MODAL ══════════════ -->
 <div class="moverlay" id="fullscreen-heatmap-modal">
-  <div class="msheet fullscreen-sheet" style="width:100vw;height:100vh;max-width:none;max-height:none;border-radius:0;padding:0;background:var(--s1);border:none;position:relative">
-    <!-- Header -->
-    <div style="position:sticky;top:0;background:var(--s1);border-bottom:1px solid var(--b);padding:20px;z-index:10;display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <div class="sec-title" style="font-size:24px;margin-bottom:4px">Activity </div>
-        <div style="font-size:14px;color:var(--t2)">Complete activity overview with detailed timeline analysis</div>
+  <div class="msheet fullscreen-sheet" style="width:100vw;height:100vh;max-width:none;max-height:none;border-radius:0;padding:0;background:var(--s1);border:none;position:relative;overflow:hidden">
+    <!-- Mobile-First Header -->
+    <div style="position:sticky;top:0;background:var(--s1);border-bottom:1px solid var(--b);padding:16px;z-index:10">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div style="min-width:0;flex:1">
+          <div class="sec-title" style="font-size:20px;margin-bottom:2px">Activity Heatmap</div>
+          <div style="font-size:12px;color:var(--t2)">Complete activity overview</div>
+        </div>
+        <button class="ss-btn" onclick="closeFullscreenHeatmap()" style="padding:8px 16px;border-radius:8px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-size:12px;font-weight:700;flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>Close
+        </button>
       </div>
-      <button class="ss-btn" onclick="closeFullscreenHeatmap()" style="padding:12px 20px;border-radius:12px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-size:14px;font-weight:700">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:8px;vertical-align:middle">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>Close
-      </button>
     </div>
     
-    <!-- Main Content Area -->
-    <div style="display:flex;height:calc(100vh - 80px);overflow:hidden">
-      <!-- Left Sidebar - Stats and Summary -->
-      <div style="width:280px;flex-shrink:0;border-right:1px solid var(--b);padding:20px;overflow-y:auto">
-        <!-- Overall Stats -->
-        <div style="margin-bottom:24px">
-          <h3 style="font-size:14px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Overall Statistics</h3>
-          <div style="display:grid;grid-template-columns:1fr;gap:12px">
-            <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Active Days</div>
-              <div class="mono" id="fs-hm-days" style="font-size:20px;font-weight:600;color:var(--acc)">0</div>
-            </div>
-            <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Average per Day</div>
-              <div class="mono" id="fs-hm-avg" style="font-size:20px;font-weight:600;color:var(--acc)">₹0</div>
-            </div>
-            <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:11px;color:var(--paid);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Total Earned</div>
-              <div class="mono" id="fs-hm-total" style="font-size:20px;font-weight:600;color:var(--paid)">₹0</div>
-            </div>
-            <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:12px;padding:16px;text-align:center">
-              <div style="font-size:11px;color:var(--pend);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Pending</div>
-              <div class="mono" id="fs-hm-pending" style="font-size:20px;font-weight:600;color:var(--pend)">₹0</div>
-            </div>
+    <!-- Mobile-First Content Container -->
+    <div style="height:calc(100vh - 80px);overflow-y:auto;overflow-x:hidden">
+      <!-- Quick Stats Bar - Always Visible -->
+      <div style="background:var(--s2);border-bottom:1px solid var(--b);padding:12px 16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em">Active Days</div>
+            <div class="mono" id="fs-hm-days" style="font-size:16px;font-weight:600;color:var(--acc)">0</div>
           </div>
-        </div>
-        
-        <!-- Period Summary -->
-        <div style="margin-bottom:24px">
-          <h3 style="font-size:14px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Period Summary</h3>
-          <div style="display:grid;grid-template-columns:1fr;gap:12px">
-            <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px">
-              <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">This Month</div>
-              <div class="mono" id="fs-this-month" style="font-size:16px;font-weight:600;color:var(--acc)">₹0</div>
-            </div>
-            <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:12px">
-              <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Last Month</div>
-              <div class="mono" id="fs-last-month" style="font-size:16px;font-weight:600;color:var(--t1)">₹0</div>
-            </div>
-            <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px;padding:12px">
-              <div style="font-size:10px;color:var(--paid);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Total Collected</div>
-              <div class="mono" id="fs-total-collected" style="font-size:16px;font-weight:600;color:var(--paid)">₹0</div>
-            </div>
-            <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:10px;padding:12px">
-              <div style="font-size:10px;color:var(--pend);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Total Pending</div>
-              <div class="mono" id="fs-total-pending" style="font-size:16px;font-weight:600;color:var(--pend)">₹0</div>
-            </div>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em">Avg/Day</div>
+            <div class="mono" id="fs-hm-avg" style="font-size:16px;font-weight:600;color:var(--acc)">₹0</div>
           </div>
-        </div>
-        
-        <!-- Legend -->
-        <div>
-          <h3 style="font-size:14px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Activity Legend</h3>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:16px;height:16px;border-radius:3px;background:var(--b);border:1px solid var(--b)"></div>
-              <span style="font-size:12px;color:var(--t2);font-weight:600">No Activity</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:16px;height:16px;border-radius:3px;background:rgba(45,212,168,.75);border:1px solid rgba(45,212,168,.9)"></div>
-              <span style="font-size:12px;color:var(--t2);font-weight:600">Paid Work</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:16px;height:16px;border-radius:3px;background:rgba(255,185,48,.75);border:1px solid rgba(255,185,48,.9)"></div>
-              <span style="font-size:12px;color:var(--t2);font-weight:600">Pending Payment</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div style="width:16px;height:16px;border-radius:3px;background:rgba(160,200,120,.75);border:1px solid rgba(160,200,120,.9)"></div>
-              <span style="font-size:12px;color:var(--t2);font-weight:600">Mixed Activity</span>
-            </div>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em">Collected</div>
+            <div class="mono" id="fs-hm-total" style="font-size:16px;font-weight:600;color:var(--paid)">₹0</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em">Pending</div>
+            <div class="mono" id="fs-hm-pending" style="font-size:16px;font-weight:600;color:var(--pend)">₹0</div>
           </div>
         </div>
       </div>
       
-      <!-- Center - Vertical Heatmap -->
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
-        <!-- Heatmap Header -->
-        <div style="padding:20px 20px 0;border-bottom:1px solid var(--b)">
-          <h3 style="font-size:16px;font-weight:700;color:var(--t1);margin-bottom:8px">Activity Timeline</h3>
+      <!-- Main Content Area -->
+      <div style="padding:16px">
+        <!-- Period Summary Cards -->
+        <div style="margin-bottom:20px">
+          <h3 style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Period Summary</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+            <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">This Month</div>
+              <div class="mono" id="fs-this-month" style="font-size:14px;font-weight:600;color:var(--acc)">₹0</div>
+            </div>
+            <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Last Month</div>
+              <div class="mono" id="fs-last-month" style="font-size:14px;font-weight:600;color:var(--t1)">₹0</div>
+            </div>
+            <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Collected</div>
+              <div class="mono" id="fs-total-collected" style="font-size:14px;font-weight:600;color:var(--paid)">₹0</div>
+            </div>
+            <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:8px;padding:12px;text-align:center">
+              <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Total Pending</div>
+              <div class="mono" id="fs-total-pending" style="font-size:14px;font-weight:600;color:var(--pend)">₹0</div>
+            </div>
+          </div>
         </div>
         
-        <!-- Vertical Heatmap Container -->
-        <div style="flex:1;padding:20px;overflow-y:auto;overflow-x:hidden">
-          <div id="fs-vertical-heatmap" style="display:flex;gap:20px;min-height:100%">
-            <!-- Timeline Column -->
-            <div style="flex-shrink:0;width:120px">
-              <div style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;text-align:center">Timeline</div>
-              <div id="fs-timeline" style="position:relative;border-left:2px solid var(--b);padding-left:16px;min-height:500px">
+        <!-- Vertical Heatmap Section -->
+        <div style="margin-bottom:20px">
+          <h3 style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Monthly Activity Timeline</h3>
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:16px">
+            <div id="fs-heatmap-vertical" style="display:flex;flex-direction:column;gap:8px">
+              <!-- Vertical heatmap will be populated dynamically -->
+            </div>
+          </div>
+        </div>
+        
+        <!-- Timeline and Analysis Section -->
+        <div style="display:grid;grid-template-columns:1fr;gap:16px">
+          <!-- Timeline -->
+          <div>
+            <h3 style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Key Milestones</h3>
+            <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:16px">
+              <div id="fs-timeline" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">
                 <!-- Timeline will be populated dynamically -->
               </div>
             </div>
-            
-            <!-- Heatmap Column -->
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Activity Intensity</div>
-              <div id="fs-heatmap-vertical" style="display:flex;flex-direction:column;gap:12px;min-height:500px">
-                <!-- Vertical heatmap will be populated dynamically -->
-              </div>
-            </div>
-            
-            <!-- Details Column -->
-            <div style="flex-shrink:0;width:220px">
-              <div style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px">Period Analysis</div>
-              <div id="fs-period-details" style="display:flex;flex-direction:column;gap:12px">
+          </div>
+          
+          <!-- Period Analysis -->
+          <div>
+            <h3 style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Period Analysis</h3>
+            <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:16px">
+              <div id="fs-period-details" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">
                 <!-- Period details will be populated dynamically -->
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- Legend -->
+        <div style="margin-top:20px">
+          <h3 style="font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px">Activity Legend</h3>
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:12px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:2px;background:var(--b);border:1px solid var(--b)"></div>
+                <span style="font-size:11px;color:var(--t2);font-weight:600">No Activity</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(45,212,168,.75);border:1px solid rgba(45,212,168,.9)"></div>
+                <span style="font-size:11px;color:var(--t2);font-weight:600">Paid Work</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(255,185,48,.75);border:1px solid rgba(255,185,48,.9)"></div>
+                <span style="font-size:11px;color:var(--t2);font-weight:600">Pending</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="width:12px;height:12px;border-radius:2px;background:rgba(160,200,120,.75);border:1px solid rgba(160,200,120,.9)"></div>
+                <span style="font-size:11px;color:var(--t2);font-weight:600">Mixed</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     
-    <!-- Date Information Display -->
-    <div id="fs-date-info" style="position:fixed;bottom:20px;right:20px;width:320px;max-height:200px;overflow-y:auto;padding:20px;background:var(--s1);border:1px solid var(--b);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3);display:none;z-index:20">
-      <div style="font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Selected Date Details</div>
-      <div id="fs-date-content" style="font-size:14px;color:var(--t1)"></div>
+    <!-- Mobile-Optimized Date Information Display -->
+    <div id="fs-date-info" style="position:fixed;bottom:0;left:0;right:0;max-height:200px;background:var(--s1);border-top:1px solid var(--b);padding:16px;transform:translateY(100%);transition:transform 0.3s ease;z-index:20">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:12px;color:var(--acc);text-transform:uppercase;letter-spacing:.05em">Date Details</div>
+        <button onclick="hideFSTooltip()" style="background:none;border:none;color:var(--t2);font-size:16px;padding:0">✕</button>
+      </div>
+      <div id="fs-date-content" style="font-size:13px;color:var(--t1)"></div>
     </div>
   </div>
 </div>
@@ -2453,8 +2503,8 @@ function renderVerticalHeatmap(dm, maxAmt, now){
     monthlyData[monthKey].pending+=dm[ds].pending;
   });
 
-  // Sort months and render
-  const sortedMonths=Object.keys(monthlyData).sort();
+  // Sort months and render (most recent first for mobile)
+  const sortedMonths=Object.keys(monthlyData).sort().reverse();
   sortedMonths.forEach(monthKey=>{
     const monthData=monthlyData[monthKey];
     const [year,month]=monthKey.split('-');
@@ -2462,41 +2512,26 @@ function renderVerticalHeatmap(dm, maxAmt, now){
     
     const row=document.createElement('div');
     row.className='heatmap-row heatmap-interaction';
+    row.style.cssText='background:var(--s1);border:1px solid var(--b);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s;';
     
-    // Check if mobile for different layout
-    const isMobile = window.innerWidth <= 768;
-    
-    if(isMobile){
-      // Mobile layout - vertical stack
-      row.innerHTML=`
-        <div class="row-label">${monthName} ${year} • ${fmtRs(monthData.total)} • ${monthData.dates.length} days</div>
-        <div class="row-activity">
-          ${monthData.dates.map(ds=>{
-            const date=new Date(ds);
-            const day=date.getDate();
-            const isFuture=date>now;
-            const dayData=dm[ds];
-            const color=cellColor(ds,isFuture,dm,maxAmt);
-            return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
-          }).join('')}
-        </div>
-      `;
-    } else {
-      // Desktop layout - horizontal
-      row.innerHTML=`
-        <div class="row-label">${monthName} ${year}</div>
-        <div class="row-activity">
-          ${monthData.dates.map(ds=>{
-            const date=new Date(ds);
-            const day=date.getDate();
-            const isFuture=date>now;
-            const dayData=dm[ds];
-            const color=cellColor(ds,isFuture,dm,maxAmt);
-            return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
-          }).join('')}
-        </div>
-      `;
-    }
+    // Mobile-first layout - always vertical stack
+    row.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600;color:var(--t1)">${monthName} ${year}</div>
+        <div style="font-size:12px;font-weight:600;color:var(--acc)">${fmtRs(monthData.total)}</div>
+      </div>
+      <div style="font-size:10px;color:var(--t2);margin-bottom:8px">${monthData.dates.length} active days</div>
+      <div class="row-activity" style="overflow-x:auto;padding:4px 0">
+        ${monthData.dates.map(ds=>{
+          const date=new Date(ds);
+          const day=date.getDate();
+          const isFuture=date>now;
+          const dayData=dm[ds];
+          const color=cellColor(ds,isFuture,dm,maxAmt);
+          return `<div class="heatmap-cell" data-date="${ds}" style="background:${color};opacity:${isFuture?'0':'1'}" title="${fmtDate(ds)}"></div>`;
+        }).join('')}
+      </div>
+    `;
     
     // Add interaction handlers with sound and haptic feedback
     row.addEventListener('click', () => {
@@ -2527,9 +2562,6 @@ function renderTimeline(dm, now){
   const currentMonth=sortedDates[sortedDates.length-1].substring(0,7);
   const previousMonth=sortedDates.length>1 ? sortedDates[Math.max(0,sortedDates.length-13)].substring(0,7) : null;
   
-  // Check if mobile for different layout
-  const isMobile = window.innerWidth <= 768;
-  
   // Timeline items
   const timelineItems=[
     {label:'Start', date:sortedDates[0], type:'start'},
@@ -2541,30 +2573,26 @@ function renderTimeline(dm, now){
   timelineItems.forEach(item => {
     const div=document.createElement('div');
     div.className='timeline-item';
-    if(item.type==='current' || item.type==='today') div.classList.add('active');
+    div.style.cssText='background:var(--s1);border:1px solid var(--b);border-radius:6px;padding:10px;cursor:pointer;transition:all 0.2s;';
+    
+    if(item.type==='current' || item.type==='today') {
+      div.style.borderColor='var(--acc-bd)';
+      div.style.background='var(--acc-bg)';
+    }
     
     const itemData=dm[item.date] || {total:0,paid:0,pending:0,entries:[]};
     
-    if(isMobile){
-      // Mobile layout - more compact
-      div.innerHTML=`
-        <div style="font-weight:600;color:var(--t1);margin-bottom:2px;font-size:12px">${item.label}</div>
-        <div style="color:var(--t2);font-size:9px;margin-bottom:2px">${fmtDate(item.date)}</div>
-        ${itemData.total>0?`
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="color:var(--acc);font-weight:600;font-size:11px">${fmtRs(itemData.total)}</span>
-            <span style="color:var(--t3);font-size:9px">${itemData.entries.length} entries</span>
-          </div>
-        `:'<div style="color:var(--t3);font-size:9px">No activity</div>'}
-      `;
-    } else {
-      // Desktop layout
-      div.innerHTML=`
-        <div style="font-weight:600;color:var(--t1);margin-bottom:4px">${item.label}</div>
-        <div style="color:var(--t2);font-size:10px">${fmtDate(item.date)}</div>
-        ${itemData.total>0?`<div style="color:var(--acc);font-weight:600;margin-top:4px;font-size:12px">${fmtRs(itemData.total)}</div>`:''}
-      `;
-    }
+    // Mobile-first layout - always compact
+    div.innerHTML=`
+      <div style="font-weight:600;color:var(--t1);margin-bottom:4px;font-size:11px">${item.label}</div>
+      <div style="color:var(--t2);font-size:9px;margin-bottom:4px">${fmtDate(item.date)}</div>
+      ${itemData.total>0?`
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--acc);font-weight:600;font-size:10px">${fmtRs(itemData.total)}</span>
+          <span style="color:var(--t3);font-size:8px">${itemData.entries.length} entries</span>
+        </div>
+      `:'<div style="color:var(--t3);font-size:8px">No activity</div>'}
+    `;
     
     div.addEventListener('click', () => {
       playSoundAndHaptic('timeline_click', 'medium');
@@ -2602,15 +2630,18 @@ function renderPeriodDetails(dm, now){
     
     const card=document.createElement('div');
     card.className='period-card';
+    card.style.cssText='background:var(--s1);border:1px solid var(--b);border-radius:6px;padding:10px;cursor:pointer;transition:all 0.2s;';
+    
+    // Mobile-first layout - always compact
     card.innerHTML=`
-      <div style="font-weight:600;color:var(--t1);margin-bottom:8px">${period.name}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px">
+      <div style="font-weight:600;color:var(--t1);margin-bottom:6px;font-size:11px">${period.name}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:9px">
         <div>Days: <span style="color:var(--acc);font-weight:600">${activeDays}</span></div>
         <div>Total: <span style="color:var(--t1);font-weight:600">${fmtRs(total)}</span></div>
         <div>Paid: <span style="color:var(--paid);font-weight:600">${fmtRs(paid)}</span></div>
         <div>Pend: <span style="color:var(--pend);font-weight:600">${fmtRs(pending)}</span></div>
       </div>
-      <div style="margin-top:6px;font-size:9px;color:var(--t2)">
+      <div style="margin-top:4px;font-size:8px;color:var(--t2)">
         Avg: ${fmtRs(activeDays>0?Math.round(total/activeDays):0)}/day
       </div>
     `;
@@ -2632,29 +2663,29 @@ function showEnhancedFSTooltip(ev, ds, dd){
   const year=dateObj.getFullYear();
   const dateNum=dateObj.getDate();
   
-  // Show enhanced date info
+  // Show enhanced date info in mobile panel
   const infoEl=document.getElementById('fs-date-info');
   const contentEl=document.getElementById('fs-date-content');
   contentEl.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:700">${dayName}, ${monthName} ${dateNum}, ${year}</div>
-      <div class="mono" style="font-size:16px;font-weight:600;color:var(--acc)">${fmtRs(dd.total)}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:14px;font-weight:700">${dayName}, ${monthName} ${dateNum}, ${year}</div>
+      <div class="mono" style="font-size:14px;font-weight:600;color:var(--acc)">${fmtRs(dd.total)}</div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Collected</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--paid)">${fmtRs(dd.paid)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Collected</div>
+        <div class="mono" style="font-size:12px;font-weight:600;color:var(--paid)">${fmtRs(dd.paid)}</div>
       </div>
-      <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:8px;padding:10px;text-align:center">
-        <div style="font-size:10px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Pending</div>
-        <div class="mono" style="font-size:14px;font-weight:600;color:var(--pend)">${fmtRs(dd.pending)}</div>
+      <div style="background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Pending</div>
+        <div class="mono" style="font-size:12px;font-weight:600;color:var(--pend)">${fmtRs(dd.pending)}</div>
       </div>
     </div>
-    <div style="margin-top:12px;font-size:12px;color:var(--t2)">
+    <div style="margin-top:8px;font-size:11px;color:var(--t2)">
       ${dd.entries.length} work entr${dd.entries.length!==1?'ies':'y'} • ${dd.workTypes.map(t=>t==='team'?'Team':'Solo').join(' + ')}
     </div>
   `;
-  infoEl.style.display='block';
+  infoEl.classList.add('show');
   playSoundAndHaptic('tooltip_show', 'light');
 }
 
@@ -2669,22 +2700,22 @@ function showEnhancedFSEmptyDayTT(ev, ds){
   const infoEl=document.getElementById('fs-date-info');
   const contentEl=document.getElementById('fs-date-content');
   contentEl.innerHTML=`
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div style="font-size:16px;font-weight:700">${dayName}, ${monthName} ${dateNum}, ${year}</div>
-      <div style="font-size:13px;color:var(--t3);font-weight:600">No Activity</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:14px;font-weight:700">${dayName}, ${monthName} ${dateNum}, ${year}</div>
+      <div style="font-size:12px;color:var(--t3);font-weight:600">No Activity</div>
     </div>
-    <div style="font-size:12px;color:var(--t3);text-align:center;padding:12px;background:var(--s2);border-radius:8px">
+    <div style="font-size:11px;color:var(--t3);text-align:center;padding:8px;background:var(--s2);border-radius:6px">
       Rest day - Click to add work entry
     </div>
   `;
-  infoEl.style.display='block';
+  infoEl.classList.add('show');
   playSoundAndHaptic('tooltip_show', 'light');
 }
 
 function hideFSTooltip(){
   clearTimeout(window.fsTTTimer);
   window.fsTTTimer=setTimeout(()=>{
-    document.getElementById('fs-date-info').style.display='none';
+    document.getElementById('fs-date-info').classList.remove('show');
   }, 300);
 }
 
