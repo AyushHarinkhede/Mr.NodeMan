@@ -1120,8 +1120,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
 /* Streak Icon Styles */
 .fire-icon {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1294,9 +1294,45 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
           <div class="fire-icon" id="streak-fire">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2C12 2 7 7 7 13C7 16 9 18 11 19L12 20L13 19C15 18 17 16 17 13C17 7 12 2 12 2Z"/>
-              <path d="M12 8C12 8 10 10 10 13C10 14 10.5 15 11 16L12 17L13 16C13.5 15 14 14 14 13C14 10 12 8 12 8Z"/>
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <!-- Base flame -->
+              <path d="M12 18C12 18 10 16 10 14C10 12 11 10 12 8L12 6L12 8C13 10 14 12 14 14C14 12 16 12 16 18Z" fill="#FF6B35" opacity="0.8"/>
+              
+              <!-- Left outer flame -->
+              <path d="M10 14C10 14 8 12 8 8C8 4 9 2 10 2L10 6C9 8 10 10 10 14Z" fill="#FF8C42" opacity="0.7">
+                <animateTransform attributeName="transform" type="translate" values="0,0; -1,-1; 0,0; 1,-1; 0,0" dur="3s" repeatCount="indefinite"/>
+              </path>
+              
+              <!-- Right outer flame -->
+              <path d="M14 14C14 14 16 12 16 8C16 4 15 2 14 2L14 6C15 8 14 10 14 14Z" fill="#FF8C42" opacity="0.7">
+                <animateTransform attributeName="transform" type="translate" values="0,0; 1,-1; 0,0; -1,-1; 0,0" dur="2.5s" repeatCount="indefinite"/>
+              </path>
+              
+              <!-- Center main flame -->
+              <path d="M12 12C12 12 11 10 11 6C11 2 12 1 12 1L12 5C13 6 13 10 13 12C13 10 14 12 14 12Z" fill="#FFD23F" opacity="0.9">
+                <animateTransform attributeName="transform" type="scale" values="1,1; 1.1,1.05; 1,1; 1.05,1.1; 1,1" dur="2s" repeatCount="indefinite"/>
+              </path>
+              
+              <!-- Upper left flame tip -->
+              <path d="M11 8C11 8 10 6 10 4C10 2 11 1 11 1L11 4C10.5 5 11 6 11 8Z" fill="#FFA500" opacity="0.6">
+                <animateTransform attributeName="transform" type="translate" values="0,0; -0.5,-1; 0,0; 0.5,-1; 0,0" dur="1.5s" repeatCount="indefinite"/>
+              </path>
+              
+              <!-- Upper right flame tip -->
+              <path d="M13 8C13 8 14 6 14 4C14 2 13 1 13 1L13 4C13.5 5 13 6 13 8Z" fill="#FFA500" opacity="0.6">
+                <animateTransform attributeName="transform" type="translate" values="0,0; 0.5,-1; 0,0; -0.5,-1; 0,0" dur="1.8s" repeatCount="indefinite"/>
+              </path>
+              
+              <!-- Small sparks -->
+              <circle cx="9" cy="10" r="0.8" fill="#FFD23F" opacity="0.8">
+                <animate attributeName="opacity" values="0.8; 0.3; 0.8" dur="1s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="15" cy="10" r="0.8" fill="#FFD23F" opacity="0.8">
+                <animate attributeName="opacity" values="0.8; 0.3; 0.8" dur="1.2s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="12" cy="5" r="0.6" fill="#FFA500" opacity="0.7">
+                <animate attributeName="opacity" values="0.7; 0.2; 0.7" dur="0.8s" repeatCount="indefinite"/>
+              </circle>
             </svg>
           </div>
           <div style="font-size:11px;color:var(--t1);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Current Streak</div>
