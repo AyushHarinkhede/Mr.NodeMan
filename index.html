@@ -2714,7 +2714,7 @@ function renderStatsHeatmap(){
 ══════════════════════════════════════════ */
 function openFullscreenHeatmap(){
   const modal=document.getElementById('fullscreen-heatmap-modal');
-  modal.style.display='flex';
+  modal.classList.add('open');
   playSoundAndHaptic('modal_open', 'medium');
   renderFullscreenHeatmap();
   initializeFullscreenInteractions();
@@ -2731,7 +2731,7 @@ function closeFullscreenHeatmap(){
   
   // Clean up after animation
   setTimeout(() => {
-    modal.style.display = 'none';
+    modal.classList.remove('open');
     sheet.classList.remove('closing');
     
     // Clean up event listeners
