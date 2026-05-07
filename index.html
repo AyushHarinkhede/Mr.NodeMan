@@ -533,6 +533,19 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 #fs-heatmap-vertical .heatmap-cell:hover{
   transform:scale(1.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);
   z-index:10;position:relative;
+  cursor:var(--pointer-cursor, pointer);
+}
+
+/* Fix cursor issues for all interactive elements */
+#fullscreen-heatmap-modal .heatmap-row,
+#fullscreen-heatmap-modal .timeline-item,
+#fullscreen-heatmap-modal .period-card,
+#fullscreen-heatmap-modal .ss-btn{
+  cursor:var(--pointer-cursor, pointer) !important;
+}
+
+#fullscreen-heatmap-modal .heatmap-cell{
+  cursor:var(--pointer-cursor, pointer) !important;
 }
 
 #fs-heatmap-vertical .row-label{
@@ -585,6 +598,103 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   border-radius:12px;
   padding:16px;
   box-shadow:0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* Smooth animations and transitions */
+#fullscreen-heatmap-modal .fullscreen-sheet{
+  animation:slideUpFullscreen 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUpFullscreen{
+  from{
+    transform:translateY(100%);
+    opacity:0;
+  }
+  to{
+    transform:translateY(0);
+    opacity:1;
+  }
+}
+
+#fullscreen-heatmap-modal .fullscreen-sheet.closing{
+  animation:slideDownFullscreen 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDownFullscreen{
+  from{
+    transform:translateY(0);
+    opacity:1;
+  }
+  to{
+    transform:translateY(100%);
+    opacity:0;
+  }
+}
+
+/* Smooth hover effects */
+#fs-heatmap-vertical .heatmap-row,
+#fs-timeline .timeline-item,
+#fs-period-details .period-card{
+  transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change:transform, box-shadow;
+}
+
+#fs-heatmap-vertical .heatmap-row:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.12);
+  border-color:var(--acc-bd);
+}
+
+#fs-timeline .timeline-item:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.12);
+  border-color:var(--acc-bd);
+}
+
+#fs-period-details .period-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.12);
+  border-color:var(--acc-bd);
+}
+
+/* Smooth cell animations */
+#fs-heatmap-vertical .heatmap-cell{
+  transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change:transform, box-shadow;
+}
+
+/* Smooth date panel animation */
+#fs-date-info{
+  transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change:transform;
+}
+
+/* Loading states */
+#fs-heatmap-vertical .heatmap-row.loading,
+#fs-timeline .timeline-item.loading,
+#fs-period-details .period-card.loading{
+  opacity:0.6;
+  pointer-events:none;
+}
+
+#fs-heatmap-vertical .heatmap-row.loading::after,
+#fs-timeline .timeline-item.loading::after,
+#fs-period-details .period-card.loading::after{
+  content:'';
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  width:20px;
+  height:20px;
+  border:2px solid var(--acc);
+  border-radius:50%;
+  border-top-color:transparent;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:translate(-50%, -50%) rotate(360deg);}
 }
 
 /* Mobile-first responsive adjustments */
@@ -1223,9 +1333,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </div>
         <button class="ss-btn" onclick="closeFullscreenHeatmap()" style="padding:8px 16px;border-radius:8px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-size:12px;font-weight:700;flex-shrink:0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>Close
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>Back
         </button>
       </div>
     </div>
@@ -2429,20 +2538,41 @@ function renderStatsHeatmap(){
   const sc=wEl.closest('.hmscroll');
   if(sc) setTimeout(()=>{ sc.scrollLeft=sc.scrollWidth; },60);
 }
-
-/* ════════════════════════════════════════════
+   /* ══════════════════════════════════════════
    FULLSCREEN HEATMAP FUNCTIONS
-════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 function openFullscreenHeatmap(){
+  const modal=document.getElementById('fullscreen-heatmap-modal');
+  modal.style.display='flex';
   playSoundAndHaptic('modal_open', 'medium');
-  document.getElementById('fullscreen-heatmap-modal').classList.add('open', 'fullscreen');
   renderFullscreenHeatmap();
   initializeFullscreenInteractions();
+  initializeBackGesture();
 }
 
 function closeFullscreenHeatmap(){
   playSoundAndHaptic('modal_close', 'medium');
-  document.getElementById('fullscreen-heatmap-modal').classList.remove('open', 'fullscreen');
+  const modal = document.getElementById('fullscreen-heatmap-modal');
+  const sheet = modal.querySelector('.fullscreen-sheet');
+  
+  // Add closing animation
+  sheet.classList.add('closing');
+  
+  // Clean up after animation
+  setTimeout(() => {
+    modal.style.display = 'none';
+    sheet.classList.remove('closing');
+    
+    // Clean up event listeners
+    if (window.backGestureCleanup) {
+      window.backGestureCleanup();
+    }
+    
+    // Go back in history if we're in fullscreen
+    if (window.history && window.history.state && window.history.state.fullscreen) {
+      window.history.back();
+    }
+  }, 250);
 }
 
 function renderFullscreenHeatmap(){
@@ -2831,7 +2961,54 @@ function initializeFullscreenInteractions(){
   playSoundAndHaptic('fullscreen_ready', 'light');
 }
 
-/* ════════════════════════════════════════════
+// Initialize back gesture support for mobile
+function initializeBackGesture(){
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchEndX = 0;
+  let touchEndY = 0;
+  
+  const modal = document.getElementById('fullscreen-heatmap-modal');
+  
+  // Handle touch start
+  modal.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+  
+  // Handle touch end
+  modal.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    
+    // Check if it's a swipe from left edge (back gesture)
+    if (touchStartX < 50 && touchEndX - touchStartX > 100) {
+      playSoundAndHaptic('back_gesture', 'medium');
+      closeFullscreenHeatmap();
+    }
+    
+    // Check if it's a swipe from right edge (forward gesture)
+    if (touchStartX > window.innerWidth - 50 && touchStartX - touchEndX > 100) {
+      // Could be used for future navigation
+    }
+  }, { passive: true });
+  
+  // Handle browser back button
+  window.addEventListener('popstate', (e) => {
+    if (document.getElementById('fullscreen-heatmap-modal').style.display === 'flex') {
+      e.preventDefault();
+      playSoundAndHaptic('back_button', 'medium');
+      closeFullscreenHeatmap();
+    }
+  });
+  
+  // Add history entry for back button support
+  if (window.history && window.history.pushState) {
+    window.history.pushState({ fullscreen: true }, '', '#fullscreen');
+  }
+}
+
+/* ══════════════════════════════════════════
    RENDER: SUMMARY
 ════════════════════════════════════════════ */
 function renderSummary(){
