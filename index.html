@@ -1117,6 +1117,61 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
 .sec-title{font-size:13px;font-weight:700;margin-bottom:0}
 .divider{height:1px;background:var(--b);margin:14px 0}
+
+/* Fire Icon Styles */
+.fire-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fireFlicker 1.5s ease-in-out infinite alternate;
+  transition: all 0.3s ease;
+}
+
+.fire-icon.active {
+  width: 32px;
+  height: 32px;
+  animation: fireFlicker 1s ease-in-out infinite alternate;
+}
+
+.fire-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes fireFlicker {
+  0% { 
+    transform: scale(1) rotate(-2deg);
+  }
+  25% { 
+    transform: scale(1.05) rotate(1deg);
+  }
+  50% { 
+    transform: scale(1.02) rotate(-1deg);
+  }
+  75% { 
+    transform: scale(1.03) rotate(2deg);
+  }
+  100% { 
+    transform: scale(1.01) rotate(-1deg);
+  }
+}
+
+@keyframes pulse {
+  0% { 
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: scale(1.2);
+    opacity: 0.1;
+  }
+  100% { 
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
 </style>
 </head>
 <body>
@@ -1236,6 +1291,41 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">Stats</div></div>
   </div>
   <div class="scroll-area">
+    <div class="card anim">
+      <div class="sec-title" style="margin-bottom:14px">Work Streak</div>
+      
+      <!-- Current Streak - Main Section -->
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px">
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+          <div class="fire-icon" id="streak-fire">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C12 2 8 6 8 12C8 14 9 16 10 17L12 19L14 17C15 16 16 14 16 12C16 6 12 2 12 2Z" fill="#FF6B35" stroke="#FF6B35"/>
+              <path d="M12 8C12 8 10 10 10 13C10 14 10.5 15 11 15.5L12 16.5L13 15.5C13.5 15 14 14 14 13C14 10 12 8 12 8Z" fill="#FFD23F" stroke="#FFD23F"/>
+            </svg>
+          </div>
+          <div style="font-size:11px;color:var(--t1);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Current Streak</div>
+        </div>
+        <div class="mono" id="current-streak" style="font-size:28px;font-weight:700;color:var(--acc);margin-bottom:6px">0 days</div>
+        <div id="current-streak-date" style="font-size:11px;color:var(--t2)">-</div>
+      </div>
+      
+      <!-- Last and Longest Streak - Side by Side -->
+      <div style="display:flex;gap:12px">
+        <!-- Last Streak -->
+        <div style="flex:1;background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px;padding:12px">
+          <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Last Streak</div>
+          <div class="mono" id="last-streak" style="font-size:18px;font-weight:600;color:var(--paid);margin-bottom:4px">0 days</div>
+          <div id="last-streak-date" style="font-size:10px;color:var(--t2)">-</div>
+        </div>
+        
+        <!-- Longest Streak -->
+        <div style="flex:1;background:var(--pend-bg);border:1px solid var(--pend-bd);border-radius:10px;padding:12px">
+          <div style="font-size:9px;color:var(--pend);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Longest Streak</div>
+          <div class="mono" id="longest-streak" style="font-size:18px;font-weight:600;color:var(--pend);margin-bottom:4px">0 days</div>
+          <div id="longest-streak-date" style="font-size:10px;color:var(--t2)">-</div>
+        </div>
+      </div>
+    </div>
     <div class="card anim">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div class="sec-title">Monthly Earnings</div>
@@ -2198,6 +2288,91 @@ function getClientMap(){
     e.paymentStatus==='paid'?(m[e.clientId].paid+=e.amount):(m[e.clientId].pending+=e.amount);
   });
   return m;
+}
+function calculateStreaks(){
+  const dm=getDateMap();
+  const dates=Object.keys(dm).sort((a,b)=>new Date(a)-new Date(b));
+  const today=new Date();
+  today.setHours(0,0,0,0);
+  
+  let currentStreak=0;
+  let currentStreakStart=null;
+  let lastStreak=0;
+  let lastStreakStart=null;
+  let lastStreakEnd=null;
+  let longestStreak=0;
+  let longestStreakStart=null;
+  let longestStreakEnd=null;
+  let tempStreak=0;
+  let tempStreakStart=null;
+  
+  // Check dates backwards from today to find current streak
+  for(let i=0;i<365;i++){
+    const checkDate=new Date(today);
+    checkDate.setDate(today.getDate()-i);
+    const dateStr=checkDate.toISOString().split('T')[0];
+    
+    if(dm[dateStr]){
+      currentStreak++;
+      currentStreakStart=dateStr;
+    } else {
+      break;
+    }
+  }
+  
+  // Calculate all streaks
+  let previousDate=null;
+  for(const dateStr of dates){
+    const currentDate=new Date(dateStr);
+    
+    if(previousDate){
+      const diffDays=Math.floor((currentDate-previousDate)/(1000*60*60*24));
+      if(diffDays===1){
+        tempStreak++;
+      } else {
+        // End of current streak
+        if(tempStreak>longestStreak){
+          longestStreak=tempStreak;
+          longestStreakStart=tempStreakStart;
+          longestStreakEnd=previousDate;
+        }
+        if(tempStreak>0 && tempStreak!==currentStreak){
+          lastStreak=tempStreak;
+          lastStreakStart=tempStreakStart;
+          lastStreakEnd=previousDate;
+        }
+        tempStreak=1;
+        tempStreakStart=dateStr;
+      }
+    } else {
+      tempStreak=1;
+      tempStreakStart=dateStr;
+    }
+    previousDate=currentDate;
+  }
+  
+  // Check final streak
+  if(tempStreak>longestStreak){
+    longestStreak=tempStreak;
+    longestStreakStart=tempStreakStart;
+    longestStreakEnd=previousDate;
+  }
+  if(tempStreak>0 && tempStreak!==currentStreak){
+    lastStreak=tempStreak;
+    lastStreakStart=tempStreakStart;
+    lastStreakEnd=previousDate;
+  }
+  
+  return {
+    currentStreak, 
+    currentStreakStart,
+    lastStreak, 
+    lastStreakStart,
+    lastStreakEnd,
+    longestStreak,
+    longestStreakStart,
+    longestStreakEnd
+  };
 }
 function getAllDescriptions(){
   return [...new Set(entries.map(e=>e.description).filter(Boolean))];
@@ -3506,7 +3681,7 @@ function renderClientsView(){
    RENDER: STATS VIEW
 ════════════════════════════════════════════ */
 function renderStatsView(){
-  renderMonthlyBars(); renderDonut(); renderClientBars(); renderCollRate(); renderEarningsAnalysis(); renderStatsHeatmap();
+  renderMonthlyBars(); renderDonut(); renderStreaks(); renderClientBars(); renderCollRate(); renderEarningsAnalysis(); renderStatsHeatmap();
 }
 function renderMonthlyBars(){
   const now=new Date();
@@ -3642,6 +3817,58 @@ function renderEarningsAnalysis(){
   document.getElementById('lowest-month').textContent=`${fmtRs(lowest)} (${lowestMonthName})`;
   document.getElementById('monthly-avg').textContent=fmtRs(Math.round(average));
   document.getElementById('annual-prediction').textContent=fmtRs(Math.round(annualPrediction));
+}
+function renderStreaks(){
+  const {
+    currentStreak, 
+    currentStreakStart,
+    lastStreak, 
+    lastStreakStart,
+    lastStreakEnd,
+    longestStreak,
+    longestStreakStart,
+    longestStreakEnd
+  }=calculateStreaks();
+  
+  // Update streak values
+  document.getElementById('current-streak').textContent=`${currentStreak} day${currentStreak!==1?'s':''}`;
+  document.getElementById('last-streak').textContent=`${lastStreak} day${lastStreak!==1?'s':''}`;
+  document.getElementById('longest-streak').textContent=`${longestStreak} day${longestStreak!==1?'s':''}`;
+  
+  // Update dates
+  if(currentStreak>0 && currentStreakStart){
+    const startDate=new Date(currentStreakStart);
+    const today=new Date();
+    document.getElementById('current-streak-date').textContent=`${formatDate(startDate)} - ${formatDate(today)}`;
+  } else {
+    document.getElementById('current-streak-date').textContent='No active streak';
+  }
+  
+  if(lastStreak>0 && lastStreakStart && lastStreakEnd){
+    document.getElementById('last-streak-date').textContent=`${formatDate(new Date(lastStreakStart))} - ${formatDate(new Date(lastStreakEnd))}`;
+  } else {
+    document.getElementById('last-streak-date').textContent='-';
+  }
+  
+  if(longestStreak>0 && longestStreakStart && longestStreakEnd){
+    document.getElementById('longest-streak-date').textContent=`${formatDate(new Date(longestStreakStart))} - ${formatDate(new Date(longestStreakEnd))}`;
+  } else {
+    document.getElementById('longest-streak-date').textContent='-';
+  }
+  
+  // Update fire icon based on current streak
+  const fireIcon=document.getElementById('streak-fire');
+  if(currentStreak>0){
+    fireIcon.classList.add('active');
+  } else {
+    fireIcon.classList.remove('active');
+  }
+}
+
+// Helper function to format dates
+function formatDate(date){
+  const options={month:'short', day:'numeric'};
+  return date.toLocaleDateString('en-US', options);
 }
 
 /* ════════════════════════════════════════════
