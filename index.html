@@ -1118,21 +1118,20 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 .sec-title{font-size:13px;font-weight:700;margin-bottom:0}
 .divider{height:1px;background:var(--b);margin:14px 0}
 
-/* Fire Icon Styles */
+/* Streak Icon Styles */
 .fire-icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fireFlicker 1.5s ease-in-out infinite alternate;
   transition: all 0.3s ease;
+  color: var(--t3);
 }
 
 .fire-icon.active {
-  width: 32px;
-  height: 32px;
-  animation: fireFlicker 1s ease-in-out infinite alternate;
+  color: var(--acc);
+  animation: pulse 2s infinite;
 }
 
 .fire-icon svg {
@@ -1140,21 +1139,18 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   height: 100%;
 }
 
-@keyframes fireFlicker {
+@keyframes pulse {
   0% { 
-    transform: scale(1) rotate(-2deg);
-  }
-  25% { 
-    transform: scale(1.05) rotate(1deg);
+    opacity: 1;
+    transform: scale(1);
   }
   50% { 
-    transform: scale(1.02) rotate(-1deg);
-  }
-  75% { 
-    transform: scale(1.03) rotate(2deg);
+    opacity: 0.8;
+    transform: scale(1.05);
   }
   100% { 
-    transform: scale(1.01) rotate(-1deg);
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -1299,8 +1295,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
           <div class="fire-icon" id="streak-fire">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2C12 2 8 6 8 12C8 14 9 16 10 17L12 19L14 17C15 16 16 14 16 12C16 6 12 2 12 2Z" fill="#FF6B35" stroke="#FF6B35"/>
-              <path d="M12 8C12 8 10 10 10 13C10 14 10.5 15 11 15.5L12 16.5L13 15.5C13.5 15 14 14 14 13C14 10 12 8 12 8Z" fill="#FFD23F" stroke="#FFD23F"/>
+              <path d="M12 2C12 2 7 7 7 13C7 16 9 18 11 19L12 20L13 19C15 18 17 16 17 13C17 7 12 2 12 2Z"/>
+              <path d="M12 8C12 8 10 10 10 13C10 14 10.5 15 11 16L12 17L13 16C13.5 15 14 14 14 13C14 10 12 8 12 8Z"/>
             </svg>
           </div>
           <div style="font-size:11px;color:var(--t1);text-transform:uppercase;letter-spacing:.07em;font-weight:700">Current Streak</div>
