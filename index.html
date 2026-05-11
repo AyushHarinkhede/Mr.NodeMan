@@ -21,7 +21,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="Shinchan.png">
   <link rel="shortcut icon" href="Shinchan.png">
   <link rel="mask-icon" href="safari-pinned-tab.svg" color="#7C6FED">
-  <!-- Preconnect for fonts -->
+  <!-- Preconnect for fonts --> 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   
@@ -1648,6 +1648,47 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">More</div></div>
   </div>
   <div class="scroll-area">
+    <!-- Login/Signup Profile Corner -->
+    <div class="card anim" id="auth-corner">
+      <!-- Login State (shown when user is logged out) -->
+      <div id="login-state">
+        <div style="font-size:12px;font-weight:700;margin-bottom:10px;color:var(--t1)">Account Access</div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:12px">Login to sync your data across devices and access it anywhere.</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="ss-btn" onclick="showLoginModal()" style="flex:1;padding:10px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:600">
+            Login
+          </button>
+          <button class="ss-btn" onclick="showSignupModal()" style="flex:1;padding:10px;border-radius:10px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:12px;font-weight:600">
+            Sign Up
+          </button>
+        </div>
+      </div>
+      
+      <!-- Profile State (shown when user is logged in) -->
+      <div id="profile-state" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:48px;height:48px;background:linear-gradient(135deg,var(--acc),#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div style="flex:1">
+            <div id="user-name" style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px">User Name</div>
+            <div id="user-email" style="font-size:11px;color:var(--t2)">user@example.com</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="ss-btn" onclick="showProfileDetails()" style="padding:8px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:11px;font-weight:600">
+            View Profile
+          </button>
+          <button class="ss-btn" onclick="logoutUser()" style="padding:8px;border-radius:9px;background:#1a0000;border:1px solid #ff4444;color:#ff8888;font-size:11px;font-weight:600">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <!-- Sync Status Card -->
     <div class="card anim" id="sync-card">
       <div style="font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px">
@@ -4865,6 +4906,778 @@ function showFirebaseGuide(){
     cancelText: null
   });
 }
+
+/* ════════════════════════════════════════════
+   AUTHENTICATION BACKEND & LOGIC
+════════════════════════════════════════════ */
+let currentUser = null;
+let authListeners = [];
+
+// Initialize auth state
+function initAuth() {
+  const savedUser = localStorage.getItem('currentUser');
+  if (savedUser) {
+    currentUser = JSON.parse(savedUser);
+    updateAuthUI();
+    loadUserData();
+  }
+  
+  // Setup Firebase auth listener if available
+  if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+    setupFirebaseAuth();
+  }
+}
+
+// Setup Firebase Authentication
+function setupFirebaseAuth() {
+  const auth = firebase.auth();
+  
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      // User is signed in with Firebase
+      const firebaseUser = {
+        id: user.uid,
+        email: user.email,
+        name: user.displayName || user.email.split('@')[0],
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified,
+        provider: user.providerData[0]?.providerId || 'email'
+      };
+      
+      // Update local user data
+      currentUser = { ...currentUser, ...firebaseUser };
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      updateAuthUI();
+      loadUserData();
+    } else {
+      // User is signed out
+      if (currentUser && currentUser.provider !== 'email') {
+        // Firebase user signed out, update local state
+        logoutUser();
+      }
+    }
+  });
+}
+
+// Update UI based on auth state
+function updateAuthUI() {
+  const loginState = document.getElementById('login-state');
+  const profileState = document.getElementById('profile-state');
+  
+  if (currentUser) {
+    loginState.style.display = 'none';
+    profileState.style.display = 'block';
+    document.getElementById('user-name').textContent = currentUser.name || 'User';
+    document.getElementById('user-email').textContent = currentUser.email || currentUser.phone || 'user@example.com';
+  } else {
+    loginState.style.display = 'block';
+    profileState.style.display = 'none';
+  }
+}
+
+// Load user data from storage
+async function loadUserData() {
+  if (!currentUser) return;
+  
+  try {
+    // Try to load from Firebase first
+    if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+      await loadFromFirebase();
+    } else {
+      // Fallback to localStorage
+      loadFromLocalStorage();
+    }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+    loadFromLocalStorage();
+  }
+}
+
+// Load data from Firebase
+async function loadFromFirebase() {
+  const db = firebase.database();
+  const userRef = db.ref('users/' + currentUser.id);
+  
+  const snapshot = await userRef.once('value');
+  const userData = snapshot.val();
+  
+  if (userData) {
+    // Update global CLIENTS with user's data
+    if (userData.clients && Array.isArray(userData.clients)) {
+      window.CLIENTS = userData.clients;
+      updateClientsList();
+      updateSummary();
+    }
+    
+    if (userData.entries && Array.isArray(userData.entries)) {
+      // Load entries if they exist
+      window.ENTRIES = userData.entries;
+    }
+    
+    showToast('✓ Data synced from cloud');
+  }
+}
+
+// Load data from localStorage
+function loadFromLocalStorage() {
+  const userDataKey = `userData_${currentUser.id}`;
+  const userData = localStorage.getItem(userDataKey);
+  
+  if (userData) {
+    const parsed = JSON.parse(userData);
+    
+    if (parsed.clients && Array.isArray(parsed.clients)) {
+      window.CLIENTS = parsed.clients;
+      updateClientsList();
+      updateSummary();
+    }
+    
+    if (parsed.entries && Array.isArray(parsed.entries)) {
+      window.ENTRIES = parsed.entries;
+    }
+  }
+}
+
+// Save user data
+async function saveUserData() {
+  if (!currentUser) return;
+  
+  const userData = {
+    clients: window.CLIENTS || [],
+    entries: window.ENTRIES || [],
+    lastUpdated: new Date().toISOString()
+  };
+  
+  try {
+    // Try to save to Firebase first
+    if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+      await saveToFirebase(userData);
+    } else {
+      // Fallback to localStorage
+      saveToLocalStorage(userData);
+    }
+  } catch (error) {
+    console.error('Error saving user data:', error);
+    saveToLocalStorage(userData);
+  }
+}
+
+// Save data to Firebase
+async function saveToFirebase(userData) {
+  const db = firebase.database();
+  const userRef = db.ref('users/' + currentUser.id);
+  
+  await userRef.set(userData);
+  console.log('Data saved to Firebase');
+}
+
+// Save data to localStorage
+function saveToLocalStorage(userData) {
+  const userDataKey = `userData_${currentUser.id}`;
+  localStorage.setItem(userDataKey, JSON.stringify(userData));
+  console.log('Data saved to localStorage');
+}
+
+// Show Login Modal
+function showLoginModal() {
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Login to Your Account',
+    body: `
+      <div style="text-align:left;padding:10px;font-size:12px;line-height:1.5">
+        <div style="margin-bottom:20px;text-align:center">
+          <button onclick="loginWithGoogle()" style="width:100%;padding:12px;border-radius:8px;background:#4285f4;color:white;border:none;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Continue with Google
+          </button>
+        </div>
+        
+        <div style="text-align:center;margin:15px 0;color:var(--t3);font-size:11px">OR</div>
+        
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Email Address</label>
+          <input type="email" id="login-email" placeholder="Enter your email" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Password</label>
+          <div style="position:relative">
+            <input type="password" id="login-password" placeholder="Enter password" style="width:100%;padding:10px 35px 10px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+            <button type="button" onclick="togglePasswordVisibility('login-password', this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;padding:4px;border-radius:4px" title="Show/Hide Password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:10px">
+          <label style="display:flex;align-items:center;gap:6px">
+            <input type="checkbox" id="remember-me" style="margin:0">
+            <span>Remember me</span>
+          </label>
+        </div>
+        <div style="text-align:center">
+          <a href="#" onclick="showPasswordReset()" style="color:var(--acc);text-decoration:underline;font-size:11px">Forgot password?</a>
+        </div>
+      </div>
+    `,
+    confirmText: 'Login',
+    cancelText: 'Cancel',
+    onConfirm: () => handleEmailLogin()
+  });
+}
+
+// Show Signup Modal
+function showSignupModal() {
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Create Your Account',
+    body: `
+      <div style="text-align:left;padding:10px;font-size:12px;line-height:1.5">
+        <div style="margin-bottom:20px;text-align:center">
+          <button onclick="signupWithGoogle()" style="width:100%;padding:12px;border-radius:8px;background:#4285f4;color:white;border:none;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Sign up with Google
+          </button>
+        </div>
+        
+        <div style="text-align:center;margin:15px 0;color:var(--t3);font-size:11px">OR</div>
+        
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Full Name</label>
+          <input type="text" id="signup-name" placeholder="Enter your name" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Email Address</label>
+          <input type="email" id="signup-email" placeholder="Enter email address" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Mobile Number (Optional)</label>
+          <input type="tel" id="signup-phone" placeholder="Enter mobile number" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Password</label>
+          <div style="position:relative">
+            <input type="password" id="signup-password" placeholder="Create password (min 6 chars)" style="width:100%;padding:10px 70px 10px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+            <button type="button" onclick="togglePasswordVisibility('signup-password', this)" style="position:absolute;right:40px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;padding:4px;border-radius:4px" title="Show/Hide Password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+            <button type="button" onclick="copyPasswordToConfirm('signup-password', 'signup-confirm-password')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--acc);cursor:pointer;padding:4px;border-radius:4px" title="Copy to Confirm Password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Confirm Password</label>
+          <div style="position:relative">
+            <input type="password" id="signup-confirm-password" placeholder="Confirm password" style="width:100%;padding:10px 35px 10px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+            <button type="button" onclick="togglePasswordVisibility('signup-confirm-password', this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;padding:4px;border-radius:4px" title="Show/Hide Password">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--t2)">
+          <label style="display:flex;align-items:start;gap:6px">
+            <input type="checkbox" id="agree-terms" style="margin-top:2px">
+            <span>I agree to the Terms & Conditions and Privacy Policy</span>
+          </label>
+        </div>
+      </div>
+    `,
+    confirmText: 'Create Account',
+    cancelText: 'Cancel',
+    onConfirm: () => handleEmailSignup()
+  });
+}
+
+// Google Login
+async function loginWithGoogle() {
+  if (!firebase || !firebase.apps.length) {
+    showToast('⚠ Firebase not configured');
+    return;
+  }
+  
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    await firebase.auth().signInWithPopup(provider);
+    showToast('✓ Login successful with Google!');
+    playSoundAndHaptic('success', 'double');
+  } catch (error) {
+    console.error('Google login error:', error);
+    showToast('✗ Login failed: ' + error.message);
+    playSoundAndHaptic('error', 'heavy');
+  }
+}
+
+// Google Signup
+async function signupWithGoogle() {
+  await loginWithGoogle(); // Same function for both
+}
+
+// Email/Password Login
+async function handleEmailLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const rememberMe = document.getElementById('remember-me').checked;
+  
+  if (!email || !password) {
+    showToast('⚠ Please fill in all fields');
+    return;
+  }
+  
+  try {
+    // Try Firebase Auth first
+    if (firebase && firebase.apps.length) {
+      await firebase.auth().signInWithEmailAndPassword(email, password);
+      showToast('✓ Login successful!');
+      playSoundAndHaptic('success', 'double');
+    } else {
+      // Fallback to local auth
+      await handleLocalLogin(email, password, rememberMe);
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    // Try local auth as fallback
+    await handleLocalLogin(email, password, rememberMe);
+  }
+}
+
+// Local Login (Fallback)
+async function handleLocalLogin(email, password, rememberMe) {
+  const users = JSON.parse(localStorage.getItem('users') || '[]');
+  const user = users.find(u => u.email === email && u.password === password);
+  
+  if (user) {
+    currentUser = { ...user };
+    delete currentUser.password;
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    if (rememberMe) {
+      localStorage.setItem('rememberUser', 'true');
+    }
+    updateAuthUI();
+    loadUserData();
+    showToast('✓ Login successful! Welcome back, ' + user.name);
+    playSoundAndHaptic('success', 'double');
+  } else {
+    showToast('✗ Invalid credentials. Please try again.');
+    playSoundAndHaptic('error', 'heavy');
+  }
+}
+
+// Email/Password Signup
+async function handleEmailSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const phone = document.getElementById('signup-phone').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const confirmPassword = document.getElementById('signup-confirm-password').value;
+  const agreeTerms = document.getElementById('agree-terms').checked;
+  
+  if (!name || !email || !password || !confirmPassword) {
+    showToast('⚠ Please fill in all required fields');
+    return;
+  }
+  
+  if (password !== confirmPassword) {
+    showToast('⚠ Passwords do not match');
+    return;
+  }
+  
+  if (!agreeTerms) {
+    showToast('⚠ Please agree to the Terms & Conditions');
+    return;
+  }
+  
+  if (password.length < 6) {
+    showToast('⚠ Password must be at least 6 characters');
+    return;
+  }
+  
+  try {
+    // Try Firebase Auth first
+    if (firebase && firebase.apps.length) {
+      await firebase.auth().createUserWithEmailAndPassword(email, password);
+      await firebase.auth().currentUser.updateProfile({ displayName: name });
+      
+      // Update user object with additional info
+      currentUser = {
+        ...currentUser,
+        name,
+        phone,
+        provider: 'email'
+      };
+      
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      updateAuthUI();
+      await initializeUserData();
+      showToast('✓ Account created successfully! Welcome, ' + name);
+      playSoundAndHaptic('success', 'double');
+    } else {
+      // Fallback to local signup
+      await handleLocalSignup(name, email, phone, password);
+    }
+  } catch (error) {
+    console.error('Signup error:', error);
+    // Try local signup as fallback
+    await handleLocalSignup(name, email, phone, password);
+  }
+}
+
+// Local Signup (Fallback)
+async function handleLocalSignup(name, email, phone, password) {
+  const users = JSON.parse(localStorage.getItem('users') || '[]');
+  
+  if (users.find(u => u.email === email)) {
+    showToast('⚠ An account with this email already exists');
+    return;
+  }
+  
+  const newUser = {
+    id: Date.now().toString(),
+    name,
+    email,
+    phone,
+    password,
+    createdAt: new Date().toISOString(),
+    provider: 'local'
+  };
+  
+  users.push(newUser);
+  localStorage.setItem('users', JSON.stringify(users));
+  
+  currentUser = { ...newUser };
+  delete currentUser.password;
+  localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  localStorage.setItem('rememberUser', 'true');
+  
+  updateAuthUI();
+  await initializeUserData();
+  showToast('✓ Account created successfully! Welcome, ' + name);
+  playSoundAndHaptic('success', 'double');
+}
+
+// Show Profile Details
+function showProfileDetails() {
+  if (!currentUser) return;
+  
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Profile Details',
+    body: `
+      <div style="text-align:left;padding:10px;font-size:12px;line-height:1.5">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--acc),#8b5cf6);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+            ${currentUser.photoURL ? 
+              `<img src="${currentUser.photoURL}" style="width:64px;height:64px;border-radius:50%;object-fit:cover">` :
+              `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>`
+            }
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--t1)">${currentUser.name}</div>
+          <div style="font-size:11px;color:var(--t2)">Member since ${new Date(currentUser.createdAt || Date.now()).toLocaleDateString()}</div>
+          ${currentUser.emailVerified ? '<div style="font-size:10px;color:green">✓ Email verified</div>' : ''}
+          ${currentUser.provider ? `<div style="font-size:10px;color:var(--t3)">Provider: ${currentUser.provider}</div>` : ''}
+        </div>
+        
+        <div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:15px">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:5px">Email Address</div>
+          <div style="font-size:12px;color:var(--t1);font-weight:600">${currentUser.email}</div>
+        </div>
+        
+        ${currentUser.phone ? `
+        <div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:15px">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:5px">Mobile Number</div>
+          <div style="font-size:12px;color:var(--t1);font-weight:600">${currentUser.phone}</div>
+        </div>
+        ` : ''}
+        
+        <div style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:15px">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:5px">Account ID</div>
+          <div style="font-size:10px;color:var(--t1);font-family:monospace">${currentUser.id}</div>
+        </div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="editProfile()" style="padding:8px;border-radius:8px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:600;border:none;cursor:pointer">
+            Edit Profile
+          </button>
+          <button onclick="exportUserData()" style="padding:8px;border-radius:8px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:11px;font-weight:600;border:none;cursor:pointer">
+            Export Data
+          </button>
+        </div>
+      </div>
+    `,
+    confirmText: 'Close',
+    cancelText: null
+  });
+}
+
+// Edit Profile
+function editProfile() {
+  if (!currentUser) return;
+  
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Edit Profile',
+    body: `
+      <div style="text-align:left;padding:10px;font-size:12px;line-height:1.5">
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Full Name</label>
+          <input type="text" id="edit-name" value="${currentUser.name || ''}" placeholder="Enter your name" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Mobile Number</label>
+          <input type="tel" id="edit-phone" value="${currentUser.phone || ''}" placeholder="Enter mobile number" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+        </div>
+        <div style="margin-bottom:15px">
+          <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Bio (Optional)</label>
+          <textarea id="edit-bio" placeholder="Tell us about yourself" style="width:100%;padding:10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px;min-height:60px;resize:none">${currentUser.bio || ''}</textarea>
+        </div>
+      </div>
+    `,
+    confirmText: 'Save Changes',
+    cancelText: 'Cancel',
+    onConfirm: () => saveProfileChanges()
+  });
+}
+
+// Save Profile Changes
+async function saveProfileChanges() {
+  const name = document.getElementById('edit-name').value.trim();
+  const phone = document.getElementById('edit-phone').value.trim();
+  const bio = document.getElementById('edit-bio').value.trim();
+  
+  if (!name) {
+    showToast('⚠ Name is required');
+    return;
+  }
+  
+  try {
+    // Update Firebase profile if available
+    if (firebase && firebase.apps.length && currentUser.provider !== 'local') {
+      await firebase.auth().currentUser.updateProfile({ displayName: name });
+    }
+    
+    // Update local user object
+    currentUser.name = name;
+    currentUser.phone = phone;
+    currentUser.bio = bio;
+    currentUser.updatedAt = new Date().toISOString();
+    
+    // Save to localStorage
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    
+    // Update users list if local user
+    if (currentUser.provider === 'local') {
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const userIndex = users.findIndex(u => u.id === currentUser.id);
+      if (userIndex !== -1) {
+        users[userIndex] = { ...users[userIndex], name, phone, bio };
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+    }
+    
+    // Update UI
+    updateAuthUI();
+    showToast('✓ Profile updated successfully!');
+    playSoundAndHaptic('success', 'double');
+    
+  } catch (error) {
+    console.error('Profile update error:', error);
+    showToast('✗ Failed to update profile');
+    playSoundAndHaptic('error', 'heavy');
+  }
+}
+
+// Logout User
+async function logoutUser() {
+  if (!currentUser) return;
+  
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Logout',
+    body: `
+      <div style="text-align:left;padding:10px;font-size:12px;line-height:1.5">
+        <p style="color:var(--t2);margin-bottom:15px">Are you sure you want to logout? Your data will remain saved and you can login again anytime.</p>
+        <div style="background:var(--s2);border-radius:8px;padding:10px">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:5px">Current User:</div>
+          <div style="font-size:12px;color:var(--t1);font-weight:600">${currentUser.name}</div>
+          <div style="font-size:11px;color:var(--t2)">${currentUser.email}</div>
+        </div>
+      </div>
+    `,
+    confirmText: 'Logout',
+    confirmClass: 'danger',
+    onConfirm: async () => {
+      try {
+        // Logout from Firebase if available
+        if (firebase && firebase.apps.length && currentUser.provider !== 'local') {
+          await firebase.auth().signOut();
+        }
+        
+        // Clear local session
+        localStorage.removeItem('currentUser');
+        currentUser = null;
+        
+        // Update UI
+        updateAuthUI();
+        
+        // Clear app data
+        window.CLIENTS = [];
+        window.ENTRIES = [];
+        updateClientsList();
+        updateSummary();
+        
+        showToast('✓ Logged out successfully');
+        playSoundAndHaptic('success', 'light');
+      } catch (error) {
+        console.error('Logout error:', error);
+        showToast('✗ Logout failed');
+      }
+    }
+  });
+}
+
+// Initialize user data in Firebase
+async function initializeUserData() {
+  if (!currentUser) return;
+  
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+      const db = firebase.database();
+      const userRef = db.ref('users/' + currentUser.id);
+      
+      await userRef.set({
+        clients: [],
+        entries: [],
+        settings: {},
+        createdAt: new Date().toISOString(),
+        lastSync: new Date().toISOString()
+      });
+      
+      console.log('User data initialized in Firebase');
+    }
+    
+    // Initialize local storage
+    const userDataKey = `userData_${currentUser.id}`;
+    if (!localStorage.getItem(userDataKey)) {
+      localStorage.setItem(userDataKey, JSON.stringify({
+        clients: [],
+        entries: [],
+        settings: {}
+      }));
+    }
+  } catch (error) {
+    console.error('Error initializing user data:', error);
+  }
+}
+
+// Placeholder functions
+function showPasswordReset() {
+  if (firebase && firebase.apps.length) {
+    showToast('📧 Password reset email would be sent to your registered email');
+  } else {
+    showToast('📧 Contact support to reset your password');
+  }
+}
+
+function exportUserData() {
+  if (!currentUser) return;
+  
+  const dataStr = JSON.stringify({
+    user: currentUser,
+    clients: window.CLIENTS || [],
+    entries: window.ENTRIES || [],
+    exportDate: new Date().toISOString()
+  }, null, 2);
+  
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `mynodeman-data-${currentUser.id}-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  
+  showToast('✓ Data exported successfully');
+}
+
+// Auto-save user data when clients/entries change
+function setupAutoSave() {
+  // Override saveClient function to include user data save
+  const originalSaveClient = window.saveClient;
+  if (originalSaveClient) {
+    window.saveClient = function(...args) {
+      const result = originalSaveClient.apply(this, args);
+      saveUserData();
+      return result;
+    };
+  }
+  
+  // Override deleteClient function
+  const originalDeleteClient = window.deleteClient;
+  if (originalDeleteClient) {
+    window.deleteClient = function(...args) {
+      const result = originalDeleteClient.apply(this, args);
+      saveUserData();
+      return result;
+    };
+  }
+}
+
+// Toggle Password Visibility
+function togglePasswordVisibility(inputId, button) {
+  const input = document.getElementById(inputId);
+  const isPassword = input.type === 'password';
+  
+  if (isPassword) {
+    input.type = 'text';
+    button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+    button.title = 'Hide Password';
+  } else {
+    input.type = 'password';
+    button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    button.title = 'Show Password';
+  }
+}
+
+// Copy password to confirm password field
+function copyPasswordToConfirm(sourceId, targetId) {
+  const sourceInput = document.getElementById(sourceId);
+  const targetInput = document.getElementById(targetId);
+  
+  if (sourceInput.value) {
+    targetInput.value = sourceInput.value;
+    showToast('✓ Password copied to confirm field');
+    playSoundAndHaptic('light', 'light');
+  }
+}
+
+// Initialize auth on page load
+document.addEventListener('DOMContentLoaded', () => {
+  initAuth();
+  setupAutoSave();
+});
 
 /* ════════════════════════════════════════════
    VIEW ROUTING
