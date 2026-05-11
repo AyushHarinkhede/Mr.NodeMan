@@ -4932,9 +4932,11 @@ function initAuth() {
 function setupFirebaseAuth() {
   const auth = firebase.auth();
   
-  auth.onAuthStateChanged((user) => {
+  auth.onAuthStateChanged(async (user) => {
     if (user) {
       // User is signed in with Firebase
+      showToast('🔐 Firebase authentication successful!');
+      
       const firebaseUser = {
         id: user.uid,
         email: user.email,
@@ -4948,7 +4950,17 @@ function setupFirebaseAuth() {
       currentUser = { ...currentUser, ...firebaseUser };
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
       updateAuthUI();
-      loadUserData();
+      
+      // Show data connection setup
+      showToast('⚙️ Connecting your data to ' + user.email + '...');
+      await loadUserData();
+      
+      // Final confirmation
+      setTimeout(() => {
+        showToast('✅ Your data is now connected to ' + user.email);
+        playSoundAndHaptic('success', 'double');
+      }, 1000);
+      
     } else {
       // User is signed out
       if (currentUser && currentUser.provider !== 'email') {
@@ -4967,8 +4979,21 @@ function updateAuthUI() {
   if (currentUser) {
     loginState.style.display = 'none';
     profileState.style.display = 'block';
-    document.getElementById('user-name').textContent = currentUser.name || 'User';
-    document.getElementById('user-email').textContent = currentUser.email || currentUser.phone || 'user@example.com';
+    
+    // Update profile information
+    const userNameElement = document.getElementById('user-name');
+    const userEmailElement = document.getElementById('user-email');
+    
+    if (userNameElement) {
+      userNameElement.textContent = currentUser.name || 'User';
+    }
+    
+    if (userEmailElement) {
+      userEmailElement.textContent = currentUser.email || currentUser.phone || 'user@example.com';
+    }
+    
+    console.log('✅ Profile UI updated for:', currentUser.email);
+    
   } else {
     loginState.style.display = 'block';
     profileState.style.display = 'none';
@@ -4979,6 +5004,9 @@ function updateAuthUI() {
 async function loadUserData() {
   if (!currentUser) return;
   
+  console.log('🔄 Loading data for user:', currentUser.email);
+  showToast('🔄 Loading your data...');
+  
   try {
     // Try to load from Firebase first
     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
@@ -4987,9 +5015,16 @@ async function loadUserData() {
       // Fallback to localStorage
       loadFromLocalStorage();
     }
+    
+    // Update UI to show data is connected to user
+    updateDataConnectionIndicator();
+    console.log('✅ Data loaded successfully for:', currentUser.email);
+    showToast('✅ Data loaded for ' + currentUser.email);
+    
   } catch (error) {
     console.error('Error loading user data:', error);
     loadFromLocalStorage();
+    showToast('⚠ Using local data for ' + currentUser.email);
   }
 }
 
@@ -5038,27 +5073,70 @@ function loadFromLocalStorage() {
   }
 }
 
+// Update data connection indicator
+function updateDataConnectionIndicator() {
+  if (!currentUser) return;
+  
+  // Update sync status card
+  const syncStatusBody = document.getElementById('sync-status-body');
+  if (syncStatusBody) {
+    syncStatusBody.innerHTML = `
+      <div style="font-size:11px;color:var(--t2);margin-bottom:8px">
+        <strong style="color:var(--t1)">Connected User:</strong> ${currentUser.email}
+      </div>
+      <div style="font-size:10px;color:var(--acc);margin-bottom:4px">
+        ✓ Data is linked to your account
+      </div>
+      <div style="font-size:10px;color:var(--t3);">
+        Last sync: ${new Date().toLocaleTimeString()}
+      </div>
+    `;
+  }
+  
+  // Update workspace ID section with user info
+  const wsIdLabel = document.getElementById('ws-id-label');
+  if (wsIdLabel) {
+    wsIdLabel.innerHTML = `
+      <div style="font-size:10px;color:var(--t2);margin-bottom:2px">User ID</div>
+      <div style="font-size:11px;color:var(--t1);font-weight:600">${currentUser.email}</div>
+    `;
+  }
+}
+
 // Save user data
 async function saveUserData() {
   if (!currentUser) return;
   
+  console.log('💾 Saving data for user:', currentUser.email);
+  
   const userData = {
     clients: window.CLIENTS || [],
     entries: window.ENTRIES || [],
-    lastUpdated: new Date().toISOString()
+    lastUpdated: new Date().toISOString(),
+    userEmail: currentUser.email,
+    userId: currentUser.id
   };
   
   try {
     // Try to save to Firebase first
     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
       await saveToFirebase(userData);
+      console.log('✅ Data saved to Firebase for:', currentUser.email);
+      showToast('✅ Data saved to cloud for ' + currentUser.email);
     } else {
       // Fallback to localStorage
       saveToLocalStorage(userData);
+      console.log('✅ Data saved locally for:', currentUser.email);
+      showToast('✅ Data saved locally for ' + currentUser.email);
     }
+    
+    // Update connection indicator
+    updateDataConnectionIndicator();
+    
   } catch (error) {
     console.error('Error saving user data:', error);
     saveToLocalStorage(userData);
+    showToast('⚠ Local backup created for ' + currentUser.email);
   }
 }
 
@@ -5168,17 +5246,11 @@ function showSignupModal() {
         <div style="margin-bottom:15px">
           <label style="display:block;color:var(--t1);margin-bottom:5px;font-weight:600">Password</label>
           <div style="position:relative">
-            <input type="password" id="signup-password" placeholder="Create password (min 6 chars)" style="width:100%;padding:10px 70px 10px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
-            <button type="button" onclick="togglePasswordVisibility('signup-password', this)" style="position:absolute;right:40px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;padding:4px;border-radius:4px" title="Show/Hide Password">
+            <input type="password" id="signup-password" placeholder="Create password (min 6 chars)" style="width:100%;padding:10px 35px 10px 10px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:12px">
+            <button type="button" onclick="togglePasswordVisibility('signup-password', this)" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer;padding:4px;border-radius:4px" title="Show/Hide Password">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
-            <button type="button" onclick="copyPasswordToConfirm('signup-password', 'signup-confirm-password')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--acc);cursor:pointer;padding:4px;border-radius:4px" title="Copy to Confirm Password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
               </svg>
             </button>
           </div>
@@ -5216,10 +5288,12 @@ async function loginWithGoogle() {
     return;
   }
   
+  showToast('🔐 Connecting with Google...');
+  
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
     await firebase.auth().signInWithPopup(provider);
-    showToast('✓ Login successful with Google!');
+    showToast('✅ Google login successful! Setting up data connection...');
     playSoundAndHaptic('success', 'double');
   } catch (error) {
     console.error('Google login error:', error);
@@ -5244,11 +5318,13 @@ async function handleEmailLogin() {
     return;
   }
   
+  showToast('🔐 Connecting to your account...');
+  
   try {
     // Try Firebase Auth first
     if (firebase && firebase.apps.length) {
       await firebase.auth().signInWithEmailAndPassword(email, password);
-      showToast('✓ Login successful!');
+      showToast('✅ Firebase login successful! Setting up data connection...');
       playSoundAndHaptic('success', 'double');
     } else {
       // Fallback to local auth
@@ -5273,10 +5349,20 @@ async function handleLocalLogin(email, password, rememberMe) {
     if (rememberMe) {
       localStorage.setItem('rememberUser', 'true');
     }
+    
+    // Update UI immediately
     updateAuthUI();
-    loadUserData();
-    showToast('✓ Login successful! Welcome back, ' + user.name);
-    playSoundAndHaptic('success', 'double');
+    
+    // Show data connection setup message
+    showToast('🔐 Setting up your data connection...');
+    await loadUserData();
+    
+    // Ensure profile is visible
+    setTimeout(() => {
+      updateAuthUI(); // Double-check profile visibility
+      showToast('✅ Login successful! Your data is now connected to ' + email);
+      playSoundAndHaptic('success', 'double');
+    }, 1000);
   } else {
     showToast('✗ Invalid credentials. Please try again.');
     playSoundAndHaptic('error', 'heavy');
@@ -5312,6 +5398,8 @@ async function handleEmailSignup() {
     return;
   }
   
+  showToast('📝 Creating your account and data workspace...');
+  
   try {
     // Try Firebase Auth first
     if (firebase && firebase.apps.length) {
@@ -5327,10 +5415,20 @@ async function handleEmailSignup() {
       };
       
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      
+      // Update UI immediately
       updateAuthUI();
+      
+      // Show data setup message
+      showToast('⚙️ Setting up your cloud data workspace...');
       await initializeUserData();
-      showToast('✓ Account created successfully! Welcome, ' + name);
-      playSoundAndHaptic('success', 'double');
+      
+      // Clear confirmation
+      setTimeout(() => {
+        updateAuthUI(); // Ensure profile is visible
+        showToast('✅ Account created! Your data is now connected to ' + email);
+        playSoundAndHaptic('success', 'double');
+      }, 1000);
     } else {
       // Fallback to local signup
       await handleLocalSignup(name, email, phone, password);
@@ -5351,6 +5449,8 @@ async function handleLocalSignup(name, email, phone, password) {
     return;
   }
   
+  showToast('📝 Creating your account...');
+  
   const newUser = {
     id: Date.now().toString(),
     name,
@@ -5369,10 +5469,19 @@ async function handleLocalSignup(name, email, phone, password) {
   localStorage.setItem('currentUser', JSON.stringify(currentUser));
   localStorage.setItem('rememberUser', 'true');
   
+  // Update UI immediately
   updateAuthUI();
+  
+  // Show data setup message
+  showToast('⚙️ Setting up your data workspace...');
   await initializeUserData();
-  showToast('✓ Account created successfully! Welcome, ' + name);
-  playSoundAndHaptic('success', 'double');
+  
+  // Clear confirmation
+  setTimeout(() => {
+    updateAuthUI(); // Ensure profile is visible
+    showToast('✅ Account created! Your data is now connected to ' + email);
+    playSoundAndHaptic('success', 'double');
+  }, 1000);
 }
 
 // Show Profile Details
