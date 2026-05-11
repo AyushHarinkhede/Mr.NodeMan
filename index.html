@@ -1660,7 +1660,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <div class="sec-title" style="margin-bottom:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg>Cloud Sync Setup</div>
       <div style="font-size:11px;color:var(--t2);margin-bottom:10px">Paste your Firebase config to enable real-time sync across all devices.</div>
       <div class="setup-steps" style="margin-bottom:12px">
-        <div class="setup-step">Go to <strong style="color:var(--t1)">console.firebase.google.com</strong></div>
+        <div class="setup-step">Go to <span onclick="window.open('https://console.firebase.google.com', '_blank')" style="color:#8b5cf6;cursor:pointer;text-decoration:underline">console.firebase.google.com</span></div>
         <div class="setup-step">Create project → Add Web App</div>
         <div class="setup-step">Enable Realtime Database (Test mode)</div>
         <div class="setup-step">Copy config JSON and paste below</div>
@@ -1670,8 +1670,12 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <button class="ss-btn" onclick="connectFirebase()" style="width:100%;margin-top:10px;padding:12px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:13px;font-weight:700">
         Connect Firebase →
       </button>
+      <button class="ss-btn" onclick="showFirebaseGuide()" style="width:100%;margin-top:8px;padding:10px;border-radius:11px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:12px;font-weight:600">
+        View Complete Setup Guide
+      </button>
     </div>
-    <!-- Workspace ID -->
+
+        <!-- Workspace ID -->
     <div style="background:var(--s2);border:1px solid var(--b);border-radius:14px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px" class="anim">
       <div style="flex:1"><div style="font-size:11px;color:var(--t2);margin-bottom:3px">Workspace ID</div>
         <div class="mono" id="ws-id-label" style="font-size:11px;color:var(--t1);word-break:break-all"></div></div>
@@ -4751,6 +4755,114 @@ function copyWsId(){
   navigator.clipboard&&navigator.clipboard.writeText(WORKSPACE_ID).then(()=>{
     showToast('✓ Workspace ID copied');
     playSoundAndHaptic('success', 'double');
+  });
+}
+
+/* ════════════════════════════════════════════
+   FIREBASE GUIDE MODAL FUNCTION
+════════════════════════════════════════════ */
+function showFirebaseGuide(){
+  playSoundAndHaptic('modal', 'medium');
+  showConfirm({
+    title: 'Complete Firebase Setup Guide',
+    body: `
+      <div style="text-align:left;max-height:400px;overflow-y:auto;padding:10px;font-size:12px;line-height:1.5">
+        <!-- Security Notice -->
+        <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px;padding:12px;margin-bottom:20px">
+          <h3 style="color:var(--t1);margin-bottom:8px">Is Firebase Safe?</h3>
+          <p style="color:var(--t2);margin-bottom:0">Yes! Firebase is Google's secure cloud platform. Your data is encrypted and stored securely. This app uses read-only access to your config and stores data in your own Firebase project.</p>
+        </div>
+
+        <h3 style="color:var(--t1);margin-bottom:10px">Step 1: Create Firebase Account</h3>
+        <p style="color:var(--t2);margin-bottom:15px">1. Visit <span onclick="window.open('https://console.firebase.google.com', '_blank')" style="color:#8b5cf6;cursor:pointer;text-decoration:underline">console.firebase.google.com</span><br>
+        2. Sign in with your Google account<br>
+        3. Click "Create project" or "Add project"<br>
+        4. Enter project name (e.g., "MrNodeMan-Sync")<br>
+        5. Enable Google Analytics (optional)<br>
+        6. Click "Create project" and wait for setup</p>
+        
+        <div style="background:var(--s2);border-left:3px solid var(--acc);padding:8px 10px;border-radius:6px;margin-bottom:15px">
+          <strong style="color:var(--acc);font-size:11px">Pro Tip:</strong>
+          <p style="color:var(--t2);margin:0;font-size:11px">Use a descriptive project name to easily identify it later</p>
+        </div>
+
+        <h3 style="color:var(--t1);margin-bottom:10px">Step 2: Add Web App</h3>
+        <p style="color:var(--t2);margin-bottom:15px">1. In your Firebase project dashboard, click the Web icon (</>)<br>
+        2. Enter app nickname (e.g., "MrNodeMan Web")<br>
+        3. Click "Register app"<br>
+        4. You'll see Firebase SDK snippet - click "Continue to console"<br>
+        5. Skip the hosting setup for now</p>
+
+        <h3 style="color:var(--t1);margin-bottom:10px">Step 3: Setup Realtime Database</h3>
+        <p style="color:var(--t2);margin-bottom:15px">1. In the left sidebar, click "Build" → "Realtime Database"<br>
+        2. Click "Create Database"<br>
+        3. Choose a location closest to you<br>
+        4. Select "Start in test mode" (allows read/write access)<br>
+        5. Click "Enable"<br>
+        6. Your database URL will be: <code style="background:var(--s2);padding:2px 6px;border-radius:4px">https://your-project-name-default-rtdb.firebaseio.com</code></p>
+        
+        <div style="background:var(--s2);border-left:3px solid var(--acc);padding:8px 10px;border-radius:6px;margin-bottom:15px">
+          <strong style="color:var(--acc);font-size:11px">Quick Hack:</strong>
+          <p style="color:var(--t2);margin:0;font-size:11px">Test mode is fine for personal use. For production, you'll want to set up security rules.</p>
+        </div>
+
+        <h3 style="color:var(--t1);margin-bottom:10px">Step 4: Get Configuration</h3>
+        <p style="color:var(--t2);margin-bottom:10px">1. Go to Project Settings (gear icon)<br>
+        2. Scroll down to "Your apps" section<br>
+        3. Click on your Web App<br>
+        4. Copy the "firebaseConfig" object<br>
+        5. It should look like this:</p>
+        
+        <div style="background:var(--s3);border:1px solid var(--b2);border-radius:8px;padding:10px;font-family:monospace;font-size:10px;color:var(--t1);margin:10px 0">
+{<br>
+&nbsp;&nbsp;"apiKey": "AIzaSy...-your-key",<br>
+&nbsp;&nbsp;"authDomain": "your-project.firebaseapp.com",<br>
+&nbsp;&nbsp;"databaseURL": "https://your-project-default-rtdb.firebaseio.com",<br>
+&nbsp;&nbsp;"projectId": "your-project-id",<br>
+&nbsp;&nbsp;"storageBucket": "your-project.appspot.com",<br>
+&nbsp;&nbsp;"messagingSenderId": "123456789",<br>
+&nbsp;&nbsp;"appId": "1:123456789:web:abc123"<br>
+}
+        </div>
+
+        <h3 style="color:var(--t1);margin-bottom:10px">Step 5: Connect in Mr.NodeMan</h3>
+        <p style="color:var(--t2);margin-bottom:15px">1. Copy the entire config object from Step 4<br>
+        2. Paste it into the Firebase config textarea<br>
+        3. Click "Connect Firebase"<br>
+        4. Wait for the success message<br>
+        5. Your data will now sync automatically!</p>
+
+        <!-- Important Notes -->
+        <div style="background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:12px;margin-bottom:20px">
+          <h3 style="color:var(--t1);margin-bottom:8px">Important Notes</h3>
+          <p style="color:var(--t2);margin-bottom:0">• Your Firebase config contains sensitive keys - keep it private<br>
+          • The app stores data in your own Firebase project<br>
+          • Real-time sync works across all your devices<br>
+          • No data is stored on third-party servers</p>
+        </div>
+
+        <!-- Warnings -->
+        <div style="background:#1a0000;border:1px solid #ff4444;border-radius:10px;padding:12px;margin-bottom:20px">
+          <h3 style="color:#ff4444;margin-bottom:8px">Warnings</h3>
+          <p style="color:#ff8888;margin-bottom:0">• NEVER share your Firebase config with anyone<br>
+          • Don't use production mode with open access rules<br>
+          • Always backup your data before setup<br>
+          • Test mode allows anyone to read/write your data</p>
+        </div>
+
+        <!-- Success Confirmation -->
+        <div style="background:var(--paid-bg);border:1px solid var(--paid-bd);border-radius:10px;padding:12px">
+          <h3 style="color:var(--t1);margin-bottom:8px">Success Indicators</h3>
+          <p style="color:var(--t2);margin-bottom:0">• Green "Connected" status appears<br>
+          • Firebase setup card disappears<br>
+          • Real-time sync indicator shows active<br>
+          • Your data automatically syncs across devices</p>
+        </div>
+      </div>
+    `,
+    countdown: false,
+    confirmText: 'Got it!',
+    cancelText: null
   });
 }
 
