@@ -881,17 +881,31 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   #fs-hm-dlabels div{width:10px;height:10px;font-size:7px}
 }
 
-/* Show navbar in fullscreen view */
-#fullscreen-heatmap-modal.open ~ #bnav,
-#fullscreen-heatmap-modal.open + #bnav {
-  display: flex !important;
-  z-index: 300;
+/* Fix fullscreen modal z-index and positioning */
+#fullscreen-heatmap-modal {
+  z-index: 9999 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
 }
 
-/* Adjust fullscreen modal height when navbar is visible */
+/* Hide navbar when fullscreen is open */
+#fullscreen-heatmap-modal.open ~ #bnav,
+#fullscreen-heatmap-modal.open + #bnav {
+  display: none !important;
+}
+
+/* Ensure fullscreen sheet is properly contained */
 #fullscreen-heatmap-modal.open .fullscreen-sheet {
-  height: calc(100vh - 60px);
-  margin-bottom: 60px;
+  height: 100vh !important;
+  width: 100vw !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
 }
 
 /* ════════════════════════════════════════════════
@@ -1441,15 +1455,15 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 <div class="moverlay" id="fullscreen-heatmap-modal">
   <div class="msheet fullscreen-sheet" style="width:100vw;height:100vh;max-width:none;max-height:none;border-radius:0;padding:0;background:var(--s1);border:none;position:relative;overflow:hidden">
     <!-- Mobile-First Header -->
-    <div style="position:sticky;top:0;background:var(--s1);border-bottom:1px solid var(--b);padding:16px;z-index:10">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-        <div style="min-width:0;flex:1">
-          <div class="sec-title" style="font-size:20px;margin-bottom:2px">Activity Heatmap</div>
-          <div style="font-size:12px;color:var(--t2)">Complete activity overview</div>
+    <div style="position:sticky;top:0;background:var(--s1);border-bottom:1px solid var(--b);padding:16px;z-index:10000">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:100%">
+        <div style="min-width:0;flex:1;overflow:hidden">
+          <div class="sec-title" style="font-size:20px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Activity Heatmap</div>
+          <div style="font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Complete activity overview</div>
         </div>
-        <button class="ss-btn" onclick="closeFullscreenHeatmap()" style="padding:8px 16px;border-radius:8px;background:#dc2626;border:1px solid #dc2626;color:white;font-size:12px;font-weight:700;flex-shrink:0">
+        <button class="ss-btn" onclick="closeFullscreenHeatmap()" style="padding:8px 16px;border-radius:11px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.22);color:var(--danger);font-size:12px;font-weight:700;flex-shrink:0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:6px;vertical-align:middle">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
+            <polyline points="15 18 9 12 15 6"/>
           </svg>Back
         </button>
       </div>
@@ -2749,6 +2763,11 @@ function openFullscreenHeatmap(){
   renderFullscreenHeatmap();
   initializeFullscreenInteractions();
   initializeBackGesture();
+  
+  // Add fullscreen state to history
+  if (window.history && currentView === 'stats') {
+    window.history.pushState({view: 'stats', fullscreen: true}, '', '#stats-fullscreen');
+  }
 }
 
 function closeFullscreenHeatmap(){
@@ -2769,9 +2788,14 @@ function closeFullscreenHeatmap(){
       window.backGestureCleanup();
     }
     
-    // Go back in history if we're in fullscreen
+    // Ensure we return to stats view, not home
+    if (currentView !== 'stats') {
+      switchTab('stats');
+    }
+    
+    // Remove fullscreen state from history
     if (window.history && window.history.state && window.history.state.fullscreen) {
-      window.history.back();
+      window.history.replaceState({view: 'stats'}, '', '#stats');
     }
   }, 250);
 }
@@ -5519,6 +5543,13 @@ function showExitConfirmation() {
 const originalSwitchTab = switchTab;
 switchTab = function(id) {
   const previousView = currentView;
+  
+  // Close fullscreen heatmap if it's open when switching tabs
+  const fullscreenModal = document.getElementById('fullscreen-heatmap-modal');
+  if (fullscreenModal && fullscreenModal.classList.contains('open')) {
+    closeFullscreenHeatmap();
+  }
+  
   originalSwitchTab(id);
   trackNavigation(previousView, id);
 };
