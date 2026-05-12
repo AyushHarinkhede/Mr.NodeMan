@@ -1312,6 +1312,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <div class="hdr-left"><div class="super">Mr.NodeMan</div><div class="hdr-title">Stats</div></div>
   </div>
   <div class="scroll-area">
+    
     <div class="card anim">
       <div class="sec-title" style="margin-bottom:14px">Work Streak</div>
       
@@ -2239,14 +2240,26 @@ function loadLS(){
 ════════════════════════════════════════════ */
 function loadFirebaseSDK(){
   return new Promise((res,rej)=>{
-    if(window.firebase){ res(); return; }
+    if(window.firebase && window.firebase.auth){ res(); return; }
     const s1=document.createElement('script');
     s1.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
     s1.onload=()=>{
       const s2=document.createElement('script');
       s2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js';
-      s2.onload=res; s2.onerror=rej;
+      const s3=document.createElement('script');
+      s3.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js';
+      
+      let loadedCount = 0;
+      const checkLoaded = () => { 
+        loadedCount++; 
+        if(loadedCount === 2) res(); 
+      };
+
+      s2.onload=checkLoaded; s2.onerror=rej;
+      s3.onload=checkLoaded; s3.onerror=rej;
+      
       document.head.appendChild(s2);
+      document.head.appendChild(s3);
     };
     s1.onerror=rej;
     document.head.appendChild(s1);
@@ -4366,31 +4379,48 @@ function setStatus(id, status){
 /* ════════════════════════════════════════════
    CONFIRM MODAL ENGINE
 ════════════════════════════════════════════ */
-function showConfirm({title,body,countdown,okStyle,okText,fn}){
+function showConfirm(params){
   clearInterval(cdInterval);
-  pendingConfirmFn=fn;
-  pendingConfirmNeedsCD=countdown;
+  
+  // Support both old and new parameter structures
+  const title = params.title;
+  const body = params.body;
+  const countdown = params.countdown || false;
+  const okStyle = params.okStyle || (params.confirmClass === 'danger' ? 'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)' : 'background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc)');
+  const okText = params.okText || params.confirmText || 'Confirm';
+  const fn = params.fn || params.onConfirm;
+  const cancelText = params.cancelText || 'Cancel';
+  
+  pendingConfirmFn = fn;
+  pendingConfirmNeedsCD = countdown;
 
-  document.getElementById('conf-title').textContent=title;
-  document.getElementById('conf-body').innerHTML=body;
+  document.getElementById('conf-title').textContent = title;
+  document.getElementById('conf-body').innerHTML = body;
 
-  const okBtn=document.getElementById('conf-ok');
-  okBtn.style.cssText=okStyle+';flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;transition:all .2s';
+  const okBtn = document.getElementById('conf-ok');
+  const cancelBtn = document.querySelector('#confirm-modal button[onclick="cancelConfirm()"]');
+  
+  okBtn.style.cssText = okStyle + ';flex:1;padding:14px;border-radius:13px;font-size:14px;font-weight:800;transition:all .2s';
+  
+  // Update cancel button text if provided
+  if (cancelBtn && cancelText) {
+    cancelBtn.textContent = cancelText;
+  }
 
-  const cdSec=document.getElementById('cd-section');
-  if(countdown){
-    cdSec.style.display='';
-    okBtn.disabled=true;
-    okBtn.innerHTML='Confirm (10s)';
-    okBtn.style.opacity='.4';
-    okBtn.style.cursor='not-allowed';
-    startCountdown(okBtn,okText);
+  const cdSec = document.getElementById('cd-section');
+  if (countdown) {
+    cdSec.style.display = '';
+    okBtn.disabled = true;
+    okBtn.innerHTML = 'Confirm (10s)';
+    okBtn.style.opacity = '.4';
+    okBtn.style.cursor = 'not-allowed';
+    startCountdown(okBtn, okText);
   } else {
-    cdSec.style.display='none';
-    okBtn.disabled=false;
-    okBtn.innerHTML=okText;
-    okBtn.style.opacity='1';
-    okBtn.style.cursor='pointer';
+    cdSec.style.display = 'none';
+    okBtn.disabled = false;
+    okBtn.innerHTML = okText;
+    okBtn.style.opacity = '1';
+    okBtn.style.cursor = 'pointer';
   }
 
   openModal('confirm-modal');
@@ -4463,6 +4493,11 @@ function startCountdown(btn,finalText){
 function cancelConfirm(){
   clearInterval(cdInterval);
   pendingConfirmFn=null;
+  // Reset cancel button text
+  const cancelBtn = document.querySelector('#confirm-modal button[onclick="cancelConfirm()"]');
+  if (cancelBtn) {
+    cancelBtn.textContent = 'Cancel';
+  }
   closeModal('confirm-modal');
 }
 
@@ -4470,6 +4505,11 @@ function executeConfirm(){
   if(pendingConfirmFn) pendingConfirmFn();
   clearInterval(cdInterval);
   pendingConfirmFn=null;
+  // Reset cancel button text
+  const cancelBtn = document.querySelector('#confirm-modal button[onclick="cancelConfirm()"]');
+  if (cancelBtn) {
+    cancelBtn.textContent = 'Cancel';
+  }
   closeModal('confirm-modal');
 }
 
@@ -5037,6 +5077,14 @@ async function loadFromFirebase() {
   const userData = snapshot.val();
   
   if (userData) {
+    // Hydrate local user object with saved profile details (bio, phone)
+    if (userData.profile) {
+      currentUser.bio = userData.profile.bio || '';
+      currentUser.phone = userData.profile.phone || '';
+      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      updateAuthUI(); 
+    }
+
     // Update global CLIENTS with user's data
     if (userData.clients && Array.isArray(userData.clients)) {
       window.CLIENTS = userData.clients;
@@ -5045,7 +5093,6 @@ async function loadFromFirebase() {
     }
     
     if (userData.entries && Array.isArray(userData.entries)) {
-      // Load entries if they exist
       window.ENTRIES = userData.entries;
     }
     
@@ -5582,31 +5629,30 @@ async function saveProfileChanges() {
   }
   
   try {
-    // Update Firebase profile if available
-    if (firebase && firebase.apps.length && currentUser.provider !== 'local') {
+    // 1. Update Firebase Auth Profile (Display Name)
+    if (window.firebase && firebase.apps.length && currentUser.provider !== 'local') {
       await firebase.auth().currentUser.updateProfile({ displayName: name });
     }
     
-    // Update local user object
+    // 2. Update Local User Object
     currentUser.name = name;
     currentUser.phone = phone;
     currentUser.bio = bio;
     currentUser.updatedAt = new Date().toISOString();
-    
-    // Save to localStorage
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
     
-    // Update users list if local user
-    if (currentUser.provider === 'local') {
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const userIndex = users.findIndex(u => u.id === currentUser.id);
-      if (userIndex !== -1) {
-        users[userIndex] = { ...users[userIndex], name, phone, bio };
-        localStorage.setItem('users', JSON.stringify(users));
-      }
+    // 3. Save Custom Profile Data to Firebase Realtime Database
+    if (window.firebase && firebase.apps.length) {
+      const db = firebase.database();
+      await db.ref('users/' + currentUser.id + '/profile').update({
+        name: name,
+        phone: phone,
+        bio: bio,
+        updatedAt: currentUser.updatedAt
+      });
     }
-    
-    // Update UI
+
+    // 4. Update UI
     updateAuthUI();
     showToast('✓ Profile updated successfully!');
     playSoundAndHaptic('success', 'double');
@@ -5676,18 +5722,21 @@ async function initializeUserData() {
       const db = firebase.database();
       const userRef = db.ref('users/' + currentUser.id);
       
-      await userRef.set({
-        clients: [],
-        entries: [],
-        settings: {},
-        createdAt: new Date().toISOString(),
+      // Use update instead of set so we don't overwrite existing work entries if they exist
+      await userRef.update({
+        profile: {
+          name: currentUser.name || '',
+          email: currentUser.email || '',
+          phone: currentUser.phone || '',
+          bio: currentUser.bio || ''
+        },
+        createdAt: currentUser.createdAt || new Date().toISOString(),
         lastSync: new Date().toISOString()
       });
-      
       console.log('User data initialized in Firebase');
     }
     
-    // Initialize local storage
+    // Initialize local storage fallback
     const userDataKey = `userData_${currentUser.id}`;
     if (!localStorage.getItem(userDataKey)) {
       localStorage.setItem(userDataKey, JSON.stringify({
