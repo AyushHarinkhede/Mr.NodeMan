@@ -1,0 +1,11 @@
+R_DEF: Internal format may change without notice
+local
+color accent_violet
+color bg_dark
+color black
+color status_bar_color
+color white
+id webView
+layout activity_main
+string app_name
+style Theme.MrNodeMan

@@ -1,0 +1,4 @@
+com.mrnodeman.app.test.app-androidTest-0 C:\Users\AASHU\Documents\Ayush\Mr.NodeMan\app\build\generated\res\resValues\androidTest\debug
+com.mrnodeman.app.test.app-mergeDebugAndroidTestResources-1 C:\Users\AASHU\Documents\Ayush\Mr.NodeMan\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.mrnodeman.app.test.app-mergeDebugAndroidTestResources-2 C:\Users\AASHU\Documents\Ayush\Mr.NodeMan\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.mrnodeman.app.test.app-merged_res-3 C:\Users\AASHU\Documents\Ayush\Mr.NodeMan\app\build\intermediates\merged_res\debugAndroidTest

@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.mrnodeman.app-mergeDebugResources-29:/values-h320dp-port-v13/values-h320dp-port-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\AASHU\\.gradle\\caches\\transforms-3\\e31bf838a326709a13a2979d64f64482\\transformed\\material-1.11.0\\res\\values-h320dp-port-v13\\values-h320dp-port-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "63",
+                        "endOffsets": "114"
+                    }
+                }
+            ]
+        }
+    ]
+}
