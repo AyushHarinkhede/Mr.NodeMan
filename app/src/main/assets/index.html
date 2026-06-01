@@ -43,6 +43,8 @@
 
 /* Smooth page transitions */
 .view {
+  will-change: transform, opacity;
+  transform: translateZ(0);
   transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -54,11 +56,11 @@
 @keyframes viewSlideIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translate3d(0, 20px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -66,22 +68,22 @@
 @keyframes viewSwipeInFromRight {
   from {
     opacity: 0;
-    transform: translateX(60px);
+    transform: translate3d(60px, 0, 0);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes viewSwipeInFromLeft {
   from {
     opacity: 0;
-    transform: translateX(-60px);
+    transform: translate3d(-60px, 0, 0);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -970,6 +972,36 @@ select option{background:var(--s)}
 .fg2{display:grid;grid-template-columns:2fr 1fr;gap:10px}
 .fg2-entry{display:grid;grid-template-columns:3fr 1fr;gap:10px}
 .fgrp{display:flex;flex-direction:column;gap:6px;margin-bottom:0}
+.ss-suggestions-box {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--s2);
+  border: 1px solid var(--b);
+  border-radius: 12px;
+  z-index: 9999;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+}
+.ss-suggestion-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--b);
+  color: var(--t1);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  transition: background 0.15s;
+}
+.ss-suggestion-item:hover {
+  background: var(--s3);
+}
+.ss-suggestion-item:last-child {
+  border-bottom: none;
+}
 
 /* ════════════════════════════════════════════════
    TOGGLE BUTTONS
@@ -1917,14 +1949,18 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </div>
       </div>
 
-      <!-- Client (Full Width) -->
+      <!-- Client (Full Width) with Autocomplete Suggestions -->
       <div class="fgrp">
         <label class="ss-label">Client</label>
-        <div style="display:flex;gap:8px">
-          <select class="ss-input" id="f-client" onchange="onClientChange()" style="flex:1"></select>
-          <button class="ss-btn" onclick="quickAddClient()" style="padding:10px 8px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:3px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Client
+        <div style="display:flex;gap:8px;position:relative;width:100%">
+          <div style="position:relative;flex:1;">
+            <input class="ss-input" type="text" id="f-client-input" placeholder="Search or type client..." style="width:100%;" autocomplete="off"/>
+            <div id="f-client-suggestions" class="ss-suggestions-box"></div>
+          </div>
+          <button class="ss-btn" id="f-client-add-btn" style="display:none;padding:10px 8px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block;margin-right:3px;vertical-align:middle"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>+ Add Client
           </button>
+          <input type="hidden" id="f-client" />
         </div>
       </div>
 
@@ -2416,7 +2452,11 @@ function setupDatabaseSync() {
         }
         // Filter out dummy clients
         newEntries = newEntries.filter(e => !DUMMY_CLIENTS_LIST.includes(e.clientId));
-        entries = newEntries.sort((a,b)=>b.date.localeCompare(a.date));
+        newEntries.sort((a,b)=>b.date.localeCompare(a.date));
+        if (JSON.stringify(entries) === JSON.stringify(newEntries)) {
+          return;
+        }
+        entries = newEntries;
         entries.forEach(e=>cColor(e.clientId));
       } else {
         // First sync: if Firebase has no entries but local storage has user entries, upload them
@@ -2442,7 +2482,11 @@ function setupDatabaseSync() {
       if (data && Array.isArray(data)) {
         // Filter out dummy clients
         const cleanedData = data.filter(c => !DUMMY_CLIENTS_LIST.includes(c));
-        cleanedData.forEach(n => { if (!CLIENTS.includes(n)) CLIENTS.push(n); cColor(n); });
+        if (JSON.stringify(CLIENTS) === JSON.stringify(cleanedData)) {
+          return;
+        }
+        CLIENTS = cleanedData;
+        CLIENTS.forEach(n => cColor(n));
       } else if (!data) {
         const localDataKey = `userData_${currentUser.id}`;
         const localData = localStorage.getItem(localDataKey);
@@ -2476,7 +2520,11 @@ function setupDatabaseSync() {
         }
         // Filter out dummy clients
         newEntries = newEntries.filter(e => !DUMMY_CLIENTS_LIST.includes(e.clientId));
-        entries = newEntries.sort((a,b)=>b.date.localeCompare(a.date));
+        newEntries.sort((a,b)=>b.date.localeCompare(a.date));
+        if (JSON.stringify(entries) === JSON.stringify(newEntries)) {
+          return;
+        }
+        entries = newEntries;
         entries.forEach(e=>cColor(e.clientId));
       } else {
         if (entries.length > 0) {
@@ -2495,7 +2543,11 @@ function setupDatabaseSync() {
       if (data && Array.isArray(data)) {
         // Filter out dummy clients
         const cleanedData = data.filter(c => !DUMMY_CLIENTS_LIST.includes(c));
-        cleanedData.forEach(n => { if (!CLIENTS.includes(n)) CLIENTS.push(n); cColor(n); });
+        if (JSON.stringify(CLIENTS) === JSON.stringify(cleanedData)) {
+          return;
+        }
+        CLIENTS = cleanedData;
+        CLIENTS.forEach(n => cColor(n));
       } else if (!data) {
         syncWorkspaceRef.child('clients').set(CLIENTS);
       }
@@ -4335,26 +4387,145 @@ function onClientChange(){
   updateSubmitBtn();
 }
 
-function quickAddClient(){
-  // Open the add client modal instead of using system prompt
-  openModal('client-modal');
-  
-  // Focus on the name input field
-  setTimeout(() => {
-    document.getElementById('nc-name').focus();
-  }, 350);
-  
-  // Clear any previous values
-  document.getElementById('nc-name').value = '';
-  document.getElementById('nc-ind').value = '';
-  document.getElementById('nc-rate').value = '';
+function inlineAddClient(name) {
+  const trimmed = name.trim();
+  if(!trimmed) return;
+  if(CLIENTS.includes(trimmed)) {
+    showToast('Client already exists');
+    return;
+  }
+  CLIENTS.push(trimmed);
+  cColor(trimmed);
+  saveLS();
+  fbSaveClients();
+  // Select it
+  document.getElementById('f-client').value = trimmed;
+  document.getElementById('f-client-input').value = trimmed;
+  document.getElementById('f-client-add-btn').style.display = 'none';
+  document.getElementById('f-client-suggestions').style.display = 'none';
+  onClientChange();
+  showToast('✓ Client ' + trimmed + ' added');
+  playSoundAndHaptic('success', 'success');
+}
+
+function getRecentClients() {
+  const latestDates = {};
+  entries.forEach(e => {
+    if (e.clientId) {
+      if (!latestDates[e.clientId] || e.date > latestDates[e.clientId]) {
+        latestDates[e.clientId] = e.date;
+      }
+    }
+  });
+
+  return [...CLIENTS].sort((a, b) => {
+    const dateA = latestDates[a] || '';
+    const dateB = latestDates[b] || '';
+    if (dateA && dateB) {
+      return dateB.localeCompare(dateA); // Newest first
+    }
+    if (dateA) return -1;
+    if (dateB) return 1;
+    return a.localeCompare(b); // Alphabetical fallback
+  });
+}
+
+function initClientAutocomplete() {
+  const input = document.getElementById('f-client-input');
+  const suggestionsBox = document.getElementById('f-client-suggestions');
+  const addBtn = document.getElementById('f-client-add-btn');
+  const hiddenInput = document.getElementById('f-client');
+
+  function renderSuggestions() {
+    const val = input.value.trim();
+    const query = val.toLowerCase();
+    suggestionsBox.innerHTML = '';
+    
+    // Sort CLIENTS by history usage (recent first)
+    const sortedClients = getRecentClients();
+    
+    // Filter CLIENTS
+    const filtered = sortedClients.filter(c => c.toLowerCase().includes(query));
+    
+    if (filtered.length > 0) {
+      const recentSet = new Set(entries.map(e => e.clientId));
+      filtered.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'ss-suggestion-item';
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.justifyContent = 'space-between';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = c;
+        item.appendChild(nameSpan);
+        
+        // Show clock icon for recently used clients
+        if (recentSet.has(c)) {
+          const iconSpan = document.createElement('span');
+          iconSpan.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2.5" stroke-linecap="round" style="vertical-align:middle;margin-left:6px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+          iconSpan.style.opacity = '0.7';
+          item.appendChild(iconSpan);
+        }
+        
+        item.addEventListener('click', () => {
+          input.value = c;
+          hiddenInput.value = c;
+          suggestionsBox.style.display = 'none';
+          addBtn.style.display = 'none';
+          onClientChange();
+        });
+        suggestionsBox.appendChild(item);
+      });
+      suggestionsBox.style.display = 'block';
+    } else {
+      suggestionsBox.style.display = 'none';
+    }
+
+    // Check if the typed value exists exactly in CLIENTS (case-insensitive)
+    const exactMatch = CLIENTS.some(c => c.toLowerCase() === query);
+    if (val && !exactMatch) {
+      addBtn.style.display = 'block';
+    } else {
+      addBtn.style.display = 'none';
+    }
+  }
+
+  input.addEventListener('input', () => {
+    // Clear hidden value if it doesn't match an existing client
+    const exact = CLIENTS.find(c => c.toLowerCase() === input.value.trim().toLowerCase());
+    if (exact) {
+      hiddenInput.value = exact;
+      addBtn.style.display = 'none';
+    } else {
+      hiddenInput.value = '';
+    }
+    renderSuggestions();
+    onClientChange();
+  });
+
+  input.addEventListener('focus', () => {
+    renderSuggestions();
+  });
+
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!input.contains(e.target) && !suggestionsBox.contains(e.target) && !addBtn.contains(e.target)) {
+      suggestionsBox.style.display = 'none';
+    }
+  });
+
+  // Handle Add Client button click
+  addBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    inlineAddClient(input.value);
+  });
 }
 
 /* ════════════════════════════════════════════
    TERMS & CONDITIONS / PRIVACY POLICY
 ════════════════════════════════════════════ */
 function showTermsAndConditions() {
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Terms & Conditions',
     body: `
@@ -4389,7 +4560,6 @@ function showTermsAndConditions() {
 }
 
 function showPrivacyPolicy() {
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Privacy Policy',
     body: `
@@ -4475,7 +4645,10 @@ function openEntryModal(reuseId){
     document.getElementById('entry-modal-title').textContent='Log Work Session';
     document.getElementById('f-date').value='';
     document.getElementById('f-dur').value='';
-    document.getElementById('f-client').innerHTML=CLIENTS.map(c=>`<option value="${c}">${c}</option>`).join('');
+    document.getElementById('f-client').value='';
+    document.getElementById('f-client-input').value='';
+    document.getElementById('f-client-suggestions').style.display='none';
+    document.getElementById('f-client-add-btn').style.display='none';
     document.getElementById('f-amount').value='';
     document.getElementById('f-advance').value='';
     document.getElementById('f-desc').value='';
@@ -4489,7 +4662,10 @@ function openEntryModal(reuseId){
     document.getElementById('entry-modal-title').textContent='↺ Reuse Entry — Add New Date';
     document.getElementById('f-date').value=''; // intentionally blank
     document.getElementById('date-hint').style.display='inline';
-    document.getElementById('f-client').innerHTML=CLIENTS.map(c=>`<option value="${c}" ${c===src.clientId?'selected':''}>${c}</option>`).join('');
+    document.getElementById('f-client').value=src.clientId;
+    document.getElementById('f-client-input').value=src.clientId;
+    document.getElementById('f-client-suggestions').style.display='none';
+    document.getElementById('f-client-add-btn').style.display='none';
     document.getElementById('f-dur').value=src.duration;
     document.getElementById('f-amount').value=src.amount;
     document.getElementById('f-advance').value=src.advance || '';
@@ -4849,11 +5025,26 @@ function bulkMarkPaid(){
           okStyle:'background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid)',
           okText:'✓ Mark All Paid',
           fn:()=>{
-            entries.forEach(e=>{ if(e.paymentStatus==='pending'){ e.paymentStatus='paid'; fbUpdateEntry(e.id,{paymentStatus:'paid'}); }});
-            
-            // Save for undo
+            // Save for undo (deep copy before mutation to allow correct revert)
             lastAction = 'bulkMarkPaid';
-            lastActionData = {entries: [...entries]};
+            lastActionData = {entries: entries.map(e => ({...e}))};
+
+            const pendingEntries = entries.filter(e => e.paymentStatus === 'pending');
+            pendingEntries.forEach(e => { e.paymentStatus = 'paid'; });
+            
+            if(fbDB){
+              if(currentUser){
+                // saveLS() below will call saveUserData() which handles Firebase sync in one go
+              } else {
+                const updateObj = {};
+                pendingEntries.forEach(e => {
+                  updateObj[e.id + '/paymentStatus'] = 'paid';
+                });
+                if(Object.keys(updateObj).length > 0){
+                  fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries').update(updateObj);
+                }
+              }
+            }
             
             saveLS(); renderAll(); showToast('✓ All entries marked as Paid');
             
@@ -4915,20 +5106,42 @@ function confirmClearClients(){
 /* ════════════════════════════════════════════
    EXPORT / IMPORT
 ════════════════════════════════════════════ */
+function checkAndExportFile(filename, textData, mimeType) {
+  if (window.AndroidApp && window.AndroidApp.exportFile) {
+    try {
+      const base64Data = btoa(unescape(encodeURIComponent(textData)));
+      window.AndroidApp.exportFile(filename, base64Data, mimeType);
+      return true;
+    } catch (e) {
+      console.error('Android export failed:', e);
+    }
+  }
+  return false;
+}
+
 function exportCSV(){
   const hdr='ID,Date,Client,Amount,Duration,Status,WorkType,TeamMembers,Description';
   const rows=entries.map(e=>`${e.id},${e.date},${e.clientId},${e.amount},${e.duration},${e.paymentStatus},${e.workType},"${(e.teamMembers||[]).join(';')}","${(e.description||'').replace(/"/g,'""')}"`);
   const csv=[hdr,...rows].join('\n');
+  const filename = 'mrnodeman-entries.csv';
+  if (checkAndExportFile(filename, csv, 'text/csv')) {
+    return;
+  }
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='mrnodeman-entries.csv'; a.click();
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
   URL.revokeObjectURL(url); showToast('📥 CSV downloaded');
 }
 function exportJSON(){
   const data={workspace:WORKSPACE_ID,exportedAt:new Date().toISOString(),entries,clients:CLIENTS};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const jsonStr = JSON.stringify(data,null,2);
+  const filename = 'mrnodeman-backup.json';
+  if (checkAndExportFile(filename, jsonStr, 'application/json')) {
+    return;
+  }
+  const blob=new Blob([jsonStr],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='mrnodeman-backup.json'; a.click();
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
   URL.revokeObjectURL(url); showToast('📤 JSON exported');
 }
 
@@ -5113,7 +5326,22 @@ async function exportPDFFromModal(){
 
     const safeName = clientName.replace(/[^a-z0-9]+/gi,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').toLowerCase();
     const f = pdfFilter==='all' ? 'all' : pdfFilter;
-    pdf.save(`mrnodeman-${safeName}-${f}.pdf`);
+    const filename = `mrnodeman-${safeName}-${f}.pdf`;
+
+    if (window.AndroidApp && window.AndroidApp.exportFile) {
+      try {
+        const dataUri = pdf.output('datauristring');
+        const base64Data = dataUri.split(',')[1];
+        window.AndroidApp.exportFile(filename, base64Data, 'application/pdf');
+        closeModal('pdf-export-modal');
+        showToast('📄 PDF exported');
+        return;
+      } catch (e) {
+        console.error('Android PDF export failed:', e);
+      }
+    }
+
+    pdf.save(filename);
     closeModal('pdf-export-modal');
     showToast('📄 PDF downloaded');
   }catch(err){
@@ -5133,11 +5361,36 @@ function importJSON(ev){
       if(data.entries){
         const existing=new Set(entries.map(x=>x.id));
         let added=0;
+        const entriesToAdd = [];
         data.entries.forEach(entry=>{
-          if(!existing.has(entry.id)){ entries.push(entry); cColor(entry.clientId); added++; fbSaveEntry(entry); }
+          if(!existing.has(entry.id)){
+            entries.push(entry);
+            cColor(entry.clientId);
+            added++;
+            entriesToAdd.push(entry);
+          }
         });
         if(data.clients) data.clients.forEach(c=>{ if(!CLIENTS.includes(c)){CLIENTS.push(c);cColor(c);}});
         entries.sort((a,b)=>b.date.localeCompare(a.date));
+        
+        // Save to Firebase in one go if connected
+        if(fbDB && added > 0){
+          if(currentUser){
+            // Logged in user: saveLS() below will call saveUserData() which saves to Firebase
+          } else {
+            // Guest workspace: save to Firebase in one update
+            const path = 'workspaces/'+WORKSPACE_ID;
+            const updateObj = {};
+            entriesToAdd.forEach(entry => {
+              updateObj[entry.id] = entry;
+            });
+            fbDB.ref(path+'/entries').update(updateObj);
+          }
+        }
+        if(fbDB && data.clients){
+          fbSaveClients();
+        }
+        
         saveLS(); renderAll();
         showToast(`✓ Imported ${added} new entries`);
       }
@@ -5178,7 +5431,6 @@ function copyWsId(){
    FIREBASE GUIDE MODAL FUNCTION
 ════════════════════════════════════════════ */
 function showFirebaseGuide(){
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Complete Firebase Setup Guide',
     body: `
@@ -5577,9 +5829,9 @@ async function loadFromFirebase() {
   
       // Update global CLIENTS with user's data
       if (userData.clients && Array.isArray(userData.clients)) {
-        window.CLIENTS = userData.clients;
+        CLIENTS = userData.clients;
       } else {
-        window.CLIENTS = [];
+        CLIENTS = [];
       }
       
       if (userData.entries && Array.isArray(userData.entries)) {
@@ -5638,9 +5890,9 @@ function loadFromLocalStorage() {
     }
     
     if (parsed.clients && Array.isArray(parsed.clients)) {
-      window.CLIENTS = parsed.clients;
+      CLIENTS = parsed.clients;
     } else {
-      window.CLIENTS = [];
+      CLIENTS = [];
     }
     
     if (parsed.entries && Array.isArray(parsed.entries)) {
@@ -5649,7 +5901,7 @@ function loadFromLocalStorage() {
       entries = [];
     }
   } else {
-    window.CLIENTS = [];
+    CLIENTS = [];
     entries = [];
   }
   updateClientsList();
@@ -5710,7 +5962,7 @@ async function saveUserData() {
       newsletter: localStorage.getItem('_mnm_newsletter') || 'false',
       currency: localStorage.getItem('_mnm_currency_symbol') || '₹'
     },
-    clients: window.CLIENTS || [],
+    clients: CLIENTS || [],
     entries: entries || [],
     lastUpdated: new Date().toISOString(),
     userEmail: currentUser.email,
@@ -5759,7 +6011,6 @@ function saveToLocalStorage(userData) {
 
 // Show Login Modal
 function showLoginModal() {
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Login to Your Account',
     body: `
@@ -5805,7 +6056,6 @@ function showLoginModal() {
 
 // Show Signup Modal
 function showSignupModal() {
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Create Your Account',
     body: `
@@ -5990,8 +6240,6 @@ window.handleNativeGoogleSignInFailure = function(errorMsg) {
 
 // Show Google Auth Dialog (real credentials - email + password)
 function showMockGoogleAuth() {
-  playSoundAndHaptic('modal', 'medium');
-  
   showConfirm({
     title: 'Sign in with Google',
     body: `
@@ -6298,7 +6546,6 @@ async function handleLocalSignup(name, email, phone, password) {
 function showProfileDetails() {
   if (!currentUser) return;
   
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Profile Details',
     body: `
@@ -6355,7 +6602,6 @@ function showProfileDetails() {
 function editProfile() {
   if (!currentUser) return;
   
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Edit Profile',
     body: `
@@ -6580,7 +6826,6 @@ function updateCurrencySymbol(symbol) {
 // Open application settings modal sheet
 function openSettingsModal() {
   if (!currentUser) return;
-  playSoundAndHaptic('modal', 'medium');
   
   const currentSound = (localStorage.getItem('_mnm_sound_enabled') || 'true') === 'true';
   const currentHaptics = (localStorage.getItem('_mnm_haptic_enabled') || 'true') === 'true';
@@ -6687,7 +6932,6 @@ showConfirm({
 
 // Confirmation modal before resetting the workspace
 function confirmResetWorkspace() {
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Wipe Workspace & Clear Data?',
     body: `
@@ -6708,7 +6952,7 @@ function confirmResetWorkspace() {
     confirmClass: 'danger',
     countdown: true,
     onConfirm: async () => {
-      window.CLIENTS = [];
+      CLIENTS = [];
       entries = [];
       
       await saveUserData();
@@ -6782,7 +7026,7 @@ function silentExportUserData() {
   try {
     const dataStr = JSON.stringify({
       user: currentUser,
-      clients: window.CLIENTS || [],
+      clients: CLIENTS || [],
       entries: entries || [],
       exportDate: new Date().toISOString()
     }, null, 2);
@@ -6807,7 +7051,6 @@ function silentExportUserData() {
 async function logoutUser() {
   if (!currentUser) return;
   
-  playSoundAndHaptic('modal', 'medium');
   showConfirm({
     title: 'Logout',
     body: `
@@ -6866,7 +7109,7 @@ async function initializeUserData() {
   
   try {
     // Migrate current guest data to user account
-    const currentClients = window.CLIENTS || [];
+    const currentClients = CLIENTS || [];
     const currentEntries = entries || [];
     
     const profileData = {
@@ -6921,16 +7164,21 @@ function exportUserData() {
   
   const dataStr = JSON.stringify({
     user: currentUser,
-    clients: window.CLIENTS || [],
+    clients: CLIENTS || [],
     entries: entries || [],
     exportDate: new Date().toISOString()
   }, null, 2);
+  
+  const filename = `mynodeman-data-${currentUser.id}-${new Date().toISOString().split('T')[0]}.json`;
+  if (checkAndExportFile(filename, dataStr, 'application/json')) {
+    return;
+  }
   
   const blob = new Blob([dataStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `mynodeman-data-${currentUser.id}-${new Date().toISOString().split('T')[0]}.json`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
   
@@ -7021,6 +7269,19 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeEyeballTracking();
   initAuth();
   setupAutoSave();
+  initClientAutocomplete();
+  
+  // Inline Keyboard Scroll Helper
+  document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      const sheet = e.target.closest('.msheet');
+      if (sheet) {
+        setTimeout(() => {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      }
+    }
+  });
   
   // Auto-enter fullscreen on first user interaction
   const autoFullscreen = () => {
@@ -7286,7 +7547,16 @@ function performUndo(){
       localStorage.removeItem('_mnm_data_cleared');
       
       if(fbDB){
-        lastActionData.entries.forEach(entry => fbSaveEntry(entry));
+        if(currentUser){
+          // saveLS() above calls saveUserData() which handles syncing entries
+        } else {
+          const path = 'workspaces/'+WORKSPACE_ID;
+          const updateObj = {};
+          lastActionData.entries.forEach(entry => {
+            updateObj[entry.id] = entry;
+          });
+          fbDB.ref(path+'/entries').update(updateObj);
+        }
       }
       renderAll();
       showToast('↶ Data clear undone');
@@ -7327,9 +7597,17 @@ function performUndo(){
       });
       saveLS();
       if(fbDB){
-        lastActionData.entries.forEach(entry => {
-          fbUpdateEntry(entry.id, {paymentStatus: entry.paymentStatus});
-        });
+        if(currentUser){
+          // saveLS() above calls saveUserData() which handles Firebase sync
+        } else {
+          const updateObj = {};
+          lastActionData.entries.forEach(entry => {
+            updateObj[entry.id + '/paymentStatus'] = entry.paymentStatus;
+          });
+          if(Object.keys(updateObj).length > 0){
+            fbDB.ref('workspaces/'+WORKSPACE_ID+'/entries').update(updateObj);
+          }
+        }
       }
       renderAll();
       showToast('↶ Bulk mark paid undone');
@@ -7414,8 +7692,6 @@ class SoundManager {
     this.enabled = localStorage.getItem('_mnm_sound_enabled') !== 'false';
     this.isInitialized = false;
     this.initAudioContext();
-    this.audioQueue = [];
-    this.isPlaying = false;
   }
 
   initAudioContext() {
@@ -7447,17 +7723,6 @@ class SoundManager {
   playSound(type) {
     if (!this.enabled || !this.audioContext) return;
     this.ensureAudioContext();
-    
-    // Queue the sound for immediate playback
-    this.audioQueue.push(type);
-    this.processQueue();
-  }
-
-  processQueue() {
-    if (this.isPlaying || this.audioQueue.length === 0) return;
-    
-    this.isPlaying = true;
-    const type = this.audioQueue.shift();
     
     try {
       const oscillator = this.audioContext.createOscillator();
@@ -7569,19 +7834,8 @@ class SoundManager {
           oscillator.stop(currentTime + 0.08);
           break;
       }
-      
-      // Mark as done after sound finishes
-      setTimeout(() => {
-        this.isPlaying = false;
-        this.processQueue(); // Process next sound in queue
-      }, 200);
-      
     } catch (e) {
       console.log('Sound play error:', e);
-      setTimeout(() => {
-        this.isPlaying = false;
-        this.processQueue(); // Continue with next sound
-      }, 50);
     }
   }
   
@@ -7593,8 +7847,6 @@ class HapticManager {
   constructor() {
     this.enabled = localStorage.getItem('_mnm_haptic_enabled') !== 'false';
     this.checkHapticSupport();
-    this.hapticQueue = [];
-    this.isProcessing = false;
   }
 
   checkHapticSupport() {
@@ -7605,17 +7857,6 @@ class HapticManager {
   triggerHaptic(type) {
     if (!this.enabled) return;
 
-    // Queue haptic for perfect sync with sound
-    this.hapticQueue.push(type);
-    this.processHapticQueue();
-  }
-
-  processHapticQueue() {
-    if (this.isProcessing || this.hapticQueue.length === 0) return;
-    
-    this.isProcessing = true;
-    const type = this.hapticQueue.shift();
-    
     try {
       // Enhanced Vibration API patterns
       if (this.vibrateSupported) {
@@ -7689,19 +7930,8 @@ class HapticManager {
       if (this.gamepadSupported) {
         this.triggerGamepadRumble(type);
       }
-      
-      // Process next haptic after short delay
-      setTimeout(() => {
-        this.isProcessing = false;
-        this.processHapticQueue();
-      }, 50);
-      
     } catch (e) {
       console.log('Haptic error:', e);
-      setTimeout(() => {
-        this.isProcessing = false;
-        this.processHapticQueue();
-      }, 50);
     }
   }
 
@@ -7871,15 +8101,20 @@ function handleSystemBack() {
     return true; // Prevent default back
   }
   
-  // If we're on dashboard/home, show exit confirmation
+  // If we're on dashboard/home, show exit confirmation or exit natively
   if (currentView === 'dashboard') {
-    showExitConfirmation();
+    if (window.AndroidApp && window.AndroidApp.exitApp) {
+      window.AndroidApp.exitApp();
+    } else {
+      showExitConfirmation();
+    }
     return true; // Prevent default back
   }
   
   // Allow default back behavior
   return false;
 }
+window.handleSystemBack = handleSystemBack;
 
 // Show exit confirmation
 function showExitConfirmation() {
@@ -7988,19 +8223,33 @@ if ('ontouchstart' in window) {
 //   }
 // });
 
-// Utility functions
+let lastSoundPlayTime = 0;
+let lastSoundPlayType = '';
+let lastHapticTriggerTime = 0;
+let lastHapticTriggerType = '';
+
 function playSound(type) {
-  soundManager.playSound(type);
+  const now = Date.now();
+  if (now - lastSoundPlayTime > 80 || type !== lastSoundPlayType) {
+    soundManager.playSound(type);
+    lastSoundPlayTime = now;
+    lastSoundPlayType = type;
+  }
 }
 
 function triggerHaptic(type) {
-  hapticManager.triggerHaptic(type);
+  const now = Date.now();
+  if (now - lastHapticTriggerTime > 80 || type !== lastHapticTriggerType) {
+    hapticManager.triggerHaptic(type);
+    lastHapticTriggerTime = now;
+    lastHapticTriggerType = type;
+  }
 }
 
 function playSoundAndHaptic(soundType, hapticType) {
-  // Play sound and haptic simultaneously for perfect sync
-  soundManager.playSound(soundType);
-  hapticManager.triggerHaptic(hapticType);
+  // Play sound and haptic simultaneously for perfect sync (both rate-limited)
+  playSound(soundType);
+  triggerHaptic(hapticType);
 }
 
 // Enhanced synchronized function for countdown
@@ -8008,7 +8257,7 @@ function playCountdownSoundAndHaptic(cdVal) {
   const soundType = cdVal > 5 ? 'countdown-tick' : `countdown-${cdVal}`;
   const hapticType = cdVal > 5 ? 'countdown-tick' : `countdown-${cdVal}`;
   
-  // Perfect sync for countdown
+  // Perfect sync for countdown (bypasses rate limit for successive counting ticks)
   soundManager.playSound(soundType);
   hapticManager.triggerHaptic(hapticType);
 }

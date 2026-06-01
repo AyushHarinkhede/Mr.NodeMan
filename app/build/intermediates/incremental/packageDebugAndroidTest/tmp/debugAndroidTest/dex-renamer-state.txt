@@ -1,0 +1,4 @@
+#Mon Jun 01 15:55:56 IST 2026
+base.0=C\:\\Users\\AASHU\\Documents\\Ayush\\Mr.NodeMan\\app\\build\\intermediates\\dex\\debugAndroidTest\\mergeProjectDexDebugAndroidTest\\0\\classes.dex
+path.0=0/classes.dex
+renamed.0=classes.dex

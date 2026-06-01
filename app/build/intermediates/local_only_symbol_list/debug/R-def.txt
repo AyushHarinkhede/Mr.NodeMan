@@ -5,7 +5,12 @@ color bg_dark
 color black
 color status_bar_color
 color white
+drawable ic_launcher_background
 id webView
 layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+mipmap ic_launcher_round
 string app_name
 style Theme.MrNodeMan
+xml file_paths
