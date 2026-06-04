@@ -7841,6 +7841,9 @@ function saveLS(){
         scheduleGoogleDriveSync();
       }
     }
+    if (typeof syncNotificationScheduleWithNative === 'function') {
+      syncNotificationScheduleWithNative();
+    }
   } catch(e) {
     console.error('saveLS error:', e);
   }
@@ -14744,12 +14747,13 @@ function openGoogleCloudSetupModal() {
 
 const DEFAULT_NOTIF_SETTINGS = {
   enabled: true,
-  morningShift: true,     // 09:00 AM daily check-in
-  eveningPending: true,   // 07:30 PM pending attendance & streak savior
+  morningShift: true,     // 09:00 AM daily check-in with 1-tap Present / Absent / Half Day
+  eveningPending: true,   // 07:30 PM pending attendance & streak savior with 1-tap actions
   advanceRoster: true,    // 08:00 PM 1-day advance notification for Week Off, Holiday, and Leaves
   sameDayRoster: true,    // Day-of Week Off / Holiday / Leave greetings
   salaryAlerts: true,     // Monthly Salary Credit Date & 1-day advance reminder
-  streakMilestones: true  // Streak milestones (7, 14, 30+ days)
+  streakMilestones: true, // Streak milestones (7, 14, 30+ days)
+  clientDues: true        // 11:00 AM pending client receivables & unpaid invoice reminders
 };
 
 function loadNotificationSettings() {
@@ -14764,13 +14768,43 @@ function loadNotificationSettings() {
   return Object.assign({}, DEFAULT_NOTIF_SETTINGS);
 }
 
+function syncNotificationScheduleWithNative() {
+  if (window.AndroidApp && typeof window.AndroidApp.syncNotificationSchedule === 'function') {
+    try {
+      const sJson = JSON.stringify(loadNotificationSettings());
+      const wpJson = JSON.stringify(workProfile || {});
+      const attJson = JSON.stringify(attendanceRecords || {});
+      const entJson = JSON.stringify(entries || []);
+      window.AndroidApp.syncNotificationSchedule(sJson, wpJson, attJson, entJson);
+    } catch(e) {
+      console.warn('syncNotificationScheduleWithNative error:', e);
+    }
+  }
+}
+
 function saveNotificationSettings(settings) {
   try {
     localStorage.setItem('_mnm_notif_settings', JSON.stringify(settings));
+    syncNotificationScheduleWithNative();
   } catch(e) {
     console.warn('Error saving notification settings:', e);
   }
 }
+
+// Global hook: Real-time update when user taps [Mark Present] / [Mark Absent] in native Android notification
+window.onNativeAttendanceUpdated = function(dateStr, status) {
+  if (!dateStr || !status) return;
+  if (!attendanceRecords) attendanceRecords = {};
+  attendanceRecords[dateStr] = Object.assign(attendanceRecords[dateStr] || { date: dateStr }, {
+    status: status,
+    updatedAt: new Date().toISOString()
+  });
+  saveLS();
+  if (typeof renderTodayAttendanceWidget === 'function') renderTodayAttendanceWidget();
+  if (typeof renderMonthlyOfficeSnapshot === 'function') renderMonthlyOfficeSnapshot();
+  if (typeof renderAttendanceCalendarGrid === 'function') renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
+  if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
+};
 
 function isNotificationPermissionGranted() {
   if (window.AndroidApp && typeof window.AndroidApp.hasNotificationPermission === 'function') {
@@ -14790,6 +14824,7 @@ function requestDeviceNotificationPermission() {
       window.AndroidApp.requestNotificationPermission();
       setTimeout(() => {
         if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
+        syncNotificationScheduleWithNative();
       }, 1000);
       return;
     } catch(e) {}
@@ -14798,9 +14833,9 @@ function requestDeviceNotificationPermission() {
     Notification.requestPermission().then(permission => {
       if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
       if (permission === 'granted') {
-        showToast('🔔 Notification permission enabled!');
+        showToast('Notification permission enabled!');
         postAppNotification({
-          title: 'Notifications Enabled! 🎉',
+          title: 'Notifications Enabled!',
           message: 'Mr.NodeMan will now send you attendance, shift, salary, and streak alerts.',
           channelType: 'attendance',
           notificationId: 1000
@@ -14808,7 +14843,7 @@ function requestDeviceNotificationPermission() {
       }
     });
   } else {
-    showToast('🔔 Notifications active on your device.');
+    showToast('Notifications active on your device.');
   }
 }
 
@@ -14869,7 +14904,7 @@ function toggleNotifSetting(key) {
   saveNotificationSettings(settings);
   if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
   playSoundAndHaptic('tap', 'light');
-  showToast(settings[key] || (key === 'enabled' && settings.enabled) ? '✓ Notification alert enabled' : 'Notification alert disabled');
+  showToast(settings[key] || (key === 'enabled' && settings.enabled) ? 'Notification alert enabled' : 'Notification alert disabled');
 }
 
 function sendTestNotification() {
@@ -14877,9 +14912,10 @@ function sendTestNotification() {
     requestDeviceNotificationPermission();
   }
   const testItems = [
-    { title: 'Attendance Check-in Test', message: 'Good morning! Morning shift reminder active for ' + (workProfile?.company || 'Workplace') + '.', channel: 'attendance', id: 9001 },
+    { title: 'Attendance Check-in Test', message: 'Good morning! Morning shift reminder active for ' + (workProfile?.company || 'Workplace') + '. Tap actions to mark present.', channel: 'attendance', id: 9001 },
     { title: 'Salary Credit Alert Test', message: 'Monthly salary payout alert: ₹' + (workProfile?.monthlySalary || 50000).toLocaleString('en-IN') + ' is scheduled for credit!', channel: 'salary', id: 9002 },
-    { title: 'Work Streak Alert Test', message: 'Streak active: Keep logging work daily to maintain your momentum!', channel: 'reminder', id: 9003 }
+    { title: 'Work Streak Alert Test', message: 'Streak active: Keep logging work daily to maintain your momentum!', channel: 'reminder', id: 9003 },
+    { title: 'Client Receivables Test', message: 'You have outstanding receivables of ₹14,500 across 2 clients pending follow-up.', channel: 'payments', id: 9004 }
   ];
   const chosen = testItems[Math.floor(Math.random() * testItems.length)];
   const ok = postAppNotification({
@@ -15078,7 +15114,7 @@ function updateNotificationSettingsUI() {
         </div>
         <div>
           <div style="font-size:13px;font-weight:800;color:var(--t1)">Smart Device Notifications</div>
-          <div style="font-size:10.5px;color:var(--t3)">Automated shift, attendance, salary &amp; advance alerts</div>
+          <div style="font-size:10.5px;color:var(--t3)">Offline background alarms &amp; 1-tap lockscreen actions</div>
         </div>
       </div>
       <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${isGranted ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'};color:${isGranted ? '#10B981' : '#EF4444'};border:1px solid ${isGranted ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}">
@@ -15091,7 +15127,7 @@ function updateNotificationSettingsUI() {
       <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
         <div>
           <div class="settings-label">Enable Device Notifications</div>
-          <div class="settings-desc">Post system notification bar &amp; lockscreen alerts</div>
+          <div class="settings-desc">Schedule background alarms &amp; lockscreen action buttons</div>
         </div>
         <label class="mnm-switch">
           <input type="checkbox" ${settings.enabled ? 'checked' : ''} onchange="toggleNotifSetting('enabled')"/>
@@ -15102,7 +15138,7 @@ function updateNotificationSettingsUI() {
 
     <!-- Category Toggles Grid -->
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;opacity:${settings.enabled ? '1' : '0.45'};pointer-events:${settings.enabled ? 'auto' : 'none'}">
-      <!-- 1. Morning Shift & Check-in -->
+      <!-- 1. Morning Shift & Check-in with 1-Tap Actions -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
@@ -15114,7 +15150,7 @@ function updateNotificationSettingsUI() {
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Morning Shift Check-in (09:00 AM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">Daily prompt to log your shift &amp; attendance</div>
+              <div style="font-size:9.5px;color:var(--t3)">Daily prompt with 1-Tap Present / Absent / Half Day notification buttons</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -15124,7 +15160,7 @@ function updateNotificationSettingsUI() {
         </div>
       </div>
 
-      <!-- 2. Evening Pending Attendance & Streak Savior -->
+      <!-- 2. Evening Pending Attendance & Streak Savior with 1-Tap Actions -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
@@ -15136,7 +15172,7 @@ function updateNotificationSettingsUI() {
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Evening Pending Alert (07:30 PM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">Alerts if attendance is unlogged to protect streak</div>
+              <div style="font-size:9.5px;color:var(--t3)">Alerts if attendance is unlogged with 1-tap quick actions to protect streak</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -15184,7 +15220,7 @@ function updateNotificationSettingsUI() {
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Salary Credit Day (${salaryPayDay}th of month)</div>
-              <div style="font-size:9.5px;color:var(--t3)">On-the-day &amp; advance monthly salary reminder</div>
+              <div style="font-size:9.5px;color:var(--t3)">On-the-day (09:30 AM) &amp; advance monthly salary reminder</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -15194,7 +15230,31 @@ function updateNotificationSettingsUI() {
         </div>
       </div>
 
-      <!-- 5. Streak Milestones & Motivations -->
+      <!-- 5. Client Receivables & Unpaid Invoices -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(124,111,237,0.12);border:1px solid rgba(124,111,237,0.25);display:flex;align-items:center;justify-content:center;color:#7C6FED;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+                <line x1="7" y1="15" x2="7.01" y2="15"/>
+                <line x1="11" y1="15" x2="13" y2="15"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Client Receivables Reminder (11:00 AM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Alerts for outstanding balance &amp; unpaid client invoices</div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.clientDues ? 'checked' : ''} onchange="toggleNotifSetting('clientDues')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 6. Streak Milestones & Motivations -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
@@ -18283,6 +18343,9 @@ document.addEventListener('visibilitychange', () => {
     if (!fbConnected) {
       loadLS();
       renderAll();
+    }
+    if (typeof syncNotificationScheduleWithNative === 'function') {
+      syncNotificationScheduleWithNative();
     }
     try {
       if (typeof checkAndDispatchDailyNotifications === 'function') {

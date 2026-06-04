@@ -60,9 +60,10 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String CHANNEL_ATTENDANCE = "channel_attendance";
-    public static final String CHANNEL_SALARY = "channel_salary";
-    public static final String CHANNEL_REMINDERS = "channel_reminders";
+    public static final String CHANNEL_ATTENDANCE = "channel_attendance_shifts";
+    public static final String CHANNEL_SALARY = "channel_salary_payouts";
+    public static final String CHANNEL_REMINDERS = "channel_reminders_streaks";
+    public static final String CHANNEL_PAYMENTS = "channel_client_payments";
 
     private WebView webView;
     private ValueCallback<Uri[]> uploadMessage;
@@ -70,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private final static int PERMISSION_REQUEST_CODE = 100;
     private volatile boolean isIncognitoActive = false;
     private BroadcastReceiver ringerModeReceiver;
+    private BroadcastReceiver attendanceActionReceiver;
     private String lastKnownRingerMode = "";
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
@@ -216,11 +218,17 @@ public class MainActivity extends AppCompatActivity {
         // Register custom JavaScript interface for exporting files and system integrations
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidApp");
 
-        // Create Notification Channels for Attendance, Salary, and Reminders
+        // Create Notification Channels for Attendance, Salary, Reminders, and Payments
         createNotificationChannels();
 
         // Setup dynamic listener for device silent / vibrate / normal ringer mode
         setupRingerModeListener();
+
+        // Setup dynamic listener for direct notification attendance actions
+        setupAttendanceActionListener();
+
+        // Schedule offline background alarms (09:00 AM, 07:30 PM, 08:00 PM, 09:30 AM, 11:00 AM)
+        NotificationScheduler.scheduleAllAlarms(this);
 
         // Load the local HTML file from assets
         webView.loadUrl("file:///android_asset/index.html");
@@ -629,7 +637,27 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        // ── Native Device Notifications ──
+        // ── Native Device Notifications & Background Schedule Sync ──
+        @JavascriptInterface
+        public boolean syncNotificationSchedule(final String settingsJson, final String profileJson, final String attendanceJson, final String entriesJson) {
+            try {
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                if (settingsJson != null) edit.putString("_mnm_notification_settings", settingsJson);
+                if (profileJson != null) edit.putString("_mnm_work_profile", profileJson);
+                if (attendanceJson != null) edit.putString("_mnm_attendance", attendanceJson);
+                if (entriesJson != null) edit.putString("_mnm_entries", entriesJson);
+                edit.commit();
+
+                // Reconfigure AlarmManager background schedules
+                NotificationScheduler.scheduleAllAlarms(MainActivity.this);
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
         @JavascriptInterface
         public boolean postNativeNotification(final String title, final String message, final String channelType, final int notificationId) {
             try {
@@ -638,10 +666,21 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             String targetChannel = CHANNEL_ATTENDANCE;
+                            int iconRes = R.drawable.ic_stat_attendance;
+                            int color = Color.parseColor("#36DFAF");
+
                             if ("salary".equalsIgnoreCase(channelType)) {
                                 targetChannel = CHANNEL_SALARY;
+                                iconRes = R.drawable.ic_stat_salary;
+                                color = Color.parseColor("#7C6FED");
                             } else if ("reminder".equalsIgnoreCase(channelType) || "streak".equalsIgnoreCase(channelType)) {
                                 targetChannel = CHANNEL_REMINDERS;
+                                iconRes = R.drawable.ic_stat_notification;
+                                color = Color.parseColor("#F59E0B");
+                            } else if ("payments".equalsIgnoreCase(channelType) || "dues".equalsIgnoreCase(channelType)) {
+                                targetChannel = CHANNEL_PAYMENTS;
+                                iconRes = R.drawable.ic_stat_salary;
+                                color = Color.parseColor("#F59E0B");
                             }
 
                             Intent intent = new Intent(MainActivity.this, MainActivity.class);
@@ -654,10 +693,11 @@ public class MainActivity extends AppCompatActivity {
                             );
 
                             NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, targetChannel)
-                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setSmallIcon(iconRes)
                                 .setContentTitle(title)
                                 .setContentText(message)
                                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                                .setColor(color)
                                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                                 .setContentIntent(pendingIntent)
                                 .setAutoCancel(true)
@@ -713,7 +753,7 @@ public class MainActivity extends AppCompatActivity {
                         "Attendance & Shifts",
                         NotificationManager.IMPORTANCE_HIGH
                     );
-                    attChannel.setDescription("Daily shift reminders, attendance check-ins, and leave alerts");
+                    attChannel.setDescription("Daily shift reminders, 1-tap check-in buttons, and leave alerts");
                     attChannel.enableVibration(true);
                     manager.createNotificationChannel(attChannel);
 
@@ -733,6 +773,14 @@ public class MainActivity extends AppCompatActivity {
                     );
                     remChannel.setDescription("Work streaks and general task reminders");
                     manager.createNotificationChannel(remChannel);
+
+                    NotificationChannel payChannel = new NotificationChannel(
+                        CHANNEL_PAYMENTS,
+                        "Client Invoices & Receivables",
+                        NotificationManager.IMPORTANCE_DEFAULT
+                    );
+                    payChannel.setDescription("Outstanding balance and unpaid invoice reminders");
+                    manager.createNotificationChannel(payChannel);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -828,6 +876,49 @@ public class MainActivity extends AppCompatActivity {
             try {
                 unregisterReceiver(ringerModeReceiver);
             } catch (Exception ignored) {}
+        }
+        if (attendanceActionReceiver != null) {
+            try {
+                unregisterReceiver(attendanceActionReceiver);
+            } catch (Exception ignored) {}
+        }
+    }
+
+    // Registers dynamic receiver for interactive notification action clicks
+    private void setupAttendanceActionListener() {
+        try {
+            attendanceActionReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (NotificationActionReceiver.ACTION_ATTENDANCE_BROADCAST.equals(intent.getAction())) {
+                        final String date = intent.getStringExtra(NotificationActionReceiver.EXTRA_DATE);
+                        final String status = intent.getStringExtra(NotificationActionReceiver.EXTRA_STATUS);
+                        if (date != null && status != null) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (webView != null) {
+                                        String script = "if(typeof window.onNativeAttendanceUpdated==='function'){window.onNativeAttendanceUpdated('" + date + "','" + status + "');}";
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                            webView.evaluateJavascript(script, null);
+                                        } else {
+                                            webView.loadUrl("javascript:" + script);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            };
+            IntentFilter filter = new IntentFilter(NotificationActionReceiver.ACTION_ATTENDANCE_BROADCAST);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.registerReceiver(this, attendanceActionReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+            } else {
+                registerReceiver(attendanceActionReceiver, filter);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
