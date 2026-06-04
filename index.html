@@ -5413,11 +5413,6 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
     </div>
     
-    <!-- ══════════════ SMART DEVICE NOTIFICATIONS & ALERTS SUITE ══════════════ -->
-    <div class="card anim" id="device-notifications-card" style="background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:14px">
-      <!-- Populated dynamically by updateNotificationSettingsUI() -->
-    </div>
-
     <!-- ══════════════ GOOGLE CLOUD & DRIVE SYNC SUITE ══════════════ -->
     <div class="card anim" id="google-cloud-sync-card" style="background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:14px">
       <!-- Populated dynamically by updateGoogleCloudUI() -->
@@ -6441,19 +6436,28 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <!-- Category Tabs Navigation -->
     <div class="settings-nav-tabs">
       <button type="button" class="settings-tab-btn active" id="stab-btn-appearance" onclick="switchSettingsTab('appearance')">
-        <span>🎨</span> Appearance
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+        Appearance
       </button>
       <button type="button" class="settings-tab-btn" id="stab-btn-workspace" onclick="switchSettingsTab('workspace')">
-        <span>💼</span> Workspace
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Workspace
       </button>
       <button type="button" class="settings-tab-btn" id="stab-btn-feedback" onclick="switchSettingsTab('feedback')">
-        <span>🔔</span> Audio & Haptics
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        Audio &amp; Haptics
+      </button>
+      <button type="button" class="settings-tab-btn" id="stab-btn-notifications" onclick="switchSettingsTab('notifications')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
       </button>
       <button type="button" class="settings-tab-btn" id="stab-btn-data" onclick="switchSettingsTab('data')">
-        <span>💾</span> Data & Backups
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Data &amp; Backups
       </button>
       <button type="button" class="settings-tab-btn" id="stab-btn-privacy" onclick="switchSettingsTab('privacy')">
-        <span>🔒</span> Privacy & Reset
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Privacy &amp; Reset
       </button>
     </div>
 
@@ -6610,7 +6614,9 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <div class="settings-card-item" id="cfg-device-ringer-card" style="border:1px solid var(--b2);background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));padding:12px 14px">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
           <div style="display:flex;align-items:center;gap:10px">
-            <span id="cfg-device-ringer-icon" style="font-size:18px">🔔</span>
+            <div id="cfg-device-ringer-icon" style="width:32px;height:32px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;color:#10B981;flex-shrink:0">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </div>
             <div>
               <div style="font-size:12px;font-weight:700;color:var(--t1)" id="cfg-device-ringer-title">Device Profile Sync</div>
               <div style="font-size:11px;color:var(--t3)" id="cfg-device-ringer-desc">Dynamic sync with Android Silent / Vibrate / Ring mode</div>
@@ -6669,9 +6675,17 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </div>
         <div style="margin-top:14px">
           <button class="ss-btn" onclick="testFeedbackCues()" style="width:100%;padding:10px;border-radius:10px;background:var(--s3);border:1px solid var(--b);color:var(--t1);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-            <span>⚡</span> Test Sound & Haptic Preview
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Test Sound &amp; Haptic Preview
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SMART DEVICE NOTIFICATIONS -->
+    <div class="settings-tab-content" id="settings-tab-notifications">
+      <div id="settings-notifications-container">
+        <!-- Dynamically rendered and kept synchronized by updateNotificationSettingsUI() -->
       </div>
     </div>
 
@@ -6727,7 +6741,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
             Export CSV
           </button>
           <button class="ss-btn" onclick="loadDemoDataSample()" style="flex:1;padding:10px;border-radius:10px;background:var(--s3);border:1px solid var(--b);color:var(--t1);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-            <span>✨</span> Load Sample Data
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            Load Sample Data
           </button>
         </div>
       </div>
@@ -11975,6 +11990,11 @@ function renderMoreView(){
       <div><div class="mico-label">Generate Salary Slip</div><div class="mico-sub">Official monthly payslip statement</div></div>
       <div class="mchev">›</div>
     </div>
+    <div class="more-row" onclick="openSettingsModal('notifications')">
+      <div class="micon" style="background:rgba(239,68,68,.12);color:#EF4444"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+      <div><div class="mico-label">Smart Device Notifications</div><div class="mico-sub">Shift check-in, attendance, salary &amp; roster alerts</div></div>
+      <div class="mchev">›</div>
+    </div>
     <div class="more-row" onclick="exportCSV()">
       <div class="micon" style="background:rgba(45,212,168,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
       <div><div class="mico-label">Export CSV</div><div class="mico-sub">Download all entries</div></div>
@@ -14857,9 +14877,9 @@ function sendTestNotification() {
     requestDeviceNotificationPermission();
   }
   const testItems = [
-    { title: '⚡ Attendance Check-in Test', message: 'Good morning! Morning shift reminder active for ' + (workProfile?.company || 'Workplace') + '.', channel: 'attendance', id: 9001 },
-    { title: '💰 Salary Credit Alert Test', message: 'Monthly salary payout alert: ₹' + (workProfile?.monthlySalary || 50000).toLocaleString('en-IN') + ' is scheduled for credit!', channel: 'salary', id: 9002 },
-    { title: '🔥 Work Streak Alert Test', message: 'Streak active: Keep logging work daily to maintain your momentum!', channel: 'reminder', id: 9003 }
+    { title: 'Attendance Check-in Test', message: 'Good morning! Morning shift reminder active for ' + (workProfile?.company || 'Workplace') + '.', channel: 'attendance', id: 9001 },
+    { title: 'Salary Credit Alert Test', message: 'Monthly salary payout alert: ₹' + (workProfile?.monthlySalary || 50000).toLocaleString('en-IN') + ' is scheduled for credit!', channel: 'salary', id: 9002 },
+    { title: 'Work Streak Alert Test', message: 'Streak active: Keep logging work daily to maintain your momentum!', channel: 'reminder', id: 9003 }
   ];
   const chosen = testItems[Math.floor(Math.random() * testItems.length)];
   const ok = postAppNotification({
@@ -14868,7 +14888,7 @@ function sendTestNotification() {
     channelType: chosen.channel,
     notificationId: chosen.id
   });
-  showToast('🔔 Test notification dispatched!');
+  showToast('Test notification dispatched!');
 }
 
 function checkAndDispatchDailyNotifications() {
@@ -14910,7 +14930,7 @@ function checkAndDispatchDailyNotifications() {
     // 1A. On Salary Credit Day (Trigger between 09:00 and 18:00)
     if (now.getDate() === salaryPayDay && lastDispatched['salary_day'] !== todayISO && currentHour >= 9) {
       postAppNotification({
-        title: '💰 Salary Day Today!',
+        title: 'Salary Day Today!',
         message: `Today is your scheduled salary credit date from ${companyName}. Don't forget to review your payslip!`,
         channelType: 'salary',
         notificationId: 2001
@@ -14921,7 +14941,7 @@ function checkAndDispatchDailyNotifications() {
     // 1B. 1-Day Advance Salary Reminder (Trigger in evening >= 18:00 if tomorrow is salary day)
     if (tomorrow.getDate() === salaryPayDay && lastDispatched['salary_advance'] !== todayISO && currentHour >= 18) {
       postAppNotification({
-        title: '💳 Salary Tomorrow!',
+        title: 'Salary Tomorrow!',
         message: `Reminder: Tomorrow is your monthly salary payout date (${salaryPayDay}th) from ${companyName}.`,
         channelType: 'salary',
         notificationId: 2002
@@ -14938,7 +14958,7 @@ function checkAndDispatchDailyNotifications() {
 
     if (isTomorrowWeekOff) {
       postAppNotification({
-        title: '🌴 Tomorrow is Week Off!',
+        title: 'Tomorrow is Week Off!',
         message: `Enjoy your scheduled Week Off tomorrow from ${companyName}. Have a restful evening!`,
         channelType: 'attendance',
         notificationId: 3001
@@ -14946,7 +14966,7 @@ function checkAndDispatchDailyNotifications() {
       markDispatched('advance_roster');
     } else if (isTomorrowHoliday) {
       postAppNotification({
-        title: '🎉 Tomorrow is Holiday!',
+        title: 'Tomorrow is Holiday!',
         message: `Tomorrow is scheduled as a Holiday (${tomorrowAtt.note || 'Official Holiday'}). Enjoy your break!`,
         channelType: 'attendance',
         notificationId: 3002
@@ -14956,7 +14976,7 @@ function checkAndDispatchDailyNotifications() {
       const leaveLabels = { pl: 'Paid Leave (PL)', sl: 'Sick Leave (SL)', cl: 'Casual Leave (CL)', hd: 'Half Day (HD)' };
       const lName = leaveLabels[tomorrowAtt.status] || 'Planned Leave';
       postAppNotification({
-        title: `📅 Advance Leave: ${lName}`,
+        title: `Advance Leave: ${lName}`,
         message: `Reminder: You have scheduled ${lName} for tomorrow at ${companyName}.`,
         channelType: 'attendance',
         notificationId: 3003
@@ -14973,7 +14993,7 @@ function checkAndDispatchDailyNotifications() {
 
     if (isTodayWeekOff && settings.sameDayRoster) {
       postAppNotification({
-        title: '☕ Today is your Week Off!',
+        title: 'Today is your Week Off!',
         message: `Good morning! Relax and recharge on your scheduled Week Off today.`,
         channelType: 'attendance',
         notificationId: 4001
@@ -14981,7 +15001,7 @@ function checkAndDispatchDailyNotifications() {
       markDispatched('morning_shift');
     } else if (isTodayHoliday && settings.sameDayRoster) {
       postAppNotification({
-        title: '🎈 Happy Holiday!',
+        title: 'Happy Holiday!',
         message: `Today is an official holiday (${todayAtt?.note || 'Holiday'}). Enjoy your day!`,
         channelType: 'attendance',
         notificationId: 4002
@@ -14990,7 +15010,7 @@ function checkAndDispatchDailyNotifications() {
     } else if (settings.morningShift && !todayAtt) {
       // Working day, check if attendance is marked
       postAppNotification({
-        title: '📋 Morning Shift Check-in',
+        title: 'Morning Shift Check-in',
         message: `Good morning! Remember to check in or mark your attendance for today at ${companyName}.`,
         channelType: 'attendance',
         notificationId: 4003
@@ -15006,8 +15026,8 @@ function checkAndDispatchDailyNotifications() {
 
     if (!hasLog) {
       postAppNotification({
-        title: '⏳ Attendance Pending for Today',
-        message: `You haven't logged your attendance or work entry for today yet. Mark it now to save your streak! 🔥`,
+        title: 'Attendance Pending for Today',
+        message: `You haven't logged your attendance or work entry for today yet. Mark it now to save your streak!`,
         channelType: 'reminder',
         notificationId: 5001
       });
@@ -15026,7 +15046,7 @@ function checkAndDispatchDailyNotifications() {
       const milestones = [7, 14, 21, 30, 50, 75, 100, 150, 200, 365];
       if (milestones.includes(streakVal) && lastDispatched['streak_hit_' + streakVal] !== todayISO) {
         postAppNotification({
-          title: `🔥 ${streakVal}-Day Streak Milestone!`,
+          title: `${streakVal}-Day Streak Milestone!`,
           message: `Incredible dedication! You have maintained an active work streak for ${streakVal} consecutive days. Keep going!`,
           channelType: 'reminder',
           notificationId: 6000 + streakVal
@@ -15039,25 +15059,26 @@ function checkAndDispatchDailyNotifications() {
 }
 
 function updateNotificationSettingsUI() {
-  const card = document.getElementById('device-notifications-card');
-  if (!card) return;
+  const container = document.getElementById('settings-notifications-container') || document.getElementById('device-notifications-card');
+  if (!container) return;
 
   const settings = loadNotificationSettings();
   const isGranted = isNotificationPermissionGranted();
   const salaryPayDay = parseInt(workProfile?.salaryPayDay, 10) || 5;
 
-  card.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+  container.innerHTML = `
+    <!-- Notification Header Card -->
+    <div class="settings-card-item" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:12px 14px">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:38px;height:38px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;color:#EF4444">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;color:#EF4444;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
         </div>
         <div>
-          <div style="font-size:14px;font-weight:800;color:var(--t1)">Smart Device Notifications</div>
-          <div style="font-size:10.5px;color:var(--t2)">Automated shift, attendance, salary &amp; advance alerts</div>
+          <div style="font-size:13px;font-weight:800;color:var(--t1)">Smart Device Notifications</div>
+          <div style="font-size:10.5px;color:var(--t3)">Automated shift, attendance, salary &amp; advance alerts</div>
         </div>
       </div>
       <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${isGranted ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'};color:${isGranted ? '#10B981' : '#EF4444'};border:1px solid ${isGranted ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}">
@@ -15066,92 +15087,132 @@ function updateNotificationSettingsUI() {
     </div>
 
     <!-- Master Switch -->
-    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin-bottom:12px">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--t1)">Enable Device Notifications</div>
-        <div style="font-size:10px;color:var(--t2)">Post system notification bar &amp; lockscreen alerts</div>
+    <div class="settings-card-item" style="margin-bottom:12px">
+      <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+        <div>
+          <div class="settings-label">Enable Device Notifications</div>
+          <div class="settings-desc">Post system notification bar &amp; lockscreen alerts</div>
+        </div>
+        <label class="mnm-switch">
+          <input type="checkbox" ${settings.enabled ? 'checked' : ''} onchange="toggleNotifSetting('enabled')"/>
+          <span class="mnm-slider"></span>
+        </label>
       </div>
-      <label class="mnm-switch">
-        <input type="checkbox" ${settings.enabled ? 'checked' : ''} onchange="toggleNotifSetting('enabled')"/>
-        <span class="mnm-slider"></span>
-      </label>
     </div>
 
     <!-- Category Toggles Grid -->
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;opacity:${settings.enabled ? '1' : '0.45'};pointer-events:${settings.enabled ? 'auto' : 'none'}">
       <!-- 1. Morning Shift & Check-in -->
-      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:9px 12px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:14px">🌅</span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--t1)">Morning Shift Check-in (09:00 AM)</div>
-            <div style="font-size:9.5px;color:var(--t2)">Daily prompt to log your shift &amp; attendance</div>
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;color:#F59E0B;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Morning Shift Check-in (09:00 AM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Daily prompt to log your shift &amp; attendance</div>
+            </div>
           </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.morningShift ? 'checked' : ''} onchange="toggleNotifSetting('morningShift')"/>
+            <span class="mnm-slider"></span>
+          </label>
         </div>
-        <label class="mnm-switch">
-          <input type="checkbox" ${settings.morningShift ? 'checked' : ''} onchange="toggleNotifSetting('morningShift')"/>
-          <span class="mnm-slider"></span>
-        </label>
       </div>
 
       <!-- 2. Evening Pending Attendance & Streak Savior -->
-      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:9px 12px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:14px">⏳</span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--t1)">Evening Pending Alert (07:30 PM)</div>
-            <div style="font-size:9.5px;color:var(--t2)">Alerts if attendance is unlogged to protect streak</div>
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;color:#EF4444;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Evening Pending Alert (07:30 PM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Alerts if attendance is unlogged to protect streak</div>
+            </div>
           </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.eveningPending ? 'checked' : ''} onchange="toggleNotifSetting('eveningPending')"/>
+            <span class="mnm-slider"></span>
+          </label>
         </div>
-        <label class="mnm-switch">
-          <input type="checkbox" ${settings.eveningPending ? 'checked' : ''} onchange="toggleNotifSetting('eveningPending')"/>
-          <span class="mnm-slider"></span>
-        </label>
       </div>
 
       <!-- 3. 1-Day Advance Roster & Leave Alerts -->
-      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:9px 12px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:14px">🌴</span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--t1)">1-Day Advance Roster &amp; Leaves (08:00 PM)</div>
-            <div style="font-size:9.5px;color:var(--t2)">Night-before alert for scheduled Week Off, Holiday or PL/SL</div>
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;color:#3B82F6;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <path d="m9 16 2 2 4-4"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">1-Day Advance Roster &amp; Leaves (08:00 PM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Night-before alert for scheduled Week Off, Holiday or Leaves</div>
+            </div>
           </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.advanceRoster ? 'checked' : ''} onchange="toggleNotifSetting('advanceRoster')"/>
+            <span class="mnm-slider"></span>
+          </label>
         </div>
-        <label class="mnm-switch">
-          <input type="checkbox" ${settings.advanceRoster ? 'checked' : ''} onchange="toggleNotifSetting('advanceRoster')"/>
-          <span class="mnm-slider"></span>
-        </label>
       </div>
 
       <!-- 4. Monthly Salary Credit Day Alerts -->
-      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:9px 12px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:14px">💰</span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--t1)">Salary Credit Day (${salaryPayDay}th of month)</div>
-            <div style="font-size:9.5px;color:var(--t2)">On-the-day &amp; advance monthly salary reminder</div>
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;color:#10B981;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+                <circle cx="12" cy="15" r="2"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Salary Credit Day (${salaryPayDay}th of month)</div>
+              <div style="font-size:9.5px;color:var(--t3)">On-the-day &amp; advance monthly salary reminder</div>
+            </div>
           </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.salaryAlerts ? 'checked' : ''} onchange="toggleNotifSetting('salaryAlerts')"/>
+            <span class="mnm-slider"></span>
+          </label>
         </div>
-        <label class="mnm-switch">
-          <input type="checkbox" ${settings.salaryAlerts ? 'checked' : ''} onchange="toggleNotifSetting('salaryAlerts')"/>
-          <span class="mnm-slider"></span>
-        </label>
       </div>
 
       <!-- 5. Streak Milestones & Motivations -->
-      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:9px 12px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:14px">🔥</span>
-          <div>
-            <div style="font-size:11px;font-weight:700;color:var(--t1)">Work Streak Milestones</div>
-            <div style="font-size:9.5px;color:var(--t2)">7, 14, 30-day streak achievement alerts</div>
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);display:flex;align-items:center;justify-content:center;color:#F97316;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Work Streak Milestones</div>
+              <div style="font-size:9.5px;color:var(--t3)">7, 14, 30-day streak achievement alerts</div>
+            </div>
           </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.streakMilestones ? 'checked' : ''} onchange="toggleNotifSetting('streakMilestones')"/>
+            <span class="mnm-slider"></span>
+          </label>
         </div>
-        <label class="mnm-switch">
-          <input type="checkbox" ${settings.streakMilestones ? 'checked' : ''} onchange="toggleNotifSetting('streakMilestones')"/>
-          <span class="mnm-slider"></span>
-        </label>
       </div>
     </div>
 
@@ -15165,7 +15226,7 @@ function updateNotificationSettingsUI() {
       ` : `
         <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:10.5px;color:var(--paid);font-weight:700;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:8px">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Device Channels Ready
+          Channels Ready
         </div>
       `}
       <button type="button" class="ss-btn" onclick="sendTestNotification()" style="padding:10px;border-radius:10px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
@@ -15677,7 +15738,11 @@ function applySavedTheme() {
 }
 
 // Open application settings modal sheet
-function openSettingsModal() {
+function openSettingsModal(defaultTab) {
+  populateSettingsModalData();
+  if (defaultTab) {
+    switchSettingsTab(defaultTab);
+  }
   openModal('settings-modal');
 }
 
@@ -15689,6 +15754,10 @@ function switchSettingsTab(tabKey) {
   const targetContent = document.getElementById('settings-tab-' + tabKey);
   if (targetBtn) targetBtn.classList.add('active');
   if (targetContent) targetContent.classList.add('active');
+  
+  if (tabKey === 'notifications' && typeof updateNotificationSettingsUI === 'function') {
+    updateNotificationSettingsUI();
+  }
   
   playSoundAndHaptic('tap', 'light');
 }
@@ -15772,6 +15841,9 @@ function populateSettingsModalData() {
   }
   
   updateStorageDiagnostics();
+  if (typeof updateNotificationSettingsUI === 'function') {
+    updateNotificationSettingsUI();
+  }
 }
 
 function setAccentTheme(themeKey) {
@@ -15808,7 +15880,7 @@ function toggleStealthMode(checked) {
   }
   playSoundAndHaptic('tap', 'medium');
   if (typeof showToast === 'function') {
-    showToast(checked ? '🔒 Stealth Mode enabled (figures masked)' : '🔓 Stealth Mode disabled');
+    showToast(checked ? 'Stealth Mode enabled (figures masked)' : 'Stealth Mode disabled');
   }
   if (typeof saveUserData === 'function') saveUserData();
 }
@@ -16296,7 +16368,7 @@ function loadDemoDataSample() {
     updateSummary();
     populateSettingsModalData();
     playSoundAndHaptic('success', 'heavy');
-    if (typeof showToast === 'function') showToast('✨ Sample data loaded!');
+    if (typeof showToast === 'function') showToast('Sample data loaded!');
     closeModal('settings-modal');
   }
 }
@@ -16571,7 +16643,7 @@ function confirmResetWorkspace() {
     title: 'Wipe Workspace & Clear Data?',
     body: `
       <div style="text-align:left;padding:10px;font-size:12px;line-height:1.6">
-        <p style="color:var(--danger);font-weight:600;margin-bottom:8px">⚠ WARNING: Permanent Deletion</p>
+        <p style="color:var(--danger);font-weight:600;margin-bottom:8px">WARNING: Permanent Deletion</p>
         <p style="color:var(--t2);margin-bottom:12px">You are about to delete all clients and freelance work entries. This action cannot be undone.</p>
         <div style="background:var(--s2);border-radius:8px;padding:10px;margin-bottom:12px">
           <ul style="margin:0;padding-left:20px;color:var(--t2);font-size:11px">
@@ -16596,7 +16668,7 @@ function confirmResetWorkspace() {
       updateSummary();
       renderAll();
       
-      showToast('🗑 Workspace has been reset');
+      showToast('Workspace has been reset');
       playSoundAndHaptic('success', 'double');
       closeModal('confirm-modal');
     }
@@ -17749,7 +17821,7 @@ const hapticManager = new HapticManager();
    DYNAMIC ANDROID DEVICE RINGER MODE ENGINE
    (Auto-adjusts sound & haptics based on Silent/Vibrate/Ring mode)
 ════════════════════════════════════════════ */
-function updateDeviceRingerBadge(mode, modeTitle, icon, badgeColor, badgeBg, badgeBd) {
+function updateDeviceRingerBadge(mode, modeTitle, badgeColor, badgeBg, badgeBd) {
   const badgeEl = document.getElementById('cfg-device-ringer-badge');
   const iconEl = document.getElementById('cfg-device-ringer-icon');
   const descEl = document.getElementById('cfg-device-ringer-desc');
@@ -17759,8 +17831,23 @@ function updateDeviceRingerBadge(mode, modeTitle, icon, badgeColor, badgeBg, bad
     if (badgeBg) badgeEl.style.background = badgeBg;
     if (badgeBd) badgeEl.style.borderColor = badgeBd;
   }
-  if (iconEl && icon) {
-    iconEl.textContent = icon;
+  if (iconEl) {
+    if (mode === 'silent') {
+      iconEl.style.background = 'rgba(248,113,113,0.12)';
+      iconEl.style.borderColor = 'rgba(248,113,113,0.25)';
+      iconEl.style.color = '#F87171';
+      iconEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+    } else if (mode === 'vibrate') {
+      iconEl.style.background = 'rgba(255,185,48,0.12)';
+      iconEl.style.borderColor = 'rgba(255,185,48,0.25)';
+      iconEl.style.color = '#FFB930';
+      iconEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="1" y1="6" x2="1" y2="18"/><line x1="23" y1="6" x2="23" y2="18"/></svg>`;
+    } else {
+      iconEl.style.background = 'rgba(16,185,129,0.12)';
+      iconEl.style.borderColor = 'rgba(16,185,129,0.25)';
+      iconEl.style.color = '#10B981';
+      iconEl.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
+    }
   }
   if (descEl) {
     if (mode === 'silent') {
@@ -17785,11 +17872,11 @@ function updateDeviceRingerBadgeFromCurrent() {
   
   const normalized = String(mode).toLowerCase();
   if (normalized === 'silent') {
-    updateDeviceRingerBadge('silent', 'Silent Mode', '🔕', '#F87171', 'rgba(248,113,113,0.15)', 'rgba(248,113,113,0.3)');
+    updateDeviceRingerBadge('silent', 'Silent Mode', '#F87171', 'rgba(248,113,113,0.15)', 'rgba(248,113,113,0.3)');
   } else if (normalized === 'vibrate') {
-    updateDeviceRingerBadge('vibrate', 'Vibrate Mode', '📳', '#FFB930', 'rgba(255,185,48,0.15)', 'rgba(255,185,48,0.3)');
+    updateDeviceRingerBadge('vibrate', 'Vibrate Mode', '#FFB930', 'rgba(255,185,48,0.15)', 'rgba(255,185,48,0.3)');
   } else {
-    updateDeviceRingerBadge('normal', 'Ring Mode', '🔔', '#10B981', 'rgba(16,185,129,0.15)', 'rgba(16,185,129,0.3)');
+    updateDeviceRingerBadge('normal', 'Ring Mode', '#10B981', 'rgba(16,185,129,0.15)', 'rgba(16,185,129,0.3)');
   }
 }
 
@@ -17803,7 +17890,6 @@ function applyDeviceRingerMode(mode, showNotification) {
   let badgeColor = '#10B981';
   let badgeBg = 'rgba(16,185,129,0.15)';
   let badgeBd = 'rgba(16,185,129,0.3)';
-  let icon = '🔔';
   let toastMsg = '';
 
   if (normalizedMode === 'silent') {
@@ -17814,8 +17900,7 @@ function applyDeviceRingerMode(mode, showNotification) {
     badgeColor = '#F87171';
     badgeBg = 'rgba(248,113,113,0.15)';
     badgeBd = 'rgba(248,113,113,0.3)';
-    icon = '🔕';
-    toastMsg = '🔕 Device in Silent Mode: Sound & Haptics muted';
+    toastMsg = 'Device in Silent Mode: Sound & Haptics muted';
   } else if (normalizedMode === 'vibrate') {
     // Vibrate mode: Sound OFF, Haptics ON
     soundOn = false;
@@ -17824,8 +17909,7 @@ function applyDeviceRingerMode(mode, showNotification) {
     badgeColor = '#FFB930';
     badgeBg = 'rgba(255,185,48,0.15)';
     badgeBd = 'rgba(255,185,48,0.3)';
-    icon = '📳';
-    toastMsg = '📳 Device in Vibrate Mode: Sound muted, Haptics active';
+    toastMsg = 'Device in Vibrate Mode: Sound muted, Haptics active';
   } else {
     // Ring / Normal mode: Sound ON, Haptics ON
     soundOn = true;
@@ -17834,8 +17918,7 @@ function applyDeviceRingerMode(mode, showNotification) {
     badgeColor = '#10B981';
     badgeBg = 'rgba(16,185,129,0.15)';
     badgeBd = 'rgba(16,185,129,0.3)';
-    icon = '🔔';
-    toastMsg = '🔔 Device in Ring Mode: Sound & Haptics enabled';
+    toastMsg = 'Device in Ring Mode: Sound & Haptics enabled';
   }
 
   // Update manager states immediately
@@ -17859,7 +17942,7 @@ function applyDeviceRingerMode(mode, showNotification) {
   hToggles.forEach(t => { if (t) t.checked = hapticOn; });
 
   // Update Settings Modal Badge
-  updateDeviceRingerBadge(normalizedMode, modeTitle, icon, badgeColor, badgeBg, badgeBd);
+  updateDeviceRingerBadge(normalizedMode, modeTitle, badgeColor, badgeBg, badgeBd);
 
   // Save to persistent user database
   if (typeof saveUserData === 'function') {
