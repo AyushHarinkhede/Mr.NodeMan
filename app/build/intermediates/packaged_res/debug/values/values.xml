@@ -3,6 +3,7 @@
     <color name="accent_violet">#7C6FED</color>
     <color name="bg_dark">#07070A</color>
     <color name="black">#FF000000</color>
+    <color name="ic_launcher_background">#000000</color>
     <color name="status_bar_color">#07070A</color>
     <color name="white">#FFFFFFFF</color>
     <string name="app_name">Mr.NodeMan</string>

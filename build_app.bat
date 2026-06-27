@@ -40,7 +40,7 @@ echo.
 call gradlew.bat assembleDebug
 if errorlevel 1 (
     echo.
-    echo [ERROR] Build failed! Please ensure you have Java Development Kit (JDK 17 or higher) installed and set in your PATH.
+    echo [ERROR] Build failed! Please ensure you have Java Development Kit - JDK 17 or higher - installed and set in your PATH.
     pause
     exit /b 1
 )

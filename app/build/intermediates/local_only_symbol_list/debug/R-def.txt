@@ -3,6 +3,7 @@ local
 color accent_violet
 color bg_dark
 color black
+color ic_launcher_background
 color status_bar_color
 color white
 drawable ic_launcher_background
