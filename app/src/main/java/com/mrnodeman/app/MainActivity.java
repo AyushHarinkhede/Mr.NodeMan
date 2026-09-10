@@ -18,7 +18,9 @@ import android.util.Base64;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -42,29 +44,47 @@ public class MainActivity extends AppCompatActivity {
     private ValueCallback<Uri[]> uploadMessage;
     private final static int FILECHOOSER_RESULTCODE = 1;
     private final static int PERMISSION_REQUEST_CODE = 100;
+    private volatile boolean isIncognitoActive = false;
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Hardware Acceleration Flag for maximum animation/scroll performance
+        getWindow().setFlags(
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
+        );
+
         setContentView(R.layout.activity_main);
 
-        // Customize status bar color for beautiful visual appearance matching web theme
+        // Enable edge-to-edge transparent status bar and navigation bar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.parseColor("#07070A"));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // Ensure text remains readable if theme background changes
-                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            }
+            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
+            window.getDecorView().setSystemUiVisibility(uiOptions);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
+
+        // Auto-detect and request maximum display refresh rate (60Hz, 90Hz, 120Hz, 144Hz, 165Hz)
+        enableHighRefreshRate();
 
         webView = findViewById(R.id.webView);
         webView.setSoundEffectsEnabled(false);
         webView.setHapticFeedbackEnabled(false);
 
-        // Standard web settings optimized for modern JavaScript apps
+        // Enable Hardware Accelerated GPU rendering layer & disable overscroll shadow jitter
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
+        webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+
+        // Optimized WebSettings for high FPS JS rendering
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
@@ -74,16 +94,33 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
-        // Prevent opening urls in default phone browser
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
+        webSettings.setEnableSmoothTransition(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            webSettings.setOffscreenPreRaster(true);
+        }
+        webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
+
+        // Handle URL loading: launch external links in device browser/app intent
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url != null && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:"))) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return true;
+                }
                 view.loadUrl(url);
                 return true;
             }
         });
 
-        // Setup File Chooser for Web App input fields
+        // Setup File Chooser & Permission Security for Web App
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
@@ -101,6 +138,36 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
                 return true;
+            }
+
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                if (isIncognitoActive) {
+                    // Strictly deny any WebRTC, microphone, camera, or media capture requests
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                request.deny();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    return;
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    super.onPermissionRequest(request);
+                }
+            }
+
+            @Override
+            public void onGeolocationPermissionsShowPrompt(final String origin, final GeolocationPermissions.Callback callback) {
+                if (isIncognitoActive) {
+                    callback.invoke(origin, false, false);
+                    return;
+                }
+                super.onGeolocationPermissionsShowPrompt(origin, callback);
             }
         });
 
@@ -204,6 +271,64 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void openExternalUrl(final String url) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, "Could not open link: " + url, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void setScreenCaptureProtection(final boolean enable) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        isIncognitoActive = enable;
+                        if (enable) {
+                            getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                            if (webView != null) {
+                                WebSettings ws = webView.getSettings();
+                                ws.setGeolocationEnabled(false);
+                                ws.setMediaPlaybackRequiresUserGesture(true);
+                            }
+                        } else {
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+                            if (webView != null) {
+                                WebSettings ws = webView.getSettings();
+                                ws.setGeolocationEnabled(false);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public boolean isScreenCaptureProtected() {
+            try {
+                return (getWindow().getAttributes().flags & WindowManager.LayoutParams.FLAG_SECURE) != 0;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public boolean isHardwarePrivacyActive() {
+            return isIncognitoActive;
+        }
+
+        @JavascriptInterface
         public void exitApp() {
             runOnUiThread(new Runnable() {
                 @Override
@@ -237,6 +362,68 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to export file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    // Queries display capabilities and requests highest refresh rate mode (60Hz, 90Hz, 120Hz, 144Hz, 165Hz)
+    private void enableHighRefreshRate() {
+        try {
+            Window window = getWindow();
+            WindowManager.LayoutParams lp = window.getAttributes();
+            android.view.Display display = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                display = getDisplay();
+            }
+            if (display == null) {
+                display = getWindowManager().getDefaultDisplay();
+            }
+            if (display != null) {
+                float maxRefreshRate = 60.0f;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    android.view.Display.Mode[] modes = display.getSupportedModes();
+                    android.view.Display.Mode highestMode = null;
+                    if (modes != null) {
+                        for (android.view.Display.Mode mode : modes) {
+                            if (mode.getRefreshRate() > maxRefreshRate) {
+                                maxRefreshRate = mode.getRefreshRate();
+                                highestMode = mode;
+                            }
+                        }
+                    }
+                    if (highestMode != null) {
+                        lp.preferredDisplayModeId = highestMode.getModeId();
+                    }
+                    lp.preferredRefreshRate = maxRefreshRate;
+                }
+                // Set preferred min/max display refresh rates if supported by Android platform
+                try {
+                    java.lang.reflect.Field minField = WindowManager.LayoutParams.class.getField("preferredMinDisplayRefreshRate");
+                    minField.setFloat(lp, maxRefreshRate);
+                } catch (Throwable ignored) {}
+
+                try {
+                    java.lang.reflect.Field maxField = WindowManager.LayoutParams.class.getField("preferredMaxDisplayRefreshRate");
+                    maxField.setFloat(lp, maxRefreshRate);
+                } catch (Throwable ignored) {}
+
+                window.setAttributes(lp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        enableHighRefreshRate();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            enableHighRefreshRate();
         }
     }
 

@@ -10,12 +10,13 @@ if not exist "app\src\main\assets" (
     mkdir "app\src\main\assets"
 )
 copy /Y "index.html" "app\src\main\assets\index.html" >nul
+copy /Y "app_logo.png" "app\src\main\assets\app_logo.png" >nul
 if errorlevel 1 (
-    echo [ERROR] Failed to copy index.html to assets folder.
+    echo [ERROR] Failed to copy index.html or app_logo.png to assets folder.
     pause
     exit /b 1
 )
-echo      index.html copied to app assets successfully!
+echo      index.html and app_logo.png copied to app assets successfully!
 
 :: Step 2: Download gradle-wrapper.jar
 echo [2/4] Bootstrapping Gradle Wrapper...
