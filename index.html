@@ -5711,6 +5711,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
 <script>
 
+
 /* ════════════════════════════════════════════════
    GLOBAL UTILITIES & MISSING HELPERS
 ════════════════════════════════════════════════ */
@@ -6271,6 +6272,7 @@ function loadLS(){
     entries = entries || []; 
     CLIENTS = CLIENTS || [];
   }
+}
 /* ════════════════════════════════════════════
    FIREBASE BACKEND
 ════════════════════════════════════════════ */
@@ -10117,8 +10119,8 @@ function showFirebaseGuide(){
 /* ════════════════════════════════════════════
    AUTHENTICATION BACKEND & LOGIC
 ════════════════════════════════════════════ */
-let currentUser = null;
-let authListeners = [];
+var currentUser = null;
+var authListeners = [];
 
 // Initialize auth state
 function initAuth() {
@@ -15914,6 +15916,7 @@ function logWorkerWageToLedger() {
     }, 250);
   }
 }
+
 </script>
 
 
