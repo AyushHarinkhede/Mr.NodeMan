@@ -34,9 +34,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,13 +92,19 @@ public class MainActivity extends AppCompatActivity {
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        // Optimized WebSettings for high FPS JS rendering
+        // Optimized WebSettings for high FPS JS rendering & permanent data persistence
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
         webSettings.setDatabaseEnabled(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setAllowContentAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
+        try {
+            String dbPath = getApplicationContext().getDir("databases", Context.MODE_PRIVATE).getPath();
+            webSettings.setDatabasePath(dbPath);
+        } catch (Exception ignored) {}
         webSettings.setLoadWithOverviewMode(true);
         webSettings.setUseWideViewPort(true);
 
@@ -333,9 +347,145 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    MainActivity.super.onBackPressed();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        finishAndRemoveTask();
+                    } else {
+                        finish();
+                    }
                 }
             });
+        }
+
+        // ── Native Persistent Flash Disk Key-Value Storage ──
+        @JavascriptInterface
+        public boolean saveData(final String key, final String value) {
+            if (key == null) return false;
+            try {
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                boolean committed = prefs.edit().putString(key, value).commit();
+                
+                // Secondary file mirror backup for maximum persistence safety
+                try {
+                    File storeDir = new File(getFilesDir(), "mrnodeman_data");
+                    if (!storeDir.exists()) storeDir.mkdirs();
+                    File file = new File(storeDir, "store_" + Math.abs(key.hashCode()) + ".dat");
+                    try (FileOutputStream fos = new FileOutputStream(file)) {
+                        if (value != null) {
+                            fos.write(value.getBytes(StandardCharsets.UTF_8));
+                        }
+                    }
+                } catch (Exception ignored) {}
+                
+                return committed;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public String getData(final String key) {
+            if (key == null) return null;
+            try {
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                String val = prefs.getString(key, null);
+                if (val != null) return val;
+
+                // Fallback to secondary file mirror backup
+                File file = new File(new File(getFilesDir(), "mrnodeman_data"), "store_" + Math.abs(key.hashCode()) + ".dat");
+                if (file.exists() && file.length() > 0) {
+                    try (FileInputStream fis = new FileInputStream(file);
+                         InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+                         BufferedReader br = new BufferedReader(isr)) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line).append("\n");
+                        }
+                        String content = sb.toString().trim();
+                        // Restore in SharedPreferences
+                        prefs.edit().putString(key, content).apply();
+                        return content;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @JavascriptInterface
+        public boolean removeData(final String key) {
+            if (key == null) return false;
+            try {
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                prefs.edit().remove(key).commit();
+                File file = new File(new File(getFilesDir(), "mrnodeman_data"), "store_" + Math.abs(key.hashCode()) + ".dat");
+                if (file.exists()) file.delete();
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public String getAllData() {
+            try {
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                Map<String, ?> all = prefs.getAll();
+                JSONObject json = new JSONObject(all);
+                return json.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "{}";
+            }
+        }
+
+        // ── Native Master Database Snapshot Persistence ──
+        @JavascriptInterface
+        public boolean saveAppDatabase(final String jsonContent) {
+            if (jsonContent == null || jsonContent.isEmpty()) return false;
+            try {
+                File dbFile = new File(getFilesDir(), "mrnodeman_master_db.json");
+                try (FileOutputStream fos = new FileOutputStream(dbFile)) {
+                    fos.write(jsonContent.getBytes(StandardCharsets.UTF_8));
+                    fos.flush();
+                }
+                // Also mirror into SharedPreferences
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                prefs.edit().putString("_mnm_master_db_backup", jsonContent).commit();
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public String loadAppDatabase() {
+            try {
+                File dbFile = new File(getFilesDir(), "mrnodeman_master_db.json");
+                if (dbFile.exists() && dbFile.length() > 0) {
+                    try (FileInputStream fis = new FileInputStream(dbFile);
+                         InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+                         BufferedReader br = new BufferedReader(isr)) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line).append("\n");
+                        }
+                        String res = sb.toString().trim();
+                        if (!res.isEmpty()) return res;
+                    }
+                }
+                // Fallback to SharedPreferences
+                SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                return prefs.getString("_mnm_master_db_backup", null);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 

@@ -38,7 +38,6 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeSpeed;
-  scroll-behavior: smooth;
   touch-action: manipulation;
 }
 
@@ -46,22 +45,21 @@ html, body {
 .view, .moverlay, .msheet, .univ-search-results-area, body, main {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
+  transform: translateZ(0);
 }
 
-/* Targeted transitions only for interactive elements (Replaced * wildcard for smooth 120-165Hz scrolling) */
+/* Targeted transitions only for interactive elements (GPU-accelerated properties) */
 button, .btn, .ss-btn, .nitem, .card, .univ-result-card, .univ-chip, .tabbtn, .modal, .fchip {
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.16s cubic-bezier(0.2, 0, 0.2, 1),
+              opacity 0.16s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-/* Smooth page transitions */
+/* Smooth page transitions with hardware layer containment */
 .view {
   will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  contain: paint layout;
 }
 
 /* Default nav-tap animation: gentle fade + slide up from below */
@@ -192,8 +190,8 @@ input:focus, select:focus, textarea:focus {
 
 /* Smooth scroll behavior */
 .scroll-area {
-  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
 }
 
 /* Toast animations */
@@ -403,7 +401,7 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 #app{display:flex;flex-direction:column;height:100dvh;width:100vw;max-width:100vw;margin:0;position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;background:#07070A}
 .view{display:none;position:relative;height:100%;width:100%;overflow:hidden}
 .view.active{display:block}
-.scroll-area{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;padding:calc(60px + env(safe-area-inset-top, 0px)) 16px calc(76px + env(safe-area-inset-bottom, 0px))}
+.scroll-area{position:absolute;top:0;left:0;right:0;bottom:0;overflow-y:auto;overflow-x:hidden;padding:calc(64px + env(safe-area-inset-top, 0px)) 16px calc(98px + env(safe-area-inset-bottom, 0px))}
 .scroll-area::-webkit-scrollbar{display:none}
 
 /* Apply GPU acceleration to key elements */
@@ -570,6 +568,9 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 /* ════════════════════════════════════════════════
    HEADER
 ════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════
+   HEADER (DARK FADE TO BOTTOM WITH SOFT BLUR)
+════════════════════════════════════════════════ */
 .vhdr {
   position: absolute;
   top: 0;
@@ -579,29 +580,29 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 14px;
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 20px;
   z-index: 100;
   flex-shrink: 0;
-  /* Dark translucent frosted liquid-glass */
+  /* Dark fade from top to bottom (upper side dark, fading down) */
   background: linear-gradient(
     180deg,
-    rgba(8, 8, 14, 0.88) 0%,
-    rgba(10, 10, 18, 0.72) 42%,
-    rgba(12, 11, 20, 0.50) 78%,
-    rgba(10, 10, 16, 0.20) 100%
+    rgba(7, 7, 10, 0.96) 0%,
+    rgba(8, 8, 12, 0.88) 45%,
+    rgba(9, 9, 14, 0.55) 75%,
+    rgba(7, 7, 10, 0.0) 100%
   );
-  backdrop-filter: blur(48px) saturate(220%) contrast(106%) brightness(102%);
-  -webkit-backdrop-filter: blur(48px) saturate(220%) contrast(106%) brightness(102%);
+  /* Light subtle blur that softly fades downwards */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 60%, rgba(0,0,0,0.6) 82%, transparent 100%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 60%, rgba(0,0,0,0.6) 82%, transparent 100%);
   border: none;
-  border-bottom: none;
-  box-shadow: 
-    0 22px 50px -10px rgba(0, 0, 0, 0.65),
-    0 6px 24px rgba(0, 0, 0, 0.40),
-    0 0 32px rgba(124, 111, 237, 0.06);
+  box-shadow: none;
   transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
   transition: transform 0.44s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.36s ease;
   will-change: transform, opacity;
+  pointer-events: auto;
 }
 .vhdr.nav-hidden {
   transform: translate3d(0, -115%, 0) !important;
@@ -610,26 +611,8 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   pointer-events: none;
   transition: transform 0.48s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.38s ease;
 }
-/* Progressive liquid glass dissolve feather extending below the header */
 .vhdr::after {
-  content: '';
-  position: absolute;
-  bottom: -36px;
-  left: 0;
-  right: 0;
-  height: 36px;
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 10, 18, 0.60) 0%,
-    rgba(10, 10, 18, 0.34) 40%,
-    rgba(8, 8, 14, 0.12) 75%,
-    transparent 100%
-  );
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.85) 35%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 0%, rgba(0,0,0,0.85) 35%, transparent 100%);
-  pointer-events: none;
+  display: none;
 }
 .vhdr::before {
   display: none;
@@ -1389,10 +1372,71 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 ════════════════════════════════════════════════ */
 .ss-btn{border:none;cursor:pointer;font-family:'Syne',sans-serif;transition:opacity .15s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .ss-btn:active{transform:scale(.96);opacity:.85}
-.fab-wrapper{flex:1;display:flex;justify-content:center;position:relative;z-index:30;isolation:isolate}
-.fab{width:58px;height:58px;min-width:58px;min-height:58px;border-radius:50%;background:linear-gradient(145deg,#36DFAF,#1BA880);color:#07070A;font-size:32px;font-weight:400;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 0 0 6px rgba(45,212,168,.12),0 0 28px rgba(45,212,168,.35),0 6px 18px rgba(0,0,0,.5);position:relative;top:-12px;z-index:35;isolation:isolate;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:transform .18s cubic-bezier(0.16,1,0.3,1),box-shadow .18s ease;will-change:transform}
-.fab:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 0 0 8px rgba(45,212,168,.2),0 0 32px rgba(45,212,168,.45),0 8px 22px rgba(0,0,0,.6)}
-.fab:active{transform:translateY(1px) scale(0.93)!important;box-shadow:0 0 0 4px rgba(45,212,168,.1),0 0 18px rgba(45,212,168,.25),0 3px 10px rgba(0,0,0,.4)!important}
+.fab-wrapper {
+  flex: 0 0 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 30;
+  isolation: isolate;
+  margin-top: -6px;
+}
+.fab {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00F5A0 0%, #00D9F5 100%);
+  color: #061814;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.40);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  box-shadow: 
+    0 0 0 3px rgba(0, 245, 160, 0.22),
+    0 8px 24px -2px rgba(0, 217, 245, 0.50),
+    0 4px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.70),
+    inset 0 -1.5px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, filter 0.22s ease;
+  will-change: transform;
+}
+.fab svg {
+  width: 22px;
+  height: 22px;
+  stroke: #051410;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.fab:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 
+    0 0 0 5px rgba(0, 245, 160, 0.32),
+    0 12px 28px -2px rgba(0, 217, 245, 0.65),
+    0 6px 16px rgba(0, 0, 0, 0.55),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+}
+.fab:hover svg {
+  transform: rotate(90deg) scale(1.05);
+}
+.fab:active {
+  transform: scale(0.92) translateY(1px) !important;
+  box-shadow: 
+    0 0 0 2px rgba(0, 245, 160, 0.16),
+    0 3px 10px rgba(0, 217, 245, 0.40) !important;
+}
+.fab:active svg {
+  transform: rotate(90deg) scale(0.92);
+}
 
 /* ════════════════════════════════════════════════
    MODAL & BOTTOM SHEET PHYSICS (ZERO-FLICKER LIQUID GLASS)
@@ -1839,109 +1883,268 @@ select option{background:var(--s)}
 .reuse-btn:active{transform:scale(.94)}
 
 /* ════════════════════════════════════════════════
-   BOTTOM NAV
+   LIVE REAL-TIME CHRONO / CLOCK WIDGET (MORE VIEW)
+════════════════════════════════════════════════ */
+.live-clock-card {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(124, 111, 237, 0.12) 0%, transparent 70%),
+    linear-gradient(135deg, rgba(22, 22, 34, 0.75) 0%, rgba(12, 12, 20, 0.85) 100%);
+  border: 1px solid rgba(124, 111, 237, 0.22);
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.45),
+    0 0 14px rgba(124, 111, 237, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  user-select: none;
+}
+
+.live-clock-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 111, 237, 0.6), transparent);
+}
+
+.live-clock-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: 'Syne', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--t2);
+  opacity: 0.85;
+}
+
+.live-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #38ef7d;
+  box-shadow: 0 0 8px #38ef7d;
+  animation: livePulseAnim 1.6s infinite ease-in-out;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes livePulseAnim {
+  0%, 100% { transform: scale(0.85); opacity: 0.55; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #38ef7d; }
+}
+
+.live-clock-date {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--t2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-clock-date-day {
+  color: #A89EFF;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.live-clock-time-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.live-clock-digits {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #CBD5E1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.live-clock-sec-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(56, 239, 125, 0.12);
+  border: 1px solid rgba(56, 239, 125, 0.28);
+  font-size: 11px;
+  font-weight: 700;
+  color: #38ef7d;
+  box-shadow: inset 0 0 6px rgba(56, 239, 125, 0.15);
+  transition: transform 0.12s ease;
+}
+
+.live-clock-sec-box.tick {
+  animation: secSpringTick 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes secSpringTick {
+  0% { transform: scale(1.22); filter: brightness(1.35); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+.live-clock-ampm {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(124, 111, 237, 0.16);
+  border: 1px solid rgba(124, 111, 237, 0.32);
+  color: #A89EFF;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ════════════════════════════════════════════════
+   BOTTOM NAV — FLOATING LIQUID GLASS CAPSULE BAR
 ════════════════════════════════════════════════ */
 #bnav {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translate3d(-50%, 0, 0) !important;
+  -webkit-transform: translate3d(-50%, 0, 0) !important;
+  width: calc(100% - 28px);
+  max-width: 390px;
+  height: 62px;
   display: flex;
   align-items: center;
-  z-index: 100;
-  padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px));
-  /* Identical Dark translucent frosted liquid-glass (reversed upward) */
+  justify-content: space-between;
+  padding: 0 8px;
+  border-radius: 9999px;
+  z-index: 1000;
+  box-sizing: border-box;
+
+  /* Frosted Liquid Glass Background — Enhanced transparency */
   background: linear-gradient(
-    0deg,
-    rgba(8, 8, 14, 0.88) 0%,
-    rgba(10, 10, 18, 0.72) 42%,
-    rgba(12, 11, 20, 0.50) 78%,
-    rgba(10, 10, 16, 0.20) 100%
+    135deg,
+    rgba(18, 18, 30, 0.44) 0%,
+    rgba(12, 12, 22, 0.36) 50%,
+    rgba(8, 8, 16, 0.40) 100%
   );
-  backdrop-filter: blur(48px) saturate(220%) contrast(106%) brightness(102%);
-  -webkit-backdrop-filter: blur(48px) saturate(220%) contrast(106%) brightness(102%);
-  border: none;
-  border-top: none;
+  backdrop-filter: blur(24px) saturate(190%) contrast(105%) brightness(110%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(105%) brightness(110%);
+  
+  /* Liquid glass specular borders & floating elevation */
+  border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 
-    0 -22px 50px -10px rgba(0, 0, 0, 0.65),
-    0 -6px 24px rgba(0, 0, 0, 0.40),
-    0 0 32px rgba(124, 111, 237, 0.06);
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
-  transition: transform 0.44s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.36s ease;
-  will-change: transform, opacity;
+    0 16px 36px -6px rgba(0, 0, 0, 0.55),
+    0 4px 16px rgba(0, 0, 0, 0.30),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.35),
+    0 0 20px rgba(124, 111, 237, 0.08);
+
+  transition: opacity 0.3s ease;
+  will-change: opacity;
+  pointer-events: auto !important;
 }
+
 #bnav.nav-hidden {
-  transform: translate3d(0, 115%, 0) !important;
-  -webkit-transform: translate3d(0, 115%, 0) !important;
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.48s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.38s ease;
+  /* Keep navbar firmly docked and never stuck offscreen */
+  transform: translate3d(-50%, 0, 0) !important;
+  -webkit-transform: translate3d(-50%, 0, 0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
-/* Progressive liquid glass dissolve feather extending above bottom nav */
+
 #bnav::after {
-  content: '';
-  position: absolute;
-  top: -36px;
-  left: 0;
-  right: 0;
-  height: 36px;
-  background: linear-gradient(
-    to top,
-    rgba(10, 10, 18, 0.60) 0%,
-    rgba(10, 10, 18, 0.34) 40%,
-    rgba(8, 8, 14, 0.12) 75%,
-    transparent 100%
-  );
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  -webkit-mask-image: linear-gradient(0deg, black 0%, rgba(0,0,0,0.85) 35%, transparent 100%);
-  mask-image: linear-gradient(0deg, black 0%, rgba(0,0,0,0.85) 35%, transparent 100%);
-  pointer-events: none;
-  z-index: 1;
+  display: none;
 }
 #bnav::before {
   display: none;
 }
+
 .nitem {
   position: relative;
   z-index: 10;
   flex: 1;
+  height: 48px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 2px;
   cursor: pointer;
-  padding: 5px 0;
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0 4px;
+  border-radius: 9999px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-tap-highlight-color: transparent;
   transform: none !important;
   backface-visibility: visible !important;
   contain: layout style;
 }
+
 .nitem svg {
   display: block;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 19px;
+  height: 19px;
   color: inherit;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), filter 0.22s ease;
   transform: none !important;
   backface-visibility: visible !important;
 }
+
 .nitem.active {
   opacity: 1;
   color: var(--acc);
+  background: rgba(124, 111, 237, 0.14);
+  box-shadow: inset 0 0 10px rgba(124, 111, 237, 0.22), 0 0 12px rgba(124, 111, 237, 0.15);
 }
+
 .nitem.active svg {
-  filter: drop-shadow(0 2px 8px rgba(124, 111, 237, 0.55));
+  transform: scale(1.08) !important;
+  filter: drop-shadow(0 2px 8px rgba(124, 111, 237, 0.65));
 }
+
 .nitem:not(.active) {
-  opacity: .45;
+  opacity: 0.55;
   color: var(--t2);
 }
-.nlbl { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 
+.nitem:not(.active):hover {
+  opacity: 0.85;
+  color: var(--t1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nlbl {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  line-height: 1;
+}
 /* ════════════════════════════════════════════════
    TOOLTIP
 ════════════════════════════════════════════════ */
@@ -1951,8 +2154,8 @@ select option{background:var(--s)}
 /* ════════════════════════════════════════════════
    TOAST
 ════════════════════════════════════════════════ */
-#toast{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--b2);border-radius:24px;padding:8px 18px;font-size:12px;color:var(--t1);z-index:500;opacity:0;transition:opacity .2s,bottom .2s;pointer-events:none;white-space:nowrap;font-weight:600}
-#toast.show{opacity:1;bottom:calc(88px + env(safe-area-inset-bottom))}
+#toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--b2);border-radius:24px;padding:8px 18px;font-size:12px;color:var(--t1);z-index:500;opacity:0;transition:opacity .2s,bottom .2s;pointer-events:none;white-space:nowrap;font-weight:600}
+#toast.show{opacity:1;bottom:calc(98px + env(safe-area-inset-bottom))}
 
 /* ════════════════════════════════════════════════
    COUNTDOWN CIRCLE
@@ -4200,6 +4403,24 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <span style="font-size:11px;color:var(--t3)">•</span>
         <a href="#" onclick="event.preventDefault(); showPrivacyPolicy()" style="font-size:11px;color:var(--acc);text-decoration:none;cursor:pointer">Privacy Policy</a>
       </div>
+
+      <!-- Real-Time Live Date & Clock Widget -->
+      <div class="live-clock-card" id="realtime-clock-container">
+        <div class="live-clock-header">
+          <span class="live-pulse-dot"></span>
+          <span>Live Chrono</span>
+        </div>
+        <div class="live-clock-date" id="live-clock-date">
+          <span class="live-clock-date-day" id="live-clock-day">--</span>
+          <span style="opacity:0.5">•</span>
+          <span id="live-clock-full-date">-- --- ----</span>
+        </div>
+        <div class="live-clock-time-wrap">
+          <span class="live-clock-digits" id="live-clock-hm">--:--</span>
+          <span class="live-clock-sec-box" id="live-clock-sec">:00</span>
+          <span class="live-clock-ampm" id="live-clock-ampm">--</span>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -4215,8 +4436,13 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
     <div class="nlbl">Clients</div>
   </div>
-  <div class="fab-wrapper" style="flex:1;display:flex;justify-content:center;position:relative;z-index:30;isolation:isolate;">
-    <button class="ss-btn fab" onclick="openEntryModal(null)" aria-label="Add entry">+</button>
+  <div class="fab-wrapper">
+    <button class="ss-btn fab" onclick="openEntryModal(null)" aria-label="Add entry">
+      <svg viewBox="0 0 24 24" fill="none">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
   </div>
   <div class="nitem" id="nav-stats" onclick="switchTab('stats')">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
@@ -5484,6 +5710,56 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 </div>
 
 <script>
+
+/* ════════════════════════════════════════════════
+   GLOBAL UTILITIES & MISSING HELPERS
+════════════════════════════════════════════════ */
+function toISO(d) {
+  if (!d) return '';
+  if (typeof d === 'string') return d.split('T')[0];
+  return dsOf(d);
+}
+
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function openCloudSyncModal() {
+  if (typeof openModal === 'function') {
+    openModal('settings-modal');
+  }
+}
+
+function toggleTheme() {
+  const themes = ['emerald', 'violet', 'amber', 'rose', 'sky', 'neon'];
+  const cur = localStorage.getItem('_mnm_theme') || 'emerald';
+  const next = themes[(themes.indexOf(cur) + 1) % themes.length];
+  if (typeof setTheme === 'function') {
+    setTheme(next);
+  } else {
+    localStorage.setItem('_mnm_theme', next);
+    if (typeof applySavedTheme === 'function') applySavedTheme();
+  }
+  if (typeof showToast === 'function') showToast('Theme: ' + next);
+}
+
+/* Hoisted Global State */
+var currentUser = null;
+var authListeners = [];
+let isInitialAuthCheck = true;
+let currentModal = null;
+let navigationHistory = [];
+let lastSoundPlayTime = 0;
+let lastSoundPlayType = '';
+let lastHapticTriggerTime = 0;
+let lastHapticTriggerType = '';
+
 // Saved scaling block removed
 /* ════════════════════════════════════════════
    PREVENT ZOOM FUNCTIONALITY
@@ -5514,18 +5790,20 @@ document.addEventListener('touchstart', function(e) {
 }, { passive: false });
 
 // Prevent zoom with double-tap on mobile non-interactive areas
+// Prevent disruptive zoom while preserving all native tap/click responses
 let lastTouchEnd = 0;
 document.addEventListener('touchend', function(e) {
-  // Never block fast double-taps on calculator or app buttons
-  if (e.target && e.target.closest && e.target.closest('button, .scibtn, input, select, textarea, .ss-btn, .nitem, [onclick], .univ-result-card, .scicalc-grid, .scicalc-sci-grid')) {
+  const now = Date.now();
+  // Only protect non-clickable background areas
+  if (e.target && e.target.closest && e.target.closest('button, a, .btn, .scibtn, input, select, textarea, .ss-btn, .nitem, [onclick], .card, .cfl-row, .more-row, .univ-result-card, .client-item, .fchip, .tabbtn, .modal')) {
+    lastTouchEnd = now;
     return;
   }
-  const now = Date.now();
   if (now - lastTouchEnd <= 300) {
     e.preventDefault();
   }
   lastTouchEnd = now;
-}, false);
+}, { passive: false });
 
 // Prevent zoom with mouse wheel
 document.addEventListener('wheel', function(e) {
@@ -5559,6 +5837,7 @@ let FIREBASE_CONFIG = null; // e.g. {apiKey:"...", databaseURL:"https://xxx-rtdb
    CONSTANTS & HELPERS
 ════════════════════════════════════════════ */
 const MTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const DESCS_DEF = ['Brand identity','UI redesign','Dev sprint','Consultation','Video edit','Motion design','Strategy deck','Copywriting','Web audit','Mobile app'];
 
 const fmtRs = n => (localStorage.getItem('_mnm_currency_symbol') || '₹') + new Intl.NumberFormat('en-IN',{maximumFractionDigits:0}).format(n);
@@ -5635,42 +5914,363 @@ let undoTimer = null;
 let lastAction = null;
 let lastActionData = null;
 
-/* ════════════════════════════════════════════
-   LOCAL STORAGE (always-on fallback)
-════════════════════════════════════════════ */
-function saveLS(){
-  if (currentUser) {
-    saveUserData();
-    return;
+/* ════════════════════════════════════════════════════════════════
+   MULTI-TIER BULLETPROOF DATA PERSISTENCE ENGINE (AppStorage)
+   Tier 1: Native Android Flash Storage & Master File DB Bridge
+   Tier 2: Non-Volatile HTML5 IndexedDB Storage Engine (50MB+)
+   Tier 3: LocalStorage with Multi-Key Mirroring & Snapshot
+   Tier 4: Zero-Data-Loss Fallback Recovery & Safe Non-Destructive Merge
+════════════════════════════════════════════════════════════════ */
+const AppStorage = {
+  dbName: 'MrNodeMan_StorageDB',
+  storeName: 'app_data_store',
+  _idb: null,
+  _idbReadyPromise: null,
+
+  // Initialize IndexedDB connection
+  initIndexedDB() {
+    if (this._idbReadyPromise) return this._idbReadyPromise;
+    this._idbReadyPromise = new Promise((resolve) => {
+      try {
+        if (!window.indexedDB) {
+          return resolve(null);
+        }
+        const req = window.indexedDB.open(this.dbName, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(this.storeName)) {
+            db.createObjectStore(this.storeName);
+          }
+        };
+        req.onsuccess = (e) => {
+          this._idb = e.target.result;
+          resolve(this._idb);
+        };
+        req.onerror = () => resolve(null);
+      } catch (err) {
+        resolve(null);
+      }
+    });
+    return this._idbReadyPromise;
+  },
+
+  // Save key-value to IndexedDB
+  async setIdb(key, val) {
+    try {
+      const db = await this.initIndexedDB();
+      if (!db) return false;
+      return new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readwrite');
+        const store = tx.objectStore(this.storeName);
+        store.put(val, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+      });
+    } catch (e) {
+      return false;
+    }
+  },
+
+  // Get key-value from IndexedDB
+  async getIdb(key) {
+    try {
+      const db = await this.initIndexedDB();
+      if (!db) return null;
+      return new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readonly');
+        const store = tx.objectStore(this.storeName);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result !== undefined ? req.result : null);
+        req.onerror = () => resolve(null);
+      });
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // Native Android Storage Bridge
+  isNative() {
+    return Boolean(window.AndroidApp && typeof window.AndroidApp.saveData === 'function');
+  },
+
+  getNative(key) {
+    if (!this.isNative()) return null;
+    try {
+      return window.AndroidApp.getData(key);
+    } catch (e) {
+      return null;
+    }
+  },
+
+  setNative(key, val) {
+    if (!this.isNative()) return false;
+    try {
+      return window.AndroidApp.saveData(key, typeof val === 'string' ? val : JSON.stringify(val));
+    } catch (e) {
+      return false;
+    }
+  },
+
+  saveNativeMasterDB(snapshot) {
+    if (!this.isNative()) return false;
+    try {
+      const str = typeof snapshot === 'string' ? snapshot : JSON.stringify(snapshot);
+      if (typeof window.AndroidApp.saveAppDatabase === 'function') {
+        window.AndroidApp.saveAppDatabase(str);
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  loadNativeMasterDB() {
+    if (!this.isNative() || typeof window.AndroidApp.loadAppDatabase !== 'function') return null;
+    try {
+      const str = window.AndroidApp.loadAppDatabase();
+      if (str && str.trim()) {
+        return JSON.parse(str);
+      }
+    } catch (e) {
+      console.error('[AppStorage] loadNativeMasterDB parse error:', e);
+    }
+    return null;
+  },
+
+  // Synchronous multi-tier save
+  save(key, val) {
+    const valStr = typeof val === 'string' ? val : JSON.stringify(val);
+    
+    // 1. LocalStorage
+    try {
+      localStorage.setItem(key, valStr);
+    } catch (e) {}
+
+    // 2. Native Android Flash Memory
+    this.setNative(key, valStr);
+
+    // 3. IndexedDB (async background write)
+    this.setIdb(key, valStr);
+  },
+
+  // Synchronous multi-tier get with immediate fallbacks
+  get(key) {
+    // 1. Check Native Android first (authoritative flash storage)
+    const nativeVal = this.getNative(key);
+    if (nativeVal !== null && nativeVal !== undefined && nativeVal !== '') {
+      return nativeVal;
+    }
+
+    // 2. Check LocalStorage
+    try {
+      const lsVal = localStorage.getItem(key);
+      if (lsVal !== null && lsVal !== undefined && lsVal !== '') {
+        return lsVal;
+      }
+    } catch (e) {}
+
+    return null;
   }
-  try{
-    localStorage.setItem('_mnm_entries', JSON.stringify(entries));
-    localStorage.setItem('_mnm_clients', JSON.stringify(CLIENTS));
-  }catch(e){}
-}
-function loadLS(){
-  try{
-    const e = localStorage.getItem('_mnm_entries');
-    const c = localStorage.getItem('_mnm_clients');
-    if(e) {
-      entries = JSON.parse(e);
-      if (Array.isArray(entries)) {
-        entries = entries.map(x => { x.date = normalizeDate(x.date); return x; });
+};
+
+function saveLS(){
+  try {
+    const entriesJson = JSON.stringify(entries || []);
+    const clientsJson = JSON.stringify(CLIENTS || []);
+
+    // 1. Save standard keys across all tiers
+    AppStorage.save('_mnm_entries', entriesJson);
+    AppStorage.save('_mnm_clients', clientsJson);
+
+    // 2. Build full master snapshot object
+    const snapshot = {
+      entries: entries || [],
+      clients: CLIENTS || [],
+      brandName: localStorage.getItem('_mnm_brand_name') || 'Mr.NodeMan',
+      currency: localStorage.getItem('_mnm_currency_symbol') || '₹',
+      theme: localStorage.getItem('_mnm_theme') || 'emerald',
+      favoriteClients: localStorage.getItem('_mnm_favorite_clients') || '[]',
+      savedAt: new Date().toISOString(),
+      user: currentUser || null
+    };
+    const snapshotStr = JSON.stringify(snapshot);
+
+    AppStorage.save('_mnm_master_db', snapshotStr);
+    AppStorage.saveNativeMasterDB(snapshotStr);
+
+    // 3. If logged in user, also save user-isolated keys
+    if (currentUser) {
+      const userDataKey = `userData_${currentUser.id}`;
+      const userData = {
+        profile: {
+          name: currentUser.name || '',
+          email: currentUser.email || '',
+          phone: currentUser.phone || '',
+          bio: currentUser.bio || '',
+          gender: currentUser.gender || '',
+          dob: currentUser.dob || '',
+          avatar: currentUser.avatar || currentUser.photoURL || ''
+        },
+        settings: {
+          scale: localStorage.getItem('_mnm_app_scale') || '1.0',
+          sound: localStorage.getItem('_mnm_sound_enabled') || 'true',
+          haptic: localStorage.getItem('_mnm_haptic_enabled') || 'true',
+          newsletter: localStorage.getItem('_mnm_newsletter') || 'false',
+          currency: localStorage.getItem('_mnm_currency_symbol') || '₹',
+          theme: localStorage.getItem('_mnm_theme') || 'emerald',
+          stealthMode: localStorage.getItem('_mnm_stealth_mode') || 'false',
+          brandName: localStorage.getItem('_mnm_brand_name') || 'Mr.NodeMan',
+          defaultRate: localStorage.getItem('_mnm_default_hourly_rate') || '0',
+          defaultDuration: localStorage.getItem('_mnm_default_duration') || '8',
+          defaultGstRate: localStorage.getItem('_mnm_default_gst_rate') || '18',
+          autofillToday: localStorage.getItem('_mnm_autofill_today') || 'false',
+          soundTheme: localStorage.getItem('_mnm_sound_theme') || 'modern',
+          hapticIntensity: localStorage.getItem('_mnm_haptic_intensity') || 'medium',
+          favoriteClients: localStorage.getItem('_mnm_favorite_clients') || '[]'
+        },
+        clients: CLIENTS || [],
+        entries: entries || [],
+        lastUpdated: new Date().toISOString(),
+        userEmail: currentUser.email,
+        userId: currentUser.id
+      };
+      AppStorage.save(userDataKey, JSON.stringify(userData));
+      AppStorage.save('currentUser', JSON.stringify(currentUser));
+
+      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && fbDB) {
+        saveToFirebase(userData).catch(() => {});
       }
     }
-    if(c) CLIENTS = JSON.parse(c);
-    // Pre-assign colors
-    CLIENTS.forEach(n=>cColor(n));
-    entries.forEach(e=>cColor(e.clientId));
-  }catch(e){ 
-    console.error('Error loading from localStorage:', e);
-    showToast('localStorage error: ' + e.message);
-    entries = []; 
-    // Reset to default clients on error
-    CLIENTS = [];
+  } catch(e) {
+    console.error('saveLS error:', e);
   }
 }
 
+function loadLS(){
+  try {
+    let loadedEntries = null;
+    let loadedClients = null;
+
+    // A. Check user data first if currentUser is active
+    if (currentUser) {
+      const userDataKey = `userData_${currentUser.id}`;
+      const userDataRaw = AppStorage.get(userDataKey);
+      if (userDataRaw) {
+        try {
+          const parsedUser = JSON.parse(userDataRaw);
+          if (Array.isArray(parsedUser.entries) && parsedUser.entries.length > 0) {
+            loadedEntries = parsedUser.entries;
+          }
+          if (Array.isArray(parsedUser.clients) && parsedUser.clients.length > 0) {
+            loadedClients = parsedUser.clients;
+          }
+        } catch(e) {}
+      }
+    }
+
+    // B. Check standard keys from AppStorage (Native Android -> LocalStorage)
+    if (!loadedEntries) {
+      const rawEntries = AppStorage.get('_mnm_entries');
+      if (rawEntries) {
+        try {
+          const parsed = JSON.parse(rawEntries);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            loadedEntries = parsed;
+          }
+        } catch(e) {}
+      }
+    }
+
+    if (!loadedClients) {
+      const rawClients = AppStorage.get('_mnm_clients');
+      if (rawClients) {
+        try {
+          const parsed = JSON.parse(rawClients);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            loadedClients = parsed;
+          }
+        } catch(e) {}
+      }
+    }
+
+    // C. Check Master DB snapshot fallback
+    if (!loadedEntries || !loadedClients) {
+      const masterDb = AppStorage.loadNativeMasterDB() || (() => {
+        try {
+          const raw = AppStorage.get('_mnm_master_db');
+          return raw ? JSON.parse(raw) : null;
+        } catch(e) { return null; }
+      })();
+
+      if (masterDb) {
+        if (!loadedEntries && Array.isArray(masterDb.entries) && masterDb.entries.length > 0) {
+          loadedEntries = masterDb.entries;
+        }
+        if (!loadedClients && Array.isArray(masterDb.clients) && masterDb.clients.length > 0) {
+          loadedClients = masterDb.clients;
+        }
+      }
+    }
+
+    // D. Safe non-destructive assignment
+    if (Array.isArray(loadedEntries) && loadedEntries.length > 0) {
+      entries = loadedEntries.map(x => {
+        x.date = normalizeDate(x.date);
+        if (!x.clientId && x.clientName) x.clientId = x.clientName;
+        if (!x.description && x.desc) x.description = x.desc;
+        if (!x.description && x.workName) x.description = x.workName;
+        if (!x.paymentStatus && x.status) x.paymentStatus = x.status;
+        return x;
+      });
+    } else if (!entries) {
+      entries = [];
+    }
+
+    if (Array.isArray(loadedClients) && loadedClients.length > 0) {
+      CLIENTS = loadedClients;
+    } else if (!CLIENTS) {
+      CLIENTS = [];
+    }
+
+    // Pre-assign colors safely
+    CLIENTS.forEach(n => cColor(n));
+    entries.forEach(e => { if (e && e.clientId) cColor(e.clientId); });
+
+    // Also hydrate IndexedDB asynchronously in case it has newer data
+    AppStorage.getIdb('_mnm_entries').then(idbEntriesRaw => {
+      if (idbEntriesRaw && (!entries || entries.length === 0)) {
+        try {
+          const idbParsed = JSON.parse(idbEntriesRaw);
+          if (Array.isArray(idbParsed) && idbParsed.length > 0) {
+            entries = idbParsed.map(x => {
+              x.date = normalizeDate(x.date);
+              return x;
+            });
+            entries.forEach(e => { if (e && e.clientId) cColor(e.clientId); });
+            renderAll();
+          }
+        } catch(e) {}
+      }
+    });
+
+    AppStorage.getIdb('_mnm_clients').then(idbClientsRaw => {
+      if (idbClientsRaw && (!CLIENTS || CLIENTS.length === 0)) {
+        try {
+          const idbParsedC = JSON.parse(idbClientsRaw);
+          if (Array.isArray(idbParsedC) && idbParsedC.length > 0) {
+            CLIENTS = idbParsedC;
+            CLIENTS.forEach(n => cColor(n));
+            renderAll();
+          }
+        } catch(e) {}
+      }
+    });
+
+  } catch(e) {
+    console.error('Error loading in loadLS:', e);
+    entries = entries || []; 
+    CLIENTS = CLIENTS || [];
+  }
 /* ════════════════════════════════════════════
    FIREBASE BACKEND
 ════════════════════════════════════════════ */
@@ -7518,17 +8118,17 @@ function setStatsTrendRange(range) {
 }
 
 function renderStatsView(){
-  renderStreaks();
-  renderTrendChart(_statsTrendRange);
-  renderDayOfWeekMatrix();
-  renderShiftCompAnalysis();
-  renderTargetGoalTracker();
-  renderMonthlyBars();
-  renderDonut();
-  renderClientBars();
-  renderCollRate();
-  renderEarningsAnalysis();
-  renderStatsHeatmap();
+  try { renderStreaks(); } catch(e) { console.error('renderStreaks error:', e); }
+  try { renderTrendChart(_statsTrendRange); } catch(e) { console.error('renderTrendChart error:', e); }
+  try { renderDayOfWeekMatrix(); } catch(e) { console.error('renderDayOfWeekMatrix error:', e); }
+  try { renderShiftCompAnalysis(); } catch(e) { console.error('renderShiftCompAnalysis error:', e); }
+  try { renderTargetGoalTracker(); } catch(e) { console.error('renderTargetGoalTracker error:', e); }
+  try { renderMonthlyBars(); } catch(e) { console.error('renderMonthlyBars error:', e); }
+  try { renderDonut(); } catch(e) { console.error('renderDonut error:', e); }
+  try { renderClientBars(); } catch(e) { console.error('renderClientBars error:', e); }
+  try { renderCollRate(); } catch(e) { console.error('renderCollRate error:', e); }
+  try { renderEarningsAnalysis(); } catch(e) { console.error('renderEarningsAnalysis error:', e); }
+  try { renderStatsHeatmap(); } catch(e) { console.error('renderStatsHeatmap error:', e); }
 }
 
 function renderTrendChart(range) {
@@ -7543,7 +8143,7 @@ function renderTrendChart(range) {
     // Current 7 days
     for (let i = 6; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const iso = toISO(d);
+      const iso = dsOf(d);
       const dayEntries = entries.filter(e => e.date === iso);
       const amt = dayEntries.reduce((s, e) => s + e.amount, 0);
       dataPoints.push({
@@ -7557,7 +8157,7 @@ function renderTrendChart(range) {
     // Previous 7 days for comparison
     for (let i = 13; i >= 7; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const iso = toISO(d);
+      const iso = dsOf(d);
       const amt = entries.filter(e => e.date === iso).reduce((s, e) => s + e.amount, 0);
       prevPoints.push(amt);
     }
@@ -7595,7 +8195,7 @@ function renderTrendChart(range) {
     periodLabel = 'Last 30 Days';
     for (let i = 29; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const iso = toISO(d);
+      const iso = dsOf(d);
       const dayEntries = entries.filter(e => e.date === iso);
       const amt = dayEntries.reduce((s, e) => s + e.amount, 0);
       dataPoints.push({
@@ -7609,7 +8209,7 @@ function renderTrendChart(range) {
     // Prior 30 days
     for (let i = 59; i >= 30; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const iso = toISO(d);
+      const iso = dsOf(d);
       const amt = entries.filter(e => e.date === iso).reduce((s, e) => s + e.amount, 0);
       prevPoints.push(amt);
     }
@@ -8173,6 +8773,11 @@ function renderMoreView(){
   }
   if (hapticsToggle) {
     hapticsToggle.checked = hapticManager.enabled;
+  }
+
+  // Initialize Real-time Live Clock widget
+  if (typeof initRealtimeLiveClock === 'function') {
+    initRealtimeLiveClock();
   }
 }
 
@@ -9393,7 +9998,7 @@ function connectFirebase_UI(){
   }catch(e){ showToast('✗ Invalid JSON config'); }
 }
 // Hook connect button
-document.querySelector('#firebase-setup-card button').onclick=connectFirebase_UI;
+const fbBtn = document.querySelector('#firebase-setup-card button'); if (fbBtn) fbBtn.onclick = connectFirebase_UI;
 
 function copyWsId(){
   navigator.clipboard&&navigator.clipboard.writeText(WORKSPACE_ID).then(()=>{
@@ -9530,7 +10135,7 @@ function initAuth() {
   }
 }
 
-let isInitialAuthCheck = true;
+/* isInitialAuthCheck hoisted */
 
 // Setup Firebase Authentication
 function setupFirebaseAuth() {
@@ -9769,7 +10374,7 @@ async function loadUserData() {
 
 // Load data from Firebase
 async function loadFromFirebase() {
-  if (typeof firebase === 'undefined' || firebase.apps.length === 0) return false;
+  if (typeof firebase === 'undefined' || firebase.apps.length === 0 || !currentUser) return false;
   
   try {
     const db = firebase.database();
@@ -9779,7 +10384,7 @@ async function loadFromFirebase() {
     const userData = snapshot.val();
     
     if (userData) {
-      // Hydrate local user object with saved profile details (name, email, bio, phone, gender, dob, avatar)
+      // Hydrate local user object with saved profile details
       if (userData.profile) {
         currentUser.name = userData.profile.name || currentUser.name || '';
         currentUser.bio = userData.profile.bio || '';
@@ -9787,18 +10392,17 @@ async function loadFromFirebase() {
         currentUser.gender = userData.profile.gender || '';
         currentUser.dob = userData.profile.dob || '';
         currentUser.avatar = userData.profile.avatar || '';
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        AppStorage.save('currentUser', JSON.stringify(currentUser));
         updateAuthUI(); 
       }
 
       // Hydrate settings if available
       if (userData.settings) {
         const settings = userData.settings;
-        localStorage.setItem('_mnm_app_scale', settings.scale || '1.0');
-        localStorage.setItem('_mnm_sound_enabled', settings.sound || 'true');
-        localStorage.setItem('_mnm_haptic_enabled', settings.haptic || 'true');
-        localStorage.setItem('_mnm_newsletter', settings.newsletter || 'false');
-        localStorage.setItem('_mnm_currency_symbol', settings.currency || '₹');
+        if (settings.scale) localStorage.setItem('_mnm_app_scale', settings.scale);
+        if (settings.sound) localStorage.setItem('_mnm_sound_enabled', settings.sound);
+        if (settings.haptic) localStorage.setItem('_mnm_haptic_enabled', settings.haptic);
+        if (settings.currency) localStorage.setItem('_mnm_currency_symbol', settings.currency);
         if (settings.theme) localStorage.setItem('_mnm_theme', settings.theme);
         if (settings.stealthMode) localStorage.setItem('_mnm_stealth_mode', settings.stealthMode);
         if (settings.brandName) localStorage.setItem('_mnm_brand_name', settings.brandName);
@@ -9810,26 +10414,27 @@ async function loadFromFirebase() {
         if (settings.hapticIntensity) localStorage.setItem('_mnm_haptic_intensity', settings.hapticIntensity);
         if (settings.favoriteClients) localStorage.setItem('_mnm_favorite_clients', settings.favoriteClients);
         
-        // Apply values to app state/UI
         document.documentElement.style.setProperty('--app-scale', parseFloat(settings.scale || '1.0'));
         soundManager.enabled = (settings.sound || 'true') === 'true';
         hapticManager.enabled = (settings.haptic || 'true') === 'true';
         if (typeof applySavedTheme === 'function') applySavedTheme();
       }
   
-      // Update global CLIENTS with user's data
-      if (userData.clients && Array.isArray(userData.clients)) {
+      // Update global CLIENTS non-destructively
+      if (userData.clients && Array.isArray(userData.clients) && userData.clients.length > 0) {
         CLIENTS = userData.clients;
-      } else {
-        CLIENTS = [];
       }
       
-      if (userData.entries && Array.isArray(userData.entries)) {
+      // Update global entries non-destructively
+      if (userData.entries && Array.isArray(userData.entries) && userData.entries.length > 0) {
         entries = userData.entries.map(x => { x.date = normalizeDate(x.date); return x; });
-      } else {
-        entries = [];
+      } else if (entries && entries.length > 0) {
+        // Upload local entries to cloud if cloud node was empty
+        userRef.child('entries').set(entries);
+        if (CLIENTS && CLIENTS.length > 0) userRef.child('clients').set(CLIENTS);
       }
       
+      saveLS();
       updateClientsList();
       updateSummary();
       renderAll();
@@ -9844,67 +10449,90 @@ async function loadFromFirebase() {
   }
 }
 
-// Load data from localStorage
+// Load data from multi-tier storage
 function loadFromLocalStorage() {
+  if (!currentUser) return;
   const userDataKey = `userData_${currentUser.id}`;
-  const userData = localStorage.getItem(userDataKey);
+  const userData = AppStorage.get(userDataKey);
   
   if (userData) {
-    const parsed = JSON.parse(userData);
-    
-    // Hydrate local profile if available
-    if (parsed.profile) {
-      currentUser.name = parsed.profile.name || currentUser.name || '';
-      currentUser.bio = parsed.profile.bio || '';
-      currentUser.phone = parsed.profile.phone || '';
-      currentUser.gender = parsed.profile.gender || '';
-      currentUser.dob = parsed.profile.dob || '';
-      currentUser.avatar = parsed.profile.avatar || '';
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      updateAuthUI();
-    }
-
-    // Hydrate settings if available
-    if (parsed.settings) {
-      const settings = parsed.settings;
-      localStorage.setItem('_mnm_app_scale', settings.scale || '1.0');
-      localStorage.setItem('_mnm_sound_enabled', settings.sound || 'true');
-      localStorage.setItem('_mnm_haptic_enabled', settings.haptic || 'true');
-      localStorage.setItem('_mnm_newsletter', settings.newsletter || 'false');
-      localStorage.setItem('_mnm_currency_symbol', settings.currency || '₹');
-      if (settings.theme) localStorage.setItem('_mnm_theme', settings.theme);
-      if (settings.stealthMode) localStorage.setItem('_mnm_stealth_mode', settings.stealthMode);
-      if (settings.brandName) localStorage.setItem('_mnm_brand_name', settings.brandName);
-      if (settings.defaultRate) localStorage.setItem('_mnm_default_hourly_rate', settings.defaultRate);
-      if (settings.defaultDuration) localStorage.setItem('_mnm_default_duration', settings.defaultDuration);
-      if (settings.defaultGstRate) localStorage.setItem('_mnm_default_gst_rate', settings.defaultGstRate);
-      if (settings.autofillToday) localStorage.setItem('_mnm_autofill_today', settings.autofillToday);
-      if (settings.soundTheme) localStorage.setItem('_mnm_sound_theme', settings.soundTheme);
-      if (settings.hapticIntensity) localStorage.setItem('_mnm_haptic_intensity', settings.hapticIntensity);
-      if (settings.favoriteClients) localStorage.setItem('_mnm_favorite_clients', settings.favoriteClients);
+    try {
+      const parsed = JSON.parse(userData);
       
-      // Apply values to app state/UI
-      document.documentElement.style.setProperty('--app-scale', parseFloat(settings.scale || '1.0'));
-      soundManager.enabled = (settings.sound || 'true') === 'true';
-      hapticManager.enabled = (settings.haptic || 'true') === 'true';
-      if (typeof applySavedTheme === 'function') applySavedTheme();
+      // Hydrate local profile if available
+      if (parsed.profile) {
+        currentUser.name = parsed.profile.name || currentUser.name || '';
+        currentUser.bio = parsed.profile.bio || '';
+        currentUser.phone = parsed.profile.phone || '';
+        currentUser.gender = parsed.profile.gender || '';
+        currentUser.dob = parsed.profile.dob || '';
+        currentUser.avatar = parsed.profile.avatar || '';
+        AppStorage.save('currentUser', JSON.stringify(currentUser));
+        updateAuthUI();
+      }
+
+      // Hydrate settings if available
+      if (parsed.settings) {
+        const settings = parsed.settings;
+        if (settings.scale) localStorage.setItem('_mnm_app_scale', settings.scale);
+        if (settings.sound) localStorage.setItem('_mnm_sound_enabled', settings.sound);
+        if (settings.haptic) localStorage.setItem('_mnm_haptic_enabled', settings.haptic);
+        if (settings.currency) localStorage.setItem('_mnm_currency_symbol', settings.currency);
+        if (settings.theme) localStorage.setItem('_mnm_theme', settings.theme);
+        if (settings.stealthMode) localStorage.setItem('_mnm_stealth_mode', settings.stealthMode);
+        if (settings.brandName) localStorage.setItem('_mnm_brand_name', settings.brandName);
+        if (settings.defaultRate) localStorage.setItem('_mnm_default_hourly_rate', settings.defaultRate);
+        if (settings.defaultDuration) localStorage.setItem('_mnm_default_duration', settings.defaultDuration);
+        if (settings.defaultGstRate) localStorage.setItem('_mnm_default_gst_rate', settings.defaultGstRate);
+        if (settings.autofillToday) localStorage.setItem('_mnm_autofill_today', settings.autofillToday);
+        if (settings.soundTheme) localStorage.setItem('_mnm_sound_theme', settings.soundTheme);
+        if (settings.hapticIntensity) localStorage.setItem('_mnm_haptic_intensity', settings.hapticIntensity);
+        if (settings.favoriteClients) localStorage.setItem('_mnm_favorite_clients', settings.favoriteClients);
+        
+        document.documentElement.style.setProperty('--app-scale', parseFloat(settings.scale || '1.0'));
+        soundManager.enabled = (settings.sound || 'true') === 'true';
+        hapticManager.enabled = (settings.haptic || 'true') === 'true';
+        if (typeof applySavedTheme === 'function') applySavedTheme();
+      }
+      
+      if (parsed.clients && Array.isArray(parsed.clients) && parsed.clients.length > 0) {
+        CLIENTS = parsed.clients;
+      }
+      
+      if (parsed.entries && Array.isArray(parsed.entries) && parsed.entries.length > 0) {
+        entries = parsed.entries.map(x => { x.date = normalizeDate(x.date); return x; });
+      }
+    } catch(e) {
+      console.error('Error parsing user data:', e);
     }
-    
-    if (parsed.clients && Array.isArray(parsed.clients)) {
-      CLIENTS = parsed.clients;
-    } else {
-      CLIENTS = [];
-    }
-    
-    if (parsed.entries && Array.isArray(parsed.entries)) {
-      entries = parsed.entries.map(x => { x.date = normalizeDate(x.date); return x; });
-    } else {
-      entries = [];
-    }
-  } else {
-    CLIENTS = [];
-    entries = [];
   }
+
+  // Fallback recovery if entries/clients not in userData
+  if (!entries || entries.length === 0) {
+    const rawE = AppStorage.get('_mnm_entries');
+    if (rawE) {
+      try {
+        const parsedE = JSON.parse(rawE);
+        if (Array.isArray(parsedE) && parsedE.length > 0) {
+          entries = parsedE.map(x => { x.date = normalizeDate(x.date); return x; });
+        }
+      } catch(e) {}
+    }
+  }
+  if (!CLIENTS || CLIENTS.length === 0) {
+    const rawC = AppStorage.get('_mnm_clients');
+    if (rawC) {
+      try {
+        const parsedC = JSON.parse(rawC);
+        if (Array.isArray(parsedC) && parsedC.length > 0) {
+          CLIENTS = parsedC;
+        }
+      } catch(e) {}
+    }
+  }
+
+  CLIENTS.forEach(n => cColor(n));
+  entries.forEach(e => { if (e && e.clientId) cColor(e.clientId); });
   updateClientsList();
   updateSummary();
   renderAll();
@@ -9940,7 +10568,7 @@ function updateDataConnectionIndicator() {
   }
 }
 
-// Save user data
+// Save user data across all persistent tiers
 async function saveUserData() {
   if (!currentUser) return;
   
@@ -9981,17 +10609,13 @@ async function saveUserData() {
   };
   
   try {
-    // Always mirror to local storage to ensure no data loss
+    // Save to multi-tier persistent storage
     saveToLocalStorage(userData);
     
     // Save to Firebase if available
     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
       await saveToFirebase(userData);
       console.log('✅ Data saved to Firebase and mirrored locally for:', currentUser.email);
-      showToast('✅ Data saved to cloud for ' + currentUser.email);
-    } else {
-      console.log('✅ Data saved locally for:', currentUser.email);
-      showToast('✅ Data saved locally for ' + currentUser.email);
     }
     
     // Update connection indicator
@@ -9999,8 +10623,6 @@ async function saveUserData() {
     
   } catch (error) {
     console.error('Error saving user data:', error);
-    // Already saved to local storage, but show warning
-    showToast('⚠ Local backup updated for ' + currentUser.email);
   }
 }
 
@@ -10013,11 +10635,15 @@ async function saveToFirebase(userData) {
   console.log('Data saved to Firebase');
 }
 
-// Save data to localStorage
+// Save data across all persistent tiers
 function saveToLocalStorage(userData) {
   const userDataKey = `userData_${currentUser.id}`;
-  localStorage.setItem(userDataKey, JSON.stringify(userData));
-  console.log('Data saved to localStorage');
+  const str = JSON.stringify(userData);
+  AppStorage.save(userDataKey, str);
+  AppStorage.save('_mnm_entries', JSON.stringify(userData.entries || []));
+  AppStorage.save('_mnm_clients', JSON.stringify(userData.clients || []));
+  AppStorage.saveNativeMasterDB(str);
+  console.log('Data saved to AppStorage across all tiers');
 }
 
 // Show Login Modal
@@ -11341,20 +11967,23 @@ function importJsonBackup(event) {
           data.clients.forEach(c => {
             if (!CLIENTS.includes(c)) CLIENTS.push(c);
           });
-          localStorage.setItem('_mnm_clients', JSON.stringify(CLIENTS));
         }
         if (Array.isArray(data.entries)) {
           const existingIds = new Set(entries.map(item => item.id));
           data.entries.forEach(item => {
-            if (!existingIds.has(item.id)) entries.push(item);
+            if (!existingIds.has(item.id)) {
+              item.date = normalizeDate(item.date);
+              entries.push(item);
+            }
           });
-          localStorage.setItem('_mnm_entries', JSON.stringify(entries));
+          entries.sort((a, b) => b.date.localeCompare(a.date));
         }
         if (data.settings) {
           if (data.settings.theme) setAccentTheme(data.settings.theme);
           if (data.settings.currency) updateCurrencySymbol(data.settings.currency);
         }
         
+        saveLS();
         renderAll();
         updateSummary();
         populateSettingsModalData();
@@ -12000,7 +12629,7 @@ function copyPasswordToConfirm(sourceId, targetId) {
   }
 }
 
-// Eye-ball reactive tracking for password visibility toggle
+// Eye-ball reactive tracking for password visibility toggle (throttled & scoped)
 function initializeEyeballTracking() {
   const eyePairs = [
     { eyeId: 'togglePasswordLogin', ballId: 'eyeBallLogin' },
@@ -12008,27 +12637,94 @@ function initializeEyeballTracking() {
     { eyeId: 'togglePasswordConfirm', ballId: 'eyeBallConfirm' }
   ];
 
-  // Track mouse movement globally for all eyeballs
+  let isRafPending = false;
+  let lastMouseEvent = null;
+
   document.addEventListener('mousemove', (e) => {
-    eyePairs.forEach(({ eyeId, ballId }) => {
-      const eye = document.getElementById(eyeId);
-      const eyeBall = document.getElementById(ballId);
-      
-      if (eye && eyeBall) {
-        const eyeRect = eye.getBoundingClientRect();
-        const x = e.clientX - eyeRect.left - eyeRect.width / 2;
-        const y = e.clientY - eyeRect.top - eyeRect.height / 2;
+    const openModal = document.querySelector('#auth-modal.open, #login-modal.open, #signup-modal.open, .moverlay.open');
+    if (!openModal) return;
 
-        // Set eye-ball position
-        const angle = Math.atan2(y, x);
-        const distance = Math.min(6, Math.hypot(x, y) / 5);
-        const ballX = Math.cos(angle) * distance;
-        const ballY = Math.sin(angle) * distance;
+    lastMouseEvent = e;
+    if (!isRafPending) {
+      isRafPending = true;
+      requestAnimationFrame(() => {
+        isRafPending = false;
+        if (!lastMouseEvent) return;
+        const ev = lastMouseEvent;
+        eyePairs.forEach(({ eyeId, ballId }) => {
+          const eye = document.getElementById(eyeId);
+          const eyeBall = document.getElementById(ballId);
+          if (eye && eyeBall && eye.offsetParent !== null) {
+            const eyeRect = eye.getBoundingClientRect();
+            const x = ev.clientX - eyeRect.left - eyeRect.width / 2;
+            const y = ev.clientY - eyeRect.top - eyeRect.height / 2;
+            const angle = Math.atan2(y, x);
+            const distance = Math.min(6, Math.hypot(x, y) / 5);
+            const ballX = Math.cos(angle) * distance;
+            const ballY = Math.sin(angle) * distance;
+            eyeBall.style.transform = `translate(${ballX}px, ${ballY}px)`;
+          }
+        });
+      });
+    }
+  }, { passive: true });
+}
 
-        eyeBall.style.transform = `translate(${ballX}px, ${ballY}px)`;
-      }
-    });
-  });
+// Real-time live date and clock ticker for More View footer
+function initRealtimeLiveClock() {
+  const dayEl = document.getElementById('live-clock-day');
+  const dateEl = document.getElementById('live-clock-full-date');
+  const hmEl = document.getElementById('live-clock-hm');
+  const secEl = document.getElementById('live-clock-sec');
+  const ampmEl = document.getElementById('live-clock-ampm');
+
+  if (!dayEl || !dateEl || !hmEl || !secEl || !ampmEl) return;
+
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  let lastSec = -1;
+
+  function update() {
+    if (typeof currentView !== 'undefined' && currentView !== 'more' && !document.getElementById('view-more')?.classList.contains('active')) {
+      return;
+    }
+    const now = new Date();
+    const dayName = days[now.getDay()];
+    const dateNum = String(now.getDate()).padStart(2, '0');
+    const monthName = months[now.getMonth()];
+    const year = now.getFullYear();
+
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const hoursStr = String(hours).padStart(2, '0');
+    const minutesStr = String(now.getMinutes()).padStart(2, '0');
+    const seconds = now.getSeconds();
+    const secondsStr = ':' + String(seconds).padStart(2, '0');
+
+    if (dayEl.textContent !== dayName) dayEl.textContent = dayName;
+    const fullDateStr = `${dateNum} ${monthName} ${year}`;
+    if (dateEl.textContent !== fullDateStr) dateEl.textContent = fullDateStr;
+    const hmStr = `${hoursStr}:${minutesStr}`;
+    if (hmEl.textContent !== hmStr) hmEl.textContent = hmStr;
+    if (ampmEl.textContent !== ampm) ampmEl.textContent = ampm;
+
+    if (seconds !== lastSec) {
+      lastSec = seconds;
+      secEl.textContent = secondsStr;
+      secEl.classList.remove('tick');
+      requestAnimationFrame(() => {
+        secEl.classList.add('tick');
+      });
+    }
+  }
+
+  update();
+  if (!window._liveClockInterval) {
+    window._liveClockInterval = setInterval(update, 1000);
+  }
 }
 
 // Initialize auth on page load
@@ -12039,6 +12735,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAutoSave();
   initClientAutocomplete();
   if (typeof initFastCalcKeypad === 'function') initFastCalcKeypad();
+  initRealtimeLiveClock();
   
   // Inline Keyboard Scroll Helper
   document.addEventListener('focusin', (e) => {
@@ -12052,20 +12749,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // Auto-enter fullscreen on first user interaction
-  const autoFullscreen = () => {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement && !document.msFullscreenElement) {
-      const doc = document.documentElement;
-      const req = doc.requestFullscreen || doc.webkitRequestFullscreen || doc.mozRequestFullScreen || doc.msRequestFullscreen;
-      if (req) {
-        req.call(doc).catch(err => console.log('Fullscreen request deferred:', err));
-      }
-    }
-    document.removeEventListener('click', autoFullscreen);
-    document.removeEventListener('touchstart', autoFullscreen);
-  };
-  document.addEventListener('click', autoFullscreen);
-  document.addEventListener('touchstart', autoFullscreen);
+  // Ensure UI renders cleanly on page load
+  if (typeof applySavedTheme === 'function') applySavedTheme();
+  if (typeof renderAll === 'function') renderAll();
 });
 
 /* ════════════════════════════════════════════
@@ -12081,7 +12767,7 @@ let _scrollAccumulator = 0;
 const _SCROLL_DOWN_THRESHOLD = 38;
 // Immediate responsive unhide on upward intent
 const _SCROLL_UP_THRESHOLD = -14;
-// Graceful delay for smooth, non-abrupt transition (direct hide nahi hona)
+// Graceful delay for smooth, non-abrupt transition
 const _HIDE_DELAY_MS = 140;
 
 function showNavbars() {
@@ -12090,12 +12776,10 @@ function showNavbars() {
     _hideNavTimeout = null;
   }
   _scrollAccumulator = 0;
-  if (_isNavHidden) {
-    _isNavHidden = false;
-    document.querySelectorAll('.vhdr').forEach(hdr => hdr.classList.remove('nav-hidden'));
-    const bnav = document.getElementById('bnav');
-    if (bnav) bnav.classList.remove('nav-hidden');
-  }
+  _isNavHidden = false;
+  document.querySelectorAll('.vhdr').forEach(hdr => hdr.classList.remove('nav-hidden'));
+  const bnav = document.getElementById('bnav');
+  if (bnav) bnav.classList.remove('nav-hidden');
 }
 
 function hideNavbars(immediate) {
@@ -12108,8 +12792,7 @@ function hideNavbars(immediate) {
   const performHide = () => {
     _isNavHidden = true;
     document.querySelectorAll('.vhdr').forEach(hdr => hdr.classList.add('nav-hidden'));
-    const bnav = document.getElementById('bnav');
-    if (bnav) bnav.classList.add('nav-hidden');
+    // Bottom nav bar #bnav remains firmly visible and never stuck offscreen
     _hideNavTimeout = null;
   };
 
@@ -12154,7 +12837,7 @@ document.addEventListener('scroll', function(e) {
     _scrollAccumulator += delta;
 
     if (_scrollAccumulator >= _SCROLL_DOWN_THRESHOLD && currentScrollTop > 60) {
-      // User is scrolling DOWN intentionally -> hide with subtle delay & smooth curve
+      // User is scrolling DOWN intentionally -> hide top header with subtle delay
       if (!_isNavHidden && !_hideNavTimeout) {
         hideNavbars(false);
       }
@@ -12173,18 +12856,15 @@ function switchTab(id){
   _lastScrollTop = 0;
   currentView = id;
 
-  // Remove all views — clean slate
+  // Remove all views — clean slate without forced synchronous reflow
   document.querySelectorAll('.view').forEach(v => {
     v.classList.remove('active', 'swipe-from-left', 'swipe-from-right');
-    // Force animation reset so re-entering same tab re-plays the animation
-    v.style.animation = 'none';
-    void v.offsetHeight; // layout flush
-    v.style.animation = '';
   });
 
   const viewEl = document.getElementById('view-' + id);
-  // Add .active — triggers default viewSlideIn (nav tap = slide up from below)
-  viewEl.classList.add('active');
+  if (viewEl) {
+    viewEl.classList.add('active');
+  }
 
   document.querySelectorAll('.nitem').forEach(n => n.classList.remove('active'));
   const nav = document.getElementById('nav-' + id);
@@ -12199,23 +12879,21 @@ function switchTab(id){
 
 // Directional swipe switch — uses horizontal animation ONLY, no wake-up
 function switchTabWithSwipe(id, direction) {
+  showNavbars();
+  _lastScrollTop = 0;
   currentView = id;
 
-  // Strip everything from all views first
+  // Strip everything from all views first without forced reflow
   document.querySelectorAll('.view').forEach(v => {
     v.classList.remove('active', 'swipe-from-left', 'swipe-from-right');
-    v.style.animation = 'none';
-    void v.offsetHeight;
-    v.style.animation = '';
   });
 
   const viewEl = document.getElementById('view-' + id);
-  // KEY FIX: add swipe direction class BEFORE .active
-  // so the browser's first paint already sees the correct animation rule
-  // and never fires viewSlideIn at all.
-  const swipeClass = direction === 'left' ? 'swipe-from-right' : 'swipe-from-left';
-  viewEl.classList.add(swipeClass);
-  viewEl.classList.add('active');
+  if (viewEl) {
+    const swipeClass = direction === 'left' ? 'swipe-from-right' : 'swipe-from-left';
+    viewEl.classList.add(swipeClass);
+    viewEl.classList.add('active');
+  }
 
   document.querySelectorAll('.nitem').forEach(n => n.classList.remove('active'));
   const nav = document.getElementById('nav-' + id);
@@ -12229,7 +12907,7 @@ function switchTabWithSwipe(id, direction) {
 
   // Clean up swipe class after animation completes
   setTimeout(() => {
-    viewEl.classList.remove('swipe-from-left', 'swipe-from-right');
+    if (viewEl) viewEl.classList.remove('swipe-from-left', 'swipe-from-right');
   }, 320);
 }
 
@@ -12247,27 +12925,13 @@ function switchTabWithSwipe(id, direction) {
   let _swStartTime = 0;
   let _swTracking = false;
 
-  // Check if an element (or its ancestors) should block swipe navigation
+  // Fast, non-blocking check if an element (or its ancestors) should block swipe navigation
   function isSwipeBlocked(el) {
-    let node = el;
-    while (node && node !== document.body) {
-      // Block inside modals and overlays
-      if (node.classList && (node.classList.contains('moverlay') || node.classList.contains('msheet'))) return true;
-      // Block inside any confirm/alert modal
-      if (node.id === 'confirm-modal' || node.id === 'toast') return true;
-      // Block on input, textarea, select, range sliders
-      const tag = node.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-      if (tag === 'INPUT' && node.type === 'range') return true;
-      // Block inside horizontally scrolling containers
-      if (node.scrollWidth > node.clientWidth + 10) {
-        const style = window.getComputedStyle(node);
-        const overflowX = style.overflowX;
-        if (overflowX === 'auto' || overflowX === 'scroll' || overflowX === 'overlay') {
-          return true;
-        }
-      }
-      node = node.parentNode;
+    if (!el) return false;
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (el.closest && el.closest('.moverlay, .msheet, #confirm-modal, #toast, .table-wrap, .scroller-h, [data-horizontal-scroll], .scicalc-grid, .scicalc-sci-grid')) {
+      return true;
     }
     return false;
   }
@@ -12547,7 +13211,7 @@ function updateDynamicTitle(){
 ════════════════════════════════════════════ */
 function renderAll(){
   renderSummary(); renderHeatmap(); renderManagedEntities(); renderRecentEntries();
-  renderHighlightedClients();
+  if (typeof renderHighlightedClients === 'function') renderHighlightedClients();
   if(currentView==='clients') renderClientsView();
   if(currentView==='stats')   renderStatsView();
   if(currentView==='more')    renderMoreView();
@@ -12942,8 +13606,7 @@ if ('ontouchstart' in window) {
 }
 
 // Navigation history management
-let navigationHistory = [];
-let currentModal = null;
+/* navigationHistory & currentModal hoisted to top */
 
 // Track navigation
 function trackNavigation(from, to) {
@@ -13120,10 +13783,7 @@ if ('ontouchstart' in window) {
 //   }
 // });
 
-let lastSoundPlayTime = 0;
-let lastSoundPlayType = '';
-let lastHapticTriggerTime = 0;
-let lastHapticTriggerType = '';
+/* sound/haptic timestamps hoisted to top of script */
 
 function playSound(type) {
   const now = Date.now();
@@ -13220,55 +13880,30 @@ function shakeAnimation(element) {
 /* ════════════════════════════════════════════
    INIT & RENDER
 ════════════════════════════════════════════ */
-// Clean up any old dummy clients and their entries from localStorage
+// Safe non-destructive storage initialization
 try {
-  // Force one-time cleanup to clear any corrupt old dummy data and caches from previous runs
-  const LS_VERSION = '4'; 
-  if (localStorage.getItem('_mnm_ls_version') !== LS_VERSION) {
-    localStorage.removeItem('_mnm_entries');
-    localStorage.removeItem('_mnm_clients');
-    localStorage.removeItem('_mnm_favorite_clients');
-    localStorage.removeItem('_mnm_fbcfg');
-    localStorage.removeItem('currentUser');
-    localStorage.setItem('_mnm_ls_version', LS_VERSION);
+  const savedUser = AppStorage.get('currentUser') || localStorage.getItem('currentUser');
+  if (savedUser) {
+    try {
+      currentUser = JSON.parse(savedUser);
+    } catch(e) {
+      currentUser = null;
+    }
   }
-
-  const savedClientsRaw = localStorage.getItem('_mnm_clients');
-  if(savedClientsRaw){
-    let saved = JSON.parse(savedClientsRaw);
-    let cleaned = saved.filter(c => !DUMMY_CLIENTS_LIST.includes(c));
-    localStorage.setItem('_mnm_clients', JSON.stringify(cleaned));
-  }
-  const savedEntriesRaw = localStorage.getItem('_mnm_entries');
-  if(savedEntriesRaw){
-    let saved = JSON.parse(savedEntriesRaw);
-    let cleaned = saved.filter(e => !DUMMY_CLIENTS_LIST.includes(e.clientId));
-    localStorage.setItem('_mnm_entries', JSON.stringify(cleaned));
-  }
-  const savedFavoritesRaw = localStorage.getItem('_mnm_favorite_clients');
-  if(savedFavoritesRaw){
-    let saved = JSON.parse(savedFavoritesRaw);
-    let cleaned = saved.filter(c => !DUMMY_CLIENTS_LIST.includes(c));
-    localStorage.setItem('_mnm_favorite_clients', JSON.stringify(cleaned));
-  }
-} catch(e) {
-  localStorage.removeItem('_mnm_entries');
-  localStorage.removeItem('_mnm_clients');
-  localStorage.removeItem('_mnm_favorite_clients');
-}
+} catch(e) {}
 
 CLIENTS.forEach(n=>cColor(n));
 loadLS();
 
-// Cleanup favorites to only include active clients loaded from localStorage
+// Cleanup favorites to only include active clients loaded from storage
 try {
-  let favs = JSON.parse(localStorage.getItem('_mnm_favorite_clients') || '[]');
+  let favs = JSON.parse(AppStorage.get('_mnm_favorite_clients') || localStorage.getItem('_mnm_favorite_clients') || '[]');
   let activeFavs = favs.filter(c => CLIENTS.includes(c));
-  localStorage.setItem('_mnm_favorite_clients', JSON.stringify(activeFavs));
+  AppStorage.save('_mnm_favorite_clients', JSON.stringify(activeFavs));
 } catch(e) {}
 
 // Try to reconnect Firebase from saved config
-const savedFBCfg=localStorage.getItem('_mnm_fbcfg');
+const savedFBCfg=AppStorage.get('_mnm_fbcfg') || localStorage.getItem('_mnm_fbcfg');
 if(savedFBCfg){
   try{
     const cfg=JSON.parse(savedFBCfg);
@@ -13284,7 +13919,7 @@ try {
     configTextArea.value = savedFBCfg;
   }
   const googleClientIdInput = document.getElementById('google-client-id-input');
-  const savedGoogleClientId = localStorage.getItem('_mnm_google_client_id');
+  const savedGoogleClientId = AppStorage.get('_mnm_google_client_id') || localStorage.getItem('_mnm_google_client_id');
   if(googleClientIdInput && savedGoogleClientId) {
     googleClientIdInput.value = savedGoogleClientId;
   }
@@ -13297,9 +13932,24 @@ setTimeout(()=>{
   if(sc) sc.scrollLeft=sc.scrollWidth;
 },150);
 
-// Keep localStorage in sync on tab focus
-window.addEventListener('focus',()=>{
-  if(!fbConnected){ loadLS(); renderAll(); }
+// Keep persistent storage in sync on tab focus and app resume
+window.addEventListener('focus', () => {
+  if (!fbConnected) {
+    loadLS();
+    renderAll();
+  }
+});
+
+// Automatic Disk Flush Lifecycle Hooks (prevent data loss on close/minimize)
+window.addEventListener('beforeunload', () => { saveLS(); });
+window.addEventListener('pagehide', () => { saveLS(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    saveLS();
+  } else if (document.visibilityState === 'visible' && !fbConnected) {
+    loadLS();
+    renderAll();
+  }
 });
 
 // BroadcastChannel for same-device multi-tab sync
@@ -13339,9 +13989,8 @@ window.testUndo = function() {
   }
 };
 
-</script>
+/* --- UNIFIED SCRIPT BLOCK --- */
 
-<script>
 function renderHighlightedClients() {
   const container = document.getElementById('highlighted-clients-container');
   if (!container) return;
@@ -14698,7 +15347,7 @@ function sendAreaToCalc() {
   if (!el) return;
   const num = parseFloat(el.textContent.replace(/[^0-9.]/g, '')) || 0;
   calcExpr = String(num);
-  renderCalcDisplay();
+  updateCalcScreen();
   const unitDrawer = document.getElementById('scicalc-unit-drawer');
   if (unitDrawer) unitDrawer.style.display = 'none';
   if (typeof showToast === 'function') showToast('Area loaded into Scientific Calculator: ' + num);
@@ -14727,9 +15376,9 @@ function sendGstToWorkEntry() {
     openEntryModal(null);
     setTimeout(() => {
       const amtInput = document.getElementById('f-amount');
-      const notesInput = document.getElementById('f-notes');
+      const descInput = document.getElementById('f-desc');
       if (amtInput) amtInput.value = totalVal;
-      if (notesInput) notesInput.value = `GST ${rateVal}% Invoice Total: ₹${totalVal} (Base: ${baseEl ? baseEl.textContent : ''}).`;
+      if (descInput) descInput.value = 'GST ' + rateVal + '% Invoice (Base ₹' + (baseEl ? baseEl.textContent : '') + ')';
       if (typeof showToast === 'function') showToast('GST Invoice total loaded into Work Entry!');
     }, 250);
   }
@@ -14756,15 +15405,13 @@ function sendShiftToWorkEntry() {
   if (typeof openEntryModal === 'function') {
     openEntryModal(null);
     setTimeout(() => {
-      const nameInput = document.getElementById('f-workName');
       const amtInput = document.getElementById('f-amount');
-      const hoursInput = document.getElementById('f-hours');
-      const notesInput = document.getElementById('f-notes');
+      const durInput = document.getElementById('f-dur');
+      const descInput = document.getElementById('f-desc');
 
-      if (nameInput && !nameInput.value) nameInput.value = 'Shift Work Session';
       if (amtInput) amtInput.value = payVal;
-      if (hoursInput) hoursInput.value = hoursVal;
-      if (notesInput) notesInput.value = `Shift billable hours: ${hoursVal}h. Estimated Pay: ₹${payVal}.`;
+      if (durInput) durInput.value = hoursVal;
+      if (descInput) descInput.value = 'Shift Work (' + hoursVal + ' hrs)';
       if (typeof showToast === 'function') showToast('Shift hours & earnings populated into Work Entry!');
     }, 250);
   }
@@ -15255,15 +15902,13 @@ function logWorkerWageToLedger() {
   if (typeof openEntryModal === 'function') {
     openEntryModal(null);
     setTimeout(() => {
-      const nameInput = document.getElementById('f-workName');
       const amtInput = document.getElementById('f-amount');
-      const hoursInput = document.getElementById('f-hours');
-      const notesInput = document.getElementById('f-notes');
+      const durInput = document.getElementById('f-dur');
+      const descInput = document.getElementById('f-desc');
 
-      if (nameInput && !nameInput.value) nameInput.value = 'Daily Shift / Worker Session';
       if (amtInput) amtInput.value = totalAmt;
-      if (hoursInput) hoursInput.value = hoursVal;
-      if (notesInput) notesInput.value = `Daily Wage Rate: ₹${rateVal}, Hours: ${hoursVal}h (Shift + OT). Calculated via Worker Wage Tool.`;
+      if (durInput) durInput.value = hoursVal;
+      if (descInput) descInput.value = 'Worker Wage (' + hoursVal + ' hrs @ ₹' + rateVal + '/h)';
       
       if (typeof showToast === 'function') showToast('Worker wage populated into Work Entry form!');
     }, 250);
