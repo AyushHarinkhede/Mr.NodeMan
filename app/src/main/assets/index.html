@@ -5997,7 +5997,11 @@ const AppStorage = {
   getNative(key) {
     if (!this.isNative()) return null;
     try {
-      return window.AndroidApp.getData(key);
+      const val = window.AndroidApp.getData(key);
+      if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') {
+        return null;
+      }
+      return val;
     } catch (e) {
       return null;
     }
@@ -6029,7 +6033,7 @@ const AppStorage = {
     if (!this.isNative() || typeof window.AndroidApp.loadAppDatabase !== 'function') return null;
     try {
       const str = window.AndroidApp.loadAppDatabase();
-      if (str && str.trim()) {
+      if (str && str.trim() && str !== 'null' && str !== 'undefined') {
         return JSON.parse(str);
       }
     } catch (e) {
@@ -6058,14 +6062,14 @@ const AppStorage = {
   get(key) {
     // 1. Check Native Android first (authoritative flash storage)
     const nativeVal = this.getNative(key);
-    if (nativeVal !== null && nativeVal !== undefined && nativeVal !== '') {
+    if (nativeVal !== null && nativeVal !== undefined && nativeVal !== '' && nativeVal !== 'null' && nativeVal !== 'undefined') {
       return nativeVal;
     }
 
     // 2. Check LocalStorage
     try {
       const lsVal = localStorage.getItem(key);
-      if (lsVal !== null && lsVal !== undefined && lsVal !== '') {
+      if (lsVal !== null && lsVal !== undefined && lsVal !== '' && lsVal !== 'null' && lsVal !== 'undefined') {
         return lsVal;
       }
     } catch (e) {}
@@ -6152,6 +6156,14 @@ function loadLS(){
     let loadedEntries = null;
     let loadedClients = null;
 
+    function safeParseArr(val) {
+      if (!val || val === 'null' || val === 'undefined') return null;
+      try {
+        const p = typeof val === 'string' ? JSON.parse(val) : val;
+        return Array.isArray(p) && p.length > 0 ? p : null;
+      } catch(e) { return null; }
+    }
+
     // A. Check user data first if currentUser is active
     if (currentUser) {
       const userDataKey = `userData_${currentUser.id}`;
@@ -6169,36 +6181,20 @@ function loadLS(){
       }
     }
 
-    // B. Check standard keys from AppStorage (Native Android -> LocalStorage)
+    // B. Check standard keys from AppStorage / LocalStorage
     if (!loadedEntries) {
-      const rawEntries = AppStorage.get('_mnm_entries');
-      if (rawEntries) {
-        try {
-          const parsed = JSON.parse(rawEntries);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            loadedEntries = parsed;
-          }
-        } catch(e) {}
-      }
+      loadedEntries = safeParseArr(AppStorage.get('_mnm_entries')) || safeParseArr(localStorage.getItem('_mnm_entries'));
     }
 
     if (!loadedClients) {
-      const rawClients = AppStorage.get('_mnm_clients');
-      if (rawClients) {
-        try {
-          const parsed = JSON.parse(rawClients);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            loadedClients = parsed;
-          }
-        } catch(e) {}
-      }
+      loadedClients = safeParseArr(AppStorage.get('_mnm_clients')) || safeParseArr(localStorage.getItem('_mnm_clients'));
     }
 
     // C. Check Master DB snapshot fallback
     if (!loadedEntries || !loadedClients) {
       const masterDb = AppStorage.loadNativeMasterDB() || (() => {
         try {
-          const raw = AppStorage.get('_mnm_master_db');
+          const raw = AppStorage.get('_mnm_master_db') || localStorage.getItem('_mnm_master_db');
           return raw ? JSON.parse(raw) : null;
         } catch(e) { return null; }
       })();
@@ -6213,7 +6209,7 @@ function loadLS(){
       }
     }
 
-    // D. Safe non-destructive assignment
+    // D. Safe assignment to memory state
     if (Array.isArray(loadedEntries) && loadedEntries.length > 0) {
       entries = loadedEntries.map(x => {
         x.date = normalizeDate(x.date);

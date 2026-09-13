@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
                 String val = prefs.getString(key, null);
-                if (val != null) return val;
+                if (val != null && !val.isEmpty() && !val.equals("null") && !val.equals("undefined")) return val;
 
                 // Fallback to secondary file mirror backup
                 File file = new File(new File(getFilesDir(), "mrnodeman_data"), "store_" + Math.abs(key.hashCode()) + ".dat");
@@ -403,9 +403,11 @@ public class MainActivity extends AppCompatActivity {
                             sb.append(line).append("\n");
                         }
                         String content = sb.toString().trim();
-                        // Restore in SharedPreferences
-                        prefs.edit().putString(key, content).apply();
-                        return content;
+                        if (!content.isEmpty() && !content.equals("null") && !content.equals("undefined")) {
+                            // Restore in SharedPreferences
+                            prefs.edit().putString(key, content).apply();
+                            return content;
+                        }
                     }
                 }
             } catch (Exception e) {
