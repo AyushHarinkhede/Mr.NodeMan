@@ -36,6 +36,9 @@ import androidx.core.content.FileProvider;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
+import android.view.HapticFeedbackConstants;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -235,6 +238,80 @@ public class MainActivity extends AppCompatActivity {
     // Native Interface exposing operations to JavaScript
     public class AndroidInterface {
         
+        // ── Ultra-crisp Native Haptic Feedback ──
+        @JavascriptInterface
+        public void performHaptic(final String type) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                        if (vibrator == null || !vibrator.hasVibrator()) {
+                            return;
+                        }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            int effectId = -1;
+                            if ("light".equalsIgnoreCase(type) || "tap".equalsIgnoreCase(type) || "selection".equalsIgnoreCase(type)) {
+                                effectId = VibrationEffect.EFFECT_CLICK;
+                            } else if ("medium".equalsIgnoreCase(type) || "impact".equalsIgnoreCase(type) || "navigation".equalsIgnoreCase(type)) {
+                                effectId = VibrationEffect.EFFECT_DOUBLE_CLICK;
+                            } else if ("heavy".equalsIgnoreCase(type) || "modal".equalsIgnoreCase(type) || "button".equalsIgnoreCase(type)) {
+                                effectId = VibrationEffect.EFFECT_HEAVY_CLICK;
+                            } else if ("tick".equalsIgnoreCase(type) || "clock".equalsIgnoreCase(type) || "countdown".equalsIgnoreCase(type)) {
+                                effectId = VibrationEffect.EFFECT_TICK;
+                            }
+
+                            if (effectId != -1) {
+                                try {
+                                    vibrator.vibrate(VibrationEffect.createPredefined(effectId));
+                                    return;
+                                } catch (Exception ignored) {}
+                            }
+                        }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            if ("success".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 15, 35, 20}, new int[]{0, 200, 0, 255}, -1));
+                            } else if ("error".equalsIgnoreCase(type) || "delete".equalsIgnoreCase(type) || "danger".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 25, 35, 25, 35, 40}, new int[]{0, 220, 0, 220, 0, 255}, -1));
+                            } else if ("heavy".equalsIgnoreCase(type) || "modal".equalsIgnoreCase(type) || "button".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(VibrationEffect.createOneShot(26, VibrationEffect.DEFAULT_AMPLITUDE));
+                            } else if ("medium".equalsIgnoreCase(type) || "impact".equalsIgnoreCase(type) || "navigation".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(VibrationEffect.createOneShot(16, 200));
+                            } else if ("tick".equalsIgnoreCase(type) || "clock".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(VibrationEffect.createOneShot(8, 140));
+                            } else {
+                                // Default / light / tap
+                                vibrator.vibrate(VibrationEffect.createOneShot(12, 180));
+                            }
+                        } else {
+                            if ("success".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(new long[]{0, 15, 35, 20}, -1);
+                            } else if ("error".equalsIgnoreCase(type) || "delete".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(new long[]{0, 25, 35, 25, 35, 40}, -1);
+                            } else if ("heavy".equalsIgnoreCase(type) || "modal".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(25);
+                            } else if ("medium".equalsIgnoreCase(type) || "navigation".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(16);
+                            } else if ("tick".equalsIgnoreCase(type)) {
+                                vibrator.vibrate(8);
+                            } else {
+                                vibrator.vibrate(12);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Fallback to View haptic feedback if vibrator service throws
+                        try {
+                            if (webView != null) {
+                                webView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP, HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                }
+            });
+        }
+
         @JavascriptInterface
         public void exportFile(final String filename, final String base64Data, final String mimeType) {
             runOnUiThread(new Runnable() {

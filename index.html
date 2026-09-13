@@ -13227,9 +13227,10 @@ function seedSampleData(){
 }
 
 /* ════════════════════════════════════════════
-   SOUND & HAPTIC EFFECTS
+/* ════════════════════════════════════════════
+   ULTRA-RESPONSIVE SOUND & HAPTIC ENGINE
 ════════════════════════════════════════════ */
-// Sound System
+// Zero-Latency Web Audio Synthesizer
 class SoundManager {
   constructor() {
     this.audioContext = null;
@@ -13240,13 +13241,16 @@ class SoundManager {
 
   initAudioContext() {
     try {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      if (this.audioContext.state === 'suspended') {
-        this.audioContext.resume().then(() => {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.audioContext = new AudioCtx();
+        if (this.audioContext.state === 'suspended') {
+          this.audioContext.resume().then(() => {
+            this.isInitialized = true;
+          }).catch(() => {});
+        } else {
           this.isInitialized = true;
-        });
-      } else {
-        this.isInitialized = true;
+        }
       }
     } catch (e) {
       console.log('Audio not supported:', e);
@@ -13255,145 +13259,173 @@ class SoundManager {
   }
 
   ensureAudioContext() {
-    if (!this.isInitialized && this.audioContext) {
-      if (this.audioContext.state === 'suspended') {
-        this.audioContext.resume().then(() => {
-          this.isInitialized = true;
-        });
-      }
+    if (!this.audioContext) {
+      this.initAudioContext();
+    }
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      this.audioContext.resume().then(() => {
+        this.isInitialized = true;
+      }).catch(() => {});
     }
   }
 
   playSound(type) {
-    if (!this.enabled || !this.audioContext) return;
+    if (!this.enabled) return;
     this.ensureAudioContext();
+    if (!this.audioContext) return;
     
     try {
-      const oscillator = this.audioContext.createOscillator();
-      const gainNode = this.audioContext.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(this.audioContext.destination);
-      const currentTime = this.audioContext.currentTime;
+      const ctx = this.audioContext;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
 
       switch(type) {
         case 'tap':
-          oscillator.frequency.setValueAtTime(800, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(600, currentTime + 0.03);
-          gainNode.gain.setValueAtTime(0.4, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.03);
+        case 'light':
+        case 'period_click':
+        case 'heatmap_click':
+        case 'cell_click':
+        case 'tooltip_show':
+        case 'heatmap_hover':
+        case 'cell_hover':
+        case 'fullscreen_ready':
+          // Snappy, crisp tactile acoustic click (1900Hz -> 320Hz in 14ms)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1900, t);
+          osc.frequency.exponentialRampToValueAtTime(320, t + 0.014);
+          gain.gain.setValueAtTime(0.35, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.014);
+          osc.start(t);
+          osc.stop(t + 0.015);
           break;
-          
-        case 'success':
-          oscillator.frequency.setValueAtTime(523.25, currentTime);
-          oscillator.frequency.setValueAtTime(659.25, currentTime + 0.04);
-          oscillator.frequency.setValueAtTime(783.99, currentTime + 0.08);
-          gainNode.gain.setValueAtTime(0.4, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.1);
-          break;
-          
-        case 'error':
-          oscillator.frequency.setValueAtTime(300, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(200, currentTime + 0.08);
-          gainNode.gain.setValueAtTime(0.4, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.08);
-          break;
-          
+
         case 'navigation':
-          oscillator.frequency.setValueAtTime(440, currentTime);
-          gainNode.gain.setValueAtTime(0.25, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.02);
+        case 'timeline_click':
+        case 'back_gesture':
+        case 'back_button':
+          // Punchy subtle block pop for tab switching & navigation
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(650, t);
+          osc.frequency.exponentialRampToValueAtTime(380, t + 0.022);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.022);
+          osc.start(t);
+          osc.stop(t + 0.024);
           break;
-          
+
         case 'modal':
-          oscillator.frequency.setValueAtTime(600, currentTime);
-          gainNode.gain.setValueAtTime(0.35, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.05);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.05);
+        case 'modal_open':
+          // Crisp acoustic open pop (480Hz -> 820Hz chirp)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(480, t);
+          osc.frequency.exponentialRampToValueAtTime(820, t + 0.035);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+          osc.start(t);
+          osc.stop(t + 0.038);
           break;
-          
+
+        case 'modal_close':
+          // Soft dismiss pop (750Hz -> 360Hz)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(750, t);
+          osc.frequency.exponentialRampToValueAtTime(360, t + 0.025);
+          gain.gain.setValueAtTime(0.25, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+          osc.start(t);
+          osc.stop(t + 0.028);
+          break;
+
+        case 'success':
+        case 'double':
+          // Harmonious pleasant chime chord (587Hz -> 880Hz -> 1174Hz)
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(587.33, t);
+          osc.frequency.setValueAtTime(880.00, t + 0.025);
+          osc.frequency.setValueAtTime(1174.66, t + 0.05);
+          gain.gain.setValueAtTime(0.35, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+          osc.start(t);
+          osc.stop(t + 0.095);
+          break;
+
+        case 'error':
+        case 'danger':
+          // Low alert buzz
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(280, t);
+          osc.frequency.exponentialRampToValueAtTime(140, t + 0.07);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+          osc.start(t);
+          osc.stop(t + 0.075);
+          break;
+
         case 'delete':
-          oscillator.frequency.setValueAtTime(200, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(100, currentTime + 0.12);
-          gainNode.gain.setValueAtTime(0.4, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.12);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.12);
+          // Crisp thud delete
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(320, t);
+          osc.frequency.exponentialRampToValueAtTime(90, t + 0.06);
+          gain.gain.setValueAtTime(0.4, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+          osc.start(t);
+          osc.stop(t + 0.065);
           break;
-          
+
         case 'countdown-tick':
-          oscillator.frequency.setValueAtTime(1000, currentTime);
-          gainNode.gain.setValueAtTime(0.25, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.015);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.015);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1400, t);
+          osc.frequency.exponentialRampToValueAtTime(700, t + 0.012);
+          gain.gain.setValueAtTime(0.28, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.012);
+          osc.start(t);
+          osc.stop(t + 0.014);
           break;
-          
+
         case 'countdown-5':
-          oscillator.frequency.setValueAtTime(1200, currentTime);
-          gainNode.gain.setValueAtTime(0.35, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.02);
-          break;
-          
         case 'countdown-4':
-          oscillator.frequency.setValueAtTime(1100, currentTime);
-          gainNode.gain.setValueAtTime(0.35, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.02);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.02);
-          break;
-          
         case 'countdown-3':
-          oscillator.frequency.setValueAtTime(900, currentTime);
-          gainNode.gain.setValueAtTime(0.37, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.03);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.03);
-          break;
-          
         case 'countdown-2':
-          oscillator.frequency.setValueAtTime(700, currentTime);
-          gainNode.gain.setValueAtTime(0.39, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.04);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.04);
-          break;
-          
         case 'countdown-1':
-          oscillator.frequency.setValueAtTime(500, currentTime);
-          oscillator.frequency.exponentialRampToValueAtTime(400, currentTime + 0.08);
-          gainNode.gain.setValueAtTime(0.42, currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.08);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 0.08);
+          const freqMap = { 'countdown-5': 1200, 'countdown-4': 1100, 'countdown-3': 950, 'countdown-2': 800, 'countdown-1': 600 };
+          const f = freqMap[type] || 1000;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, t);
+          osc.frequency.exponentialRampToValueAtTime(f * 0.7, t + 0.02);
+          gain.gain.setValueAtTime(0.35, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+          osc.start(t);
+          osc.stop(t + 0.022);
+          break;
+
+        default:
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1400, t);
+          osc.frequency.exponentialRampToValueAtTime(500, t + 0.015);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.015);
+          osc.start(t);
+          osc.stop(t + 0.016);
           break;
       }
     } catch (e) {
       console.log('Sound play error:', e);
     }
   }
-  
-  showSoundIndicator() { /* Removed visual indicator */ }
 }
 
-// Enhanced Haptic Feedback System
+// Ultra-Crisp Native Haptic Feedback System
 class HapticManager {
   constructor() {
     this.enabled = localStorage.getItem('_mnm_haptic_enabled') !== 'false';
-    this.checkHapticSupport();
-  }
-
-  checkHapticSupport() {
     this.vibrateSupported = 'vibrate' in navigator;
     this.gamepadSupported = 'getGamepads' in navigator;
   }
@@ -13401,185 +13433,62 @@ class HapticManager {
   triggerHaptic(type) {
     if (!this.enabled) return;
 
-    try {
-      // Enhanced Vibration API patterns
-      if (this.vibrateSupported) {
+    // 1. Native Android hardware haptics (ultra-low latency, crisp LRA actuator)
+    if (window.AndroidApp && typeof window.AndroidApp.performHaptic === 'function') {
+      try {
+        window.AndroidApp.performHaptic(type);
+        return;
+      } catch (e) {
+        console.log('Native haptic error:', e);
+      }
+    }
+
+    // 2. Web Vibration API fallback (short crisp millisecond durations for tactile snap)
+    if (this.vibrateSupported) {
+      try {
         switch(type) {
           case 'light':
-            // Quick tap for light interactions
-            navigator.vibrate(50);
+          case 'tap':
+          case 'tick':
+          case 'countdown-tick':
+            navigator.vibrate(12);
             break;
           case 'medium':
-            // Firm press for medium interactions
-            navigator.vibrate(80);
+          case 'navigation':
+          case 'modal':
+          case 'impact':
+            navigator.vibrate(18);
             break;
+          case 'heavy':
           case 'strong':
-            // Strong pulse for important actions
-            navigator.vibrate(150);
+          case 'button':
+            navigator.vibrate(26);
             break;
           case 'double':
-            // Double tap with urgency
-            navigator.vibrate([60, 80, 60]);
+            navigator.vibrate([14, 30, 16]);
             break;
           case 'success':
-            // Celebratory pattern for success
-            navigator.vibrate([80, 50, 80, 50, 80, 50, 120]);
+            navigator.vibrate([15, 35, 20]);
             break;
           case 'error':
-            // Sharp warning pattern for errors
-            navigator.vibrate([250, 100, 250, 100, 250]);
-            break;
-          case 'navigation':
-            // Smooth transition pulse
-            navigator.vibrate(45);
-            break;
-          case 'modal':
-            // Gentle rise for modal opening
-            navigator.vibrate([30, 20, 60]);
-            break;
+          case 'danger':
           case 'delete':
-            // Descending pattern for deletion
-            navigator.vibrate([100, 50, 80, 50, 60]);
-            break;
-          case 'countdown-tick':
-            // Quick tick for countdown
-            navigator.vibrate(25);
+            navigator.vibrate([25, 35, 25, 35, 40]);
             break;
           case 'countdown-5':
-            // Medium urgency
-            navigator.vibrate(70);
-            break;
           case 'countdown-4':
-            // Slightly stronger
-            navigator.vibrate(80);
-            break;
           case 'countdown-3':
-            // Strong warning
-            navigator.vibrate(100);
-            break;
           case 'countdown-2':
-            // Very strong warning
-            navigator.vibrate(130);
-            break;
           case 'countdown-1':
-            // Critical urgency pattern
-            navigator.vibrate([180, 50, 180]);
+            navigator.vibrate(18);
             break;
           default:
-            navigator.vibrate(60);
+            navigator.vibrate(14);
         }
+      } catch (e) {
+        console.log('Haptic error:', e);
       }
-
-      // Enhanced Gamepad API for devices with rumble
-      if (this.gamepadSupported) {
-        this.triggerGamepadRumble(type);
-      }
-    } catch (e) {
-      console.log('Haptic error:', e);
     }
-  }
-
-  triggerGamepadRumble(type) {
-    try {
-      if (!navigator.getGamepads) return;
-      const gamepads = navigator.getGamepads();
-      if (!gamepads) return;
-      for (let i = 0; i < gamepads.length; i++) {
-        const gamepad = gamepads[i];
-        if (gamepad && gamepad.vibrationActuator) {
-          switch(type) {
-            case 'light':
-              gamepad.vibrationActuator.pulse(0.6, 200);
-              break;
-            case 'medium':
-              gamepad.vibrationActuator.pulse(0.8, 300);
-              break;
-            case 'strong':
-              gamepad.vibrationActuator.pulse(1.0, 400);
-              break;
-            case 'double':
-              // Double pulse for gamepad
-              gamepad.vibrationActuator.pulse(0.7, 150);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.7, 150);
-              }, 200);
-              break;
-            case 'success':
-              // Celebration rumble
-              gamepad.vibrationActuator.pulse(0.8, 200);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.9, 200);
-              }, 250);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(1.0, 300);
-              }, 500);
-              break;
-            case 'error':
-              // Error vibration pattern
-              gamepad.vibrationActuator.pulse(1.0, 250);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.5, 150);
-              }, 300);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(1.0, 250);
-              }, 500);
-              break;
-            case 'navigation':
-              gamepad.vibrationActuator.pulse(0.5, 180);
-              break;
-            case 'modal':
-              gamepad.vibrationActuator.pulse(0.4, 150);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.7, 200);
-              }, 200);
-              break;
-            case 'delete':
-              // Descending rumble for deletion
-              gamepad.vibrationActuator.pulse(0.9, 200);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.7, 150);
-              }, 250);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.5, 100);
-              }, 450);
-              break;
-            case 'countdown-tick':
-              gamepad.vibrationActuator.pulse(0.4, 80);
-              break;
-            case 'countdown-5':
-              gamepad.vibrationActuator.pulse(0.6, 150);
-              break;
-            case 'countdown-4':
-              gamepad.vibrationActuator.pulse(0.7, 170);
-              break;
-            case 'countdown-3':
-              gamepad.vibrationActuator.pulse(0.8, 200);
-              break;
-            case 'countdown-2':
-              gamepad.vibrationActuator.pulse(0.9, 250);
-              break;
-            case 'countdown-1':
-              // Critical countdown rumble
-              gamepad.vibrationActuator.pulse(1.0, 300);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(0.8, 150);
-              }, 350);
-              setTimeout(() => {
-                if (gamepad && gamepad.vibrationActuator) gamepad.vibrationActuator.pulse(1.0, 300);
-              }, 550);
-              break;
-            default:
-              gamepad.vibrationActuator.pulse(0.6, 200);
-          }
-        }
-      }
-    } catch (e) {
-      console.log('Gamepad rumble error:', e);
-    }
-  }
-
-  showHapticIndicator() {
-    // Visual indicator removed - only provide haptic feedback
   }
 }
 
@@ -13587,21 +13496,29 @@ class HapticManager {
 const soundManager = new SoundManager();
 const hapticManager = new HapticManager();
 
-// Initialize audio context on first user interaction
-function initializeAudioContext() {
-  if (soundManager.audioContext && soundManager.audioContext.state === 'suspended') {
-    soundManager.audioContext.resume().then(() => {
-      soundManager.isInitialized = true;
-    });
+// Unlock and pre-warm audio context on first user interaction
+function unlockAudioEngine() {
+  if (soundManager && soundManager.audioContext) {
+    if (soundManager.audioContext.state === 'suspended') {
+      soundManager.audioContext.resume().then(() => {
+        soundManager.isInitialized = true;
+      }).catch(() => {});
+    }
   }
 }
 
-// Add touch event listener for mobile
-if ('ontouchstart' in window) {
-  document.addEventListener('touchstart', initializeAudioContext, { once: true });
-} else {
-  document.addEventListener('click', initializeAudioContext, { once: true });
-}
+['touchstart', 'pointerdown', 'mousedown', 'click'].forEach(evt => {
+  document.addEventListener(evt, unlockAudioEngine, { passive: true });
+});
+
+// Zero-Latency Tap Trigger for all Interactive UI elements on touch
+document.addEventListener('pointerdown', function(e) {
+  const target = e.target.closest('button, .ss-btn, .nitem, .fab, .chip, .fchip, .scibtn, .calc-btn, .calc-key, .univ-search-circle-btn, .action-pill, .scicalc-tool-btn, .scicalc-hist-btn, .scicalc-angle-badge, .opt-chip, [role="button"], .hm-btn, .period-chip');
+  if (target) {
+    unlockAudioEngine();
+    playSoundAndHaptic('tap', 'light');
+  }
+}, { passive: true });
 
 // Navigation history management
 /* navigationHistory & currentModal hoisted to top */
@@ -13609,8 +13526,6 @@ if ('ontouchstart' in window) {
 // Track navigation
 function trackNavigation(from, to) {
   navigationHistory.push({ from, to, timestamp: Date.now() });
-  
-  // Keep only last 10 entries
   if (navigationHistory.length > 10) {
     navigationHistory.shift();
   }
@@ -13623,53 +13538,43 @@ function trackModal(modalId, isOpen) {
 
 // Handle system back button
 function handleSystemBack() {
-  // Check if universal search overlay is open
   const searchOverlay = document.getElementById('univ-search-overlay');
   if (searchOverlay && searchOverlay.classList.contains('active')) {
     closeUniversalSearch();
-    return true; // Prevent default back
+    return true;
   }
 
-  // Check if scientific calculator modal is open
   const calcModal = document.getElementById('scicalc-modal');
   if (calcModal && calcModal.classList.contains('open')) {
     closeModal('scicalc-modal');
-    return true; // Prevent default back
+    return true;
   }
 
-  // Check if any modal is open
   if (currentModal) {
     closeModal(currentModal);
     trackModal(currentModal, false);
-    return true; // Prevent default back
+    return true;
   }
 
-  
-  // Check if we're in client details view
   if (currentView === 'client-details') {
-    // Close client details and go back to clients
     closeClientDetails();
-    return true; // Prevent default back
+    return true;
   }
   
-  // Check if we're in any special view (clients, stats, more)
   if (currentView === 'clients' || currentView === 'stats' || currentView === 'more') {
-    // Go back to dashboard/home
     switchTab('dashboard');
-    return true; // Prevent default back
+    return true;
   }
   
-  // If we're on dashboard/home, show exit confirmation or exit natively
   if (currentView === 'dashboard') {
     if (window.AndroidApp && window.AndroidApp.exitApp) {
       window.AndroidApp.exitApp();
     } else {
       showExitConfirmation();
     }
-    return true; // Prevent default back
+    return true;
   }
   
-  // Allow default back behavior
   return false;
 }
 window.handleSystemBack = handleSystemBack;
@@ -13683,36 +13588,14 @@ function showExitConfirmation() {
     okStyle: 'background:var(--danger-bg);border:1px solid var(--danger-bd);color:var(--danger)',
     okText: 'Exit App',
     fn: () => {
-      // Remove the popstate listener temporarily to allow actual back
       window.removeEventListener('popstate', handlePopState);
-      
-      // Try multiple methods to exit
       try {
-        // Method 1: Close window/tab
-        if (window.close) {
-          window.close();
-        }
-        
-        // Method 2: Go back in history
-        setTimeout(() => {
-          window.history.back();
-        }, 100);
-        
-        // Method 3: Navigate to blank page (opens new tab)
-        setTimeout(() => {
-          window.open('about:blank', '_self');
-        }, 200);
-        
-        // Method 4: Navigate to Google (fallback)
-        setTimeout(() => {
-          window.open('https://google.com', '_self');
-        }, 300);
+        if (window.close) window.close();
+        setTimeout(() => { window.history.back(); }, 100);
+        setTimeout(() => { window.open('about:blank', '_self'); }, 200);
       } catch (e) {
-        // Fallback: go back in history
         window.history.back();
       }
-      
-      // Re-add the listener after a delay
       setTimeout(() => {
         window.addEventListener('popstate', handlePopState);
       }, 500);
@@ -13724,8 +13607,6 @@ function showExitConfirmation() {
 const originalSwitchTab = switchTab;
 switchTab = function(id) {
   const previousView = currentView;
-  
-  // Close fullscreen heatmap if it's open when switching tabs
   const fullscreenModal = document.getElementById('fullscreen-heatmap-modal');
   if (fullscreenModal && fullscreenModal.classList.contains('open')) {
     closeFullscreenHeatmap();
@@ -13751,41 +13632,22 @@ closeModal = function(id) {
 // Handle popstate events
 function handlePopState(event) {
   if (handleSystemBack()) {
-    // Prevent the default back behavior
     window.history.pushState(null, null, window.location.pathname);
     event.preventDefault();
   }
 }
 
-// Add system back button listener
 if ('ontouchstart' in window) {
-  // Mobile - handle back button
   window.addEventListener('popstate', handlePopState);
-  
-  // Initialize history state
   window.history.pushState(null, null, window.location.pathname);
 } else {
-  // Desktop - handle back button
   window.addEventListener('popstate', handlePopState);
-  
   window.history.pushState(null, null, window.location.pathname);
 }
 
-// Handle browser back/forward buttons - removed system leave confirmation
-// window.addEventListener('beforeunload', function(event) {
-//   // This is a last resort - won't work on mobile
-//   if (currentView === 'dashboard' && !currentModal) {
-//     // User is trying to close the browser/tab
-//     event.preventDefault();
-//     event.returnValue = '';
-//   }
-// });
-
-/* sound/haptic timestamps hoisted to top of script */
-
 function playSound(type) {
   const now = Date.now();
-  if (now - lastSoundPlayTime > 80 || type !== lastSoundPlayType) {
+  if (now - lastSoundPlayTime > 25 || type !== lastSoundPlayType) {
     soundManager.playSound(type);
     lastSoundPlayTime = now;
     lastSoundPlayType = type;
@@ -13794,7 +13656,7 @@ function playSound(type) {
 
 function triggerHaptic(type) {
   const now = Date.now();
-  if (now - lastHapticTriggerTime > 80 || type !== lastHapticTriggerType) {
+  if (now - lastHapticTriggerTime > 25 || type !== lastHapticTriggerType) {
     hapticManager.triggerHaptic(type);
     lastHapticTriggerTime = now;
     lastHapticTriggerType = type;
@@ -13802,17 +13664,13 @@ function triggerHaptic(type) {
 }
 
 function playSoundAndHaptic(soundType, hapticType) {
-  // Play sound and haptic simultaneously for perfect sync (both rate-limited)
   playSound(soundType);
   triggerHaptic(hapticType);
 }
 
-// Enhanced synchronized function for countdown
 function playCountdownSoundAndHaptic(cdVal) {
   const soundType = cdVal > 5 ? 'countdown-tick' : `countdown-${cdVal}`;
   const hapticType = cdVal > 5 ? 'countdown-tick' : `countdown-${cdVal}`;
-  
-  // Perfect sync for countdown (bypasses rate limit for successive counting ticks)
   soundManager.playSound(soundType);
   hapticManager.triggerHaptic(hapticType);
 }
