@@ -236,17 +236,18 @@ input:focus, select:focus, textarea:focus {
 
 /* Fab button animations */
 .fab {
-  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.18s ease;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.22s ease,
+              filter 0.22s ease;
 }
 
 .fab:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 0 0 8px rgba(45, 212, 168, 0.2), 0 0 32px rgba(45, 212, 168, 0.45), 0 8px 22px rgba(0, 0, 0, 0.6);
+  transform: scale(1.06);
+  box-shadow: 0 0 0 4px rgba(45, 212, 168, 0.25), 0 10px 26px -2px rgba(0, 217, 245, 0.55), 0 6px 14px rgba(0, 0, 0, 0.50);
 }
 
 .fab:active {
-  transform: translateY(1px) scale(0.93) !important;
+  transform: scale(0.92) !important;
 }
 
 /* Heatmap cell animations */
@@ -1373,63 +1374,63 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 .ss-btn{border:none;cursor:pointer;font-family:'Syne',sans-serif;transition:opacity .15s ease,transform .12s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .ss-btn:active{transform:scale(.96);opacity:.85}
 .fab-wrapper {
-  flex: 0 0 54px;
+  flex: 0 0 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 30;
   isolation: isolate;
-  margin-top: -6px;
+  margin: 0 2px;
 }
 .fab {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  min-height: 48px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #00F5A0 0%, #00D9F5 100%);
-  color: #061814;
+  background: linear-gradient(135deg, #00F5A0 0%, #00D9F5 50%, #00B4D8 100%);
+  color: #041410;
   font-size: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1.5px solid rgba(255, 255, 255, 0.40);
+  border: 1.5px solid rgba(255, 255, 255, 0.50);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   box-shadow: 
-    0 0 0 3px rgba(0, 245, 160, 0.22),
-    0 8px 24px -2px rgba(0, 217, 245, 0.50),
+    0 0 0 3px rgba(0, 245, 160, 0.20),
+    0 8px 22px -2px rgba(0, 217, 245, 0.48),
     0 4px 12px rgba(0, 0, 0, 0.45),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.70),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.85),
     inset 0 -1.5px 2px rgba(0, 0, 0, 0.25);
   transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, filter 0.22s ease;
   will-change: transform;
 }
 .fab svg {
-  width: 22px;
-  height: 22px;
-  stroke: #051410;
-  stroke-width: 2.6;
+  width: 20px;
+  height: 20px;
+  stroke: #041410;
+  stroke-width: 2.8;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .fab:hover {
-  transform: scale(1.08) translateY(-2px);
+  transform: scale(1.06);
   box-shadow: 
-    0 0 0 5px rgba(0, 245, 160, 0.32),
-    0 12px 28px -2px rgba(0, 217, 245, 0.65),
-    0 6px 16px rgba(0, 0, 0, 0.55),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    0 0 0 4px rgba(0, 245, 160, 0.30),
+    0 10px 26px -2px rgba(0, 217, 245, 0.60),
+    0 6px 14px rgba(0, 0, 0, 0.50),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95);
 }
 .fab:hover svg {
   transform: rotate(90deg) scale(1.05);
 }
 .fab:active {
-  transform: scale(0.92) translateY(1px) !important;
+  transform: scale(0.92) !important;
   box-shadow: 
     0 0 0 2px rgba(0, 245, 160, 0.16),
     0 3px 10px rgba(0, 217, 245, 0.40) !important;
@@ -1883,146 +1884,64 @@ select option{background:var(--s)}
 .reuse-btn:active{transform:scale(.94)}
 
 /* ════════════════════════════════════════════════
-   LIVE REAL-TIME CHRONO / CLOCK WIDGET (MORE VIEW)
+   LIVE REAL-TIME CLOCK & DATE (MINIMAL 2-LINE FOOTER)
 ════════════════════════════════════════════════ */
-.live-clock-card {
-  margin-top: 16px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: 
-    radial-gradient(ellipse at 50% 0%, rgba(124, 111, 237, 0.12) 0%, transparent 70%),
-    linear-gradient(135deg, rgba(22, 22, 34, 0.75) 0%, rgba(12, 12, 20, 0.85) 100%);
-  border: 1px solid rgba(124, 111, 237, 0.22);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.45),
-    0 0 14px rgba(124, 111, 237, 0.08);
+.live-clock-minimal {
+  margin-top: 12px;
+  margin-bottom: 2px;
+  padding: 2px 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  gap: 3px;
   user-select: none;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
-.live-clock-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(124, 111, 237, 0.6), transparent);
-}
-
-.live-clock-header {
+.live-clock-time-line {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  font-family: 'Syne', sans-serif;
-  font-size: 9px;
+  font-family: 'DM Mono', monospace;
+  font-size: 13.5px;
   font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--t2);
-  opacity: 0.85;
+  letter-spacing: 0.05em;
+  color: var(--t1);
+  line-height: 1.2;
 }
 
-.live-pulse-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #38ef7d;
-  box-shadow: 0 0 8px #38ef7d;
-  animation: livePulseAnim 1.6s infinite ease-in-out;
-  display: inline-block;
-  flex-shrink: 0;
+.live-clock-time-digits {
+  color: var(--t1);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-@keyframes livePulseAnim {
-  0%, 100% { transform: scale(0.85); opacity: 0.55; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #38ef7d; }
-}
-
-.live-clock-date {
+.live-clock-date-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   font-family: 'DM Mono', monospace;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.03em;
   color: var(--t2);
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  line-height: 1.2;
 }
 
-.live-clock-date-day {
-  color: #A89EFF;
-  font-weight: 700;
-  text-transform: uppercase;
+.live-clock-dot {
+  opacity: 0.4;
+  color: var(--t3);
+  font-size: 8px;
 }
 
-.live-clock-time-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-
-.live-clock-digits {
-  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #CBD5E1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.live-clock-day-pill {
   font-weight: 700;
   letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-}
-
-.live-clock-sec-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  background: rgba(56, 239, 125, 0.12);
-  border: 1px solid rgba(56, 239, 125, 0.28);
-  font-size: 11px;
-  font-weight: 700;
-  color: #38ef7d;
-  box-shadow: inset 0 0 6px rgba(56, 239, 125, 0.15);
-  transition: transform 0.12s ease;
-}
-
-.live-clock-sec-box.tick {
-  animation: secSpringTick 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes secSpringTick {
-  0% { transform: scale(1.22); filter: brightness(1.35); }
-  100% { transform: scale(1); filter: brightness(1); }
-}
-
-.live-clock-ampm {
-  font-size: 9px;
-  font-weight: 800;
-  padding: 2px 5px;
-  border-radius: 4px;
-  background: rgba(124, 111, 237, 0.16);
-  border: 1px solid rgba(124, 111, 237, 0.32);
-  color: #A89EFF;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 /* ════════════════════════════════════════════════
@@ -2036,11 +1955,11 @@ select option{background:var(--s)}
   -webkit-transform: translate3d(-50%, 0, 0) !important;
   width: calc(100% - 28px);
   max-width: 390px;
-  height: 62px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8px;
+  padding: 0 6px;
   border-radius: 9999px;
   z-index: 1000;
   box-sizing: border-box;
@@ -2048,21 +1967,21 @@ select option{background:var(--s)}
   /* Frosted Liquid Glass Background — Ultra-clean translucency */
   background: linear-gradient(
     135deg,
-    rgba(18, 18, 32, 0.28) 0%,
-    rgba(12, 12, 24, 0.20) 50%,
-    rgba(8, 8, 18, 0.24) 100%
+    rgba(20, 20, 32, 0.45) 0%,
+    rgba(14, 14, 24, 0.35) 50%,
+    rgba(10, 10, 18, 0.40) 100%
   );
-  backdrop-filter: blur(20px) saturate(190%) contrast(105%) brightness(112%);
-  -webkit-backdrop-filter: blur(20px) saturate(190%) contrast(105%) brightness(112%);
+  backdrop-filter: blur(24px) saturate(190%) contrast(105%) brightness(112%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%) contrast(105%) brightness(112%);
   
   /* Liquid glass specular borders & floating elevation */
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 
-    0 16px 36px -6px rgba(0, 0, 0, 0.45),
-    0 4px 16px rgba(0, 0, 0, 0.20),
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.22),
-    0 0 24px rgba(124, 111, 237, 0.10);
+    0 18px 40px -8px rgba(0, 0, 0, 0.55),
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.30),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.25),
+    0 0 20px rgba(255, 255, 255, 0.04);
 
   transition: opacity 0.3s ease;
   will-change: opacity;
@@ -2088,7 +2007,7 @@ select option{background:var(--s)}
   position: relative;
   z-index: 10;
   flex: 1;
-  height: 48px;
+  height: 46px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2097,7 +2016,8 @@ select option{background:var(--s)}
   cursor: pointer;
   padding: 0 4px;
   border-radius: 9999px;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid transparent;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-tap-highlight-color: transparent;
   transform: none !important;
   backface-visibility: visible !important;
@@ -2110,32 +2030,51 @@ select option{background:var(--s)}
   width: 19px;
   height: 19px;
   color: inherit;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), filter 0.22s ease;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), filter 0.24s ease;
   transform: none !important;
   backface-visibility: visible !important;
 }
 
 .nitem.active {
   opacity: 1;
-  color: var(--acc);
-  background: rgba(124, 111, 237, 0.14);
-  box-shadow: inset 0 0 10px rgba(124, 111, 237, 0.22), 0 0 12px rgba(124, 111, 237, 0.15);
+  color: #FFFFFF;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.20) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.14) 100%
+  );
+  -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(115%);
+  backdrop-filter: blur(16px) saturate(180%) brightness(115%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.50),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.20),
+    0 4px 14px 0 rgba(0, 0, 0, 0.25),
+    0 0 14px rgba(255, 255, 255, 0.08);
 }
 
 .nitem.active svg {
   transform: scale(1.08) !important;
-  filter: drop-shadow(0 2px 8px rgba(124, 111, 237, 0.65));
+  filter: drop-shadow(0 1px 4px rgba(255, 255, 255, 0.45));
+}
+
+.nitem.active .nlbl {
+  color: #FFFFFF;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 .nitem:not(.active) {
-  opacity: 0.55;
+  opacity: 0.52;
   color: var(--t2);
 }
 
 .nitem:not(.active):hover {
-  opacity: 0.85;
-  color: var(--t1);
-  background: rgba(255, 255, 255, 0.05);
+  opacity: 0.88;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
 }
 
 .nlbl {
@@ -2263,7 +2202,7 @@ select option{background:var(--s)}
 .dow-bar-fill {
   width: 100%;
   border-radius: 6px;
-  background: linear-gradient(180deg, #7C6FED, #4f46e5);
+  background: linear-gradient(180deg, #06B6D4, #3B82F6);
   transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .dow-col.is-peak .dow-bar-fill {
@@ -2278,6 +2217,123 @@ select option{background:var(--s)}
 }
 .dow-col.is-peak .dow-lbl {
   color: var(--paid);
+}
+.dow-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 12px 0 10px;
+}
+.dow-summary-chip {
+  background: var(--s2);
+  border: 1px solid var(--b);
+  border-radius: 10px;
+  padding: 8px 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.dow-summary-chip:hover {
+  border-color: var(--b2);
+  transform: translateY(-1px);
+}
+.dow-summary-chip-label {
+  font-size: 8px;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.dow-summary-chip-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--t1);
+  font-family: 'Syne', sans-serif;
+  line-height: 1.2;
+}
+.dow-summary-chip-sub {
+  font-size: 8px;
+  color: var(--t3);
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+.dow-sparkline-wrap {
+  margin-top: 10px;
+  background: var(--s2);
+  border: 1px solid var(--b);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.dow-sparkline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.dow-sparkline-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dow-split-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.dow-split-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--s2);
+  border: 1px solid var(--b);
+  border-radius: 10px;
+  padding: 9px 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.dow-split-row:hover {
+  border-color: var(--b2);
+}
+.dow-split-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dow-split-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t1);
+}
+.dow-split-val {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  color: var(--t1);
+}
+.dow-progress-track {
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.dow-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .comp-bar-track {
   display: flex;
@@ -3641,20 +3697,94 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     <div class="card anim" id="stats-dow-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <div class="sec-title">Weekly Productivity</div>
-        <span id="stats-dow-peak-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid);display:flex;align-items:center;gap:4px">
-          <span>🔥 Best Day: Fri</span>
+        <span id="stats-dow-peak-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid);display:flex;align-items:center;gap:5px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--paid)"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z"/></svg>
+          <span id="stats-dow-peak-text">Best: Fri</span>
         </span>
       </div>
       
       <!-- Mon to Sun 7-Day Vertical Bars Grid -->
       <div class="dow-grid" id="stats-dow-grid"></div>
       
-      <div class="divider" style="margin:8px 0 10px"></div>
+      <!-- Summary Chips Grid: Top Off-Day, Peak Week, Most Offs Week -->
+      <div class="dow-summary-grid" id="stats-dow-summary-grid">
+        <div class="dow-summary-chip">
+          <div class="dow-summary-chip-label">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#A78BFA"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg>
+            <span>Top Off-Day</span>
+          </div>
+          <div class="dow-summary-chip-val" id="stats-top-off-day">Sunday</div>
+          <div class="dow-summary-chip-sub" id="stats-top-off-sub">0 Offs Logged</div>
+        </div>
+        
+        <div class="dow-summary-chip">
+          <div class="dow-summary-chip-label">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4A8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Peak Week</span>
+          </div>
+          <div class="dow-summary-chip-val" id="stats-peak-week-val">—</div>
+          <div class="dow-summary-chip-sub" id="stats-peak-week-sub">0 Shifts</div>
+        </div>
+
+        <div class="dow-summary-chip">
+          <div class="dow-summary-chip-label">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#F59E0B"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            <span>Most Offs</span>
+          </div>
+          <div class="dow-summary-chip-val" id="stats-most-offs-val">—</div>
+          <div class="dow-summary-chip-sub" id="stats-most-offs-sub">0 Days Off</div>
+        </div>
+      </div>
+
+      <!-- 7-Point 7-Days Sun-Sat Mini Chart -->
+      <div class="dow-sparkline-wrap">
+        <div class="dow-sparkline-header">
+          <div class="dow-sparkline-title">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--paid)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span>7-Day Activity Pattern (Sun - Sat)</span>
+          </div>
+          <span class="mono" id="stats-7pt-status" style="font-size:9px;color:var(--t2)">7 Points Active</span>
+        </div>
+        <div id="stats-7pt-chart-container"></div>
+      </div>
+
+      <div class="divider" style="margin:12px 0 10px"></div>
       
-      <!-- Weekday vs Weekend Split Summary -->
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:11px;color:var(--t2)">Weekday vs Weekend Volume</div>
-        <div class="mono" id="stats-dow-ratio" style="font-size:11px;font-weight:600;color:var(--t1)">80% / 20%</div>
+      <!-- Weekday vs Weekend Split Header (Single line) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--t1);text-transform:uppercase;letter-spacing:0.04em">Weekday vs Weekend Volume</div>
+        <div class="mono" id="stats-dow-ratio" style="font-size:11px;font-weight:600;color:var(--t1)">0% / 0%</div>
+      </div>
+
+      <!-- Weekday & Weekend Individual Rows with Code-crafted SVG Icons -->
+      <div class="dow-split-wrap">
+        <!-- Weekdays Row -->
+        <div class="dow-split-row">
+          <div class="dow-split-header">
+            <div class="dow-split-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#06B6D4"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              <span>Weekdays (Mon - Fri)</span>
+            </div>
+            <div class="dow-split-val" id="stats-weekday-val">₹0 · 0% <span style="font-size:9.5px;color:var(--t3);font-weight:400" id="stats-weekday-shifts">(0 shifts)</span></div>
+          </div>
+          <div class="dow-progress-track">
+            <div class="dow-progress-fill" id="stats-weekday-progress" style="width:0%;background:linear-gradient(90deg, #06B6D4, #3B82F6)"></div>
+          </div>
+        </div>
+
+        <!-- Weekends Row -->
+        <div class="dow-split-row">
+          <div class="dow-split-header">
+            <div class="dow-split-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#F59E0B"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+              <span>Weekends (Sat - Sun)</span>
+            </div>
+            <div class="dow-split-val" id="stats-weekend-val">₹0 · 0% <span style="font-size:9.5px;color:var(--t3);font-weight:400" id="stats-weekend-shifts">(0 shifts)</span></div>
+          </div>
+          <div class="dow-progress-track">
+            <div class="dow-progress-fill" id="stats-weekend-progress" style="width:0%;background:linear-gradient(90deg, #F59E0B, #EF4444)"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4404,21 +4534,15 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <a href="#" onclick="event.preventDefault(); showPrivacyPolicy()" style="font-size:11px;color:var(--acc);text-decoration:none;cursor:pointer">Privacy Policy</a>
       </div>
 
-      <!-- Real-Time Live Date & Clock Widget -->
-      <div class="live-clock-card" id="realtime-clock-container">
-        <div class="live-clock-header">
-          <span class="live-pulse-dot"></span>
-          <span>Live Chrono</span>
+      <!-- Real-Time Live Date & Clock Widget (Minimal 2-line) -->
+      <div class="live-clock-minimal" id="realtime-clock-container">
+        <div class="live-clock-time-line">
+          <span class="live-clock-time-digits" id="live-clock-time">--:--:-- --</span>
         </div>
-        <div class="live-clock-date" id="live-clock-date">
-          <span class="live-clock-date-day" id="live-clock-day">--</span>
-          <span style="opacity:0.5">•</span>
+        <div class="live-clock-date-line" id="live-clock-date">
           <span id="live-clock-full-date">-- --- ----</span>
-        </div>
-        <div class="live-clock-time-wrap">
-          <span class="live-clock-digits" id="live-clock-hm">--:--</span>
-          <span class="live-clock-sec-box" id="live-clock-sec">:00</span>
-          <span class="live-clock-ampm" id="live-clock-ampm">--</span>
+          <span class="live-clock-dot">•</span>
+          <span class="live-clock-day-pill" id="live-clock-day">--</span>
         </div>
       </div>
     </div>
@@ -8343,16 +8467,98 @@ function showTrendNodeTooltip(ev, dateStr, amtStr, x, y) {
 function renderDayOfWeekMatrix() {
   const dayTotals = [0, 0, 0, 0, 0, 0, 0]; // 0: Sun, 1: Mon, ... 6: Sat
   const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+  const dayDates = [new Set(), new Set(), new Set(), new Set(), new Set(), new Set(), new Set()];
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const fullDayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  let minDate = null;
+  let maxDate = null;
+  const weekMap = new Map(); // key: "YYYY-Wxx", val: { total, shifts, dates: Set(), weekNo, year }
 
   entries.forEach(e => {
+    if (!e.date) return;
     const d = new Date(e.date + 'T00:00:00');
+    if (isNaN(d.getTime())) return;
+    
+    if (!minDate || d < minDate) minDate = new Date(d);
+    if (!maxDate || d > maxDate) maxDate = new Date(d);
+
     const day = d.getDay();
-    dayTotals[day] += e.amount;
+    const amt = Number(e.amount) || 0;
+    dayTotals[day] += amt;
     dayCounts[day] += 1;
+    dayDates[day].add(e.date);
+
+    // Week aggregation
+    const tempD = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = tempD.getUTCDay() || 7;
+    tempD.setUTCDate(tempD.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(tempD.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((tempD - yearStart) / 86400000) + 1) / 7);
+    const wkKey = `${tempD.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+    
+    if (!weekMap.has(wkKey)) {
+      weekMap.set(wkKey, {
+        key: wkKey,
+        weekNo: weekNo,
+        year: tempD.getUTCFullYear(),
+        total: 0,
+        shifts: 0,
+        dates: new Set(),
+        firstDate: d
+      });
+    }
+    const wObj = weekMap.get(wkKey);
+    wObj.total += amt;
+    wObj.shifts += 1;
+    wObj.dates.add(e.date);
   });
 
-  // Reorder display from Monday (1) to Sunday (0)
+  // Calculate off-days per day of week (0..6)
+  const dayOffCounts = [0, 0, 0, 0, 0, 0, 0];
+  if (minDate && maxDate) {
+    const cur = new Date(minDate);
+    while (cur <= maxDate) {
+      const iso = dsOf(cur);
+      const day = cur.getDay();
+      if (!dayDates[day].has(iso)) {
+        dayOffCounts[day] += 1;
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+  } else {
+    dayOffCounts[0] = 1;
+  }
+
+  // Find Top Off-Day (Day with highest off count)
+  let topOffDayIdx = 0;
+  let maxOffs = -1;
+  dayOffCounts.forEach((offs, idx) => {
+    if (offs > maxOffs) {
+      maxOffs = offs;
+      topOffDayIdx = idx;
+    }
+  });
+
+  // Find Peak Work Week & Most Offs Week
+  let peakWeekObj = null;
+  let mostOffsWeekObj = null;
+  let maxWeekTotal = -1;
+  let minWorkDaysInWeek = 8;
+
+  weekMap.forEach((wObj) => {
+    if (wObj.total > maxWeekTotal) {
+      maxWeekTotal = wObj.total;
+      peakWeekObj = wObj;
+    }
+    const workedDays = wObj.dates.size;
+    if (workedDays < minWorkDaysInWeek) {
+      minWorkDaysInWeek = workedDays;
+      mostOffsWeekObj = wObj;
+    }
+  });
+
+  // Reorder display from Monday (1) to Sunday (0) for vertical bar chart
   const displayOrder = [1, 2, 3, 4, 5, 6, 0]; // Mon, Tue, Wed, Thu, Fri, Sat, Sun
   const maxVal = Math.max(...dayTotals, 1);
 
@@ -8365,6 +8571,7 @@ function renderDayOfWeekMatrix() {
     }
   });
 
+  // 1. Render Day-Of-Week Vertical Bars Grid
   const gridEl = document.getElementById('stats-dow-grid');
   if (gridEl) {
     gridEl.innerHTML = displayOrder.map(dayIdx => {
@@ -8375,7 +8582,7 @@ function renderDayOfWeekMatrix() {
       const valStr = amt >= 1000 ? '₹' + (amt / 1000).toFixed(1) + 'k' : (amt > 0 ? '₹' + amt : '—');
 
       return `
-        <div class="dow-col ${isPeak ? 'is-peak' : ''}" title="${dayNames[dayIdx]}: ${fmtRs(amt)} (${count} shifts)">
+        <div class="dow-col ${isPeak ? 'is-peak' : ''}" title="${dayNames[dayIdx]}: ${fmtRs(amt)} (${count} shifts, ${dayOffCounts[dayIdx]} offs)">
           <div style="font-size:7.5px;font-family:'DM Mono',monospace;color:var(--t3);text-align:center;white-space:nowrap">${valStr}</div>
           <div class="dow-bar-track">
             <div class="dow-bar-fill" style="height:${pct}%;"></div>
@@ -8386,31 +8593,186 @@ function renderDayOfWeekMatrix() {
     }).join('');
   }
 
-  // Peak badge update
+  // 2. Best Day Peak Badge (SVG Fire Icon)
   const peakBadge = document.getElementById('stats-dow-peak-badge');
+  const peakText = document.getElementById('stats-dow-peak-text');
   if (peakBadge) {
     if (peakVal > 0) {
-      peakBadge.innerHTML = `<span>🔥 Best: ${dayNames[peakDayIdx]} (${fmtRs(peakVal)})</span>`;
+      if (peakText) peakText.textContent = `Best: ${dayNames[peakDayIdx]} (${fmtRs(peakVal)})`;
       peakBadge.style.display = 'inline-flex';
     } else {
       peakBadge.style.display = 'none';
     }
   }
 
-  // Weekday vs Weekend calculation
-  const weekdayTotal = dayTotals[1] + dayTotals[2] + dayTotals[3] + dayTotals[4] + dayTotals[5];
-  const weekendTotal = dayTotals[6] + dayTotals[0];
-  const grandTotal = weekdayTotal + weekendTotal;
-  const ratioEl = document.getElementById('stats-dow-ratio');
-  if (ratioEl) {
-    if (grandTotal > 0) {
-      const wPct = Math.round((weekdayTotal / grandTotal) * 100);
-      const ePct = 100 - wPct;
-      ratioEl.textContent = `🏢 ${wPct}% Weekdays · 🌴 ${ePct}% Weekends`;
-    } else {
-      ratioEl.textContent = 'No shifts logged yet';
-    }
+  // 3. Update Summary Chips (Top Off-Day, Peak Week, Most Offs)
+  const topOffDayEl = document.getElementById('stats-top-off-day');
+  const topOffSubEl = document.getElementById('stats-top-off-sub');
+  if (topOffDayEl) {
+    topOffDayEl.textContent = fullDayNames[topOffDayIdx] || 'Sunday';
   }
+  if (topOffSubEl) {
+    const offCount = dayOffCounts[topOffDayIdx];
+    topOffSubEl.textContent = offCount > 0 ? `${offCount} Offs Logged` : `${dayCounts[topOffDayIdx]} Shifts`;
+  }
+
+  const peakWeekValEl = document.getElementById('stats-peak-week-val');
+  const peakWeekSubEl = document.getElementById('stats-peak-week-sub');
+  if (peakWeekValEl) {
+    peakWeekValEl.textContent = peakWeekObj ? `W${peakWeekObj.weekNo}` : '—';
+  }
+  if (peakWeekSubEl) {
+    peakWeekSubEl.textContent = peakWeekObj ? `${fmtRs(peakWeekObj.total)} · ${peakWeekObj.shifts} shifts` : '0 Shifts';
+  }
+
+  const mostOffsValEl = document.getElementById('stats-most-offs-val');
+  const mostOffsSubEl = document.getElementById('stats-most-offs-sub');
+  if (mostOffsValEl) {
+    mostOffsValEl.textContent = mostOffsWeekObj ? `W${mostOffsWeekObj.weekNo}` : '—';
+  }
+  if (mostOffsSubEl) {
+    const offDays = mostOffsWeekObj ? Math.max(0, 7 - mostOffsWeekObj.dates.size) : 0;
+    mostOffsSubEl.textContent = mostOffsWeekObj ? `${offDays} Days Off (${mostOffsWeekObj.dates.size} worked)` : '0 Days Off';
+  }
+
+  // 4. Render 7-Point 7-Day Sun-Sat Mini Chart
+  renderSevenPointDowChart(dayTotals, dayCounts, dayOffCounts, peakDayIdx, topOffDayIdx);
+
+  // 5. Weekday vs Weekend Calculation & Multi-row Display
+  const weekdayTotal = dayTotals[1] + dayTotals[2] + dayTotals[3] + dayTotals[4] + dayTotals[5];
+  const weekdayShifts = dayCounts[1] + dayCounts[2] + dayCounts[3] + dayCounts[4] + dayCounts[5];
+  const weekendTotal = dayTotals[6] + dayTotals[0];
+  const weekendShifts = dayCounts[6] + dayCounts[0];
+  const grandTotal = weekdayTotal + weekendTotal;
+
+  const ratioEl = document.getElementById('stats-dow-ratio');
+  const wValEl = document.getElementById('stats-weekday-val');
+  const wProgEl = document.getElementById('stats-weekday-progress');
+  const eValEl = document.getElementById('stats-weekend-val');
+  const eProgEl = document.getElementById('stats-weekend-progress');
+
+  if (grandTotal > 0) {
+    const wPct = Math.round((weekdayTotal / grandTotal) * 100);
+    const ePct = 100 - wPct;
+    if (ratioEl) ratioEl.textContent = `${wPct}% / ${ePct}%`;
+    if (wValEl) wValEl.innerHTML = `${fmtRs(weekdayTotal)} · <span style="color:#06B6D4">${wPct}%</span> <span style="font-size:9.5px;color:var(--t3);font-weight:400">(${weekdayShifts} shifts)</span>`;
+    if (wProgEl) wProgEl.style.width = `${wPct}%`;
+    if (eValEl) eValEl.innerHTML = `${fmtRs(weekendTotal)} · <span style="color:#F59E0B">${ePct}%</span> <span style="font-size:9.5px;color:var(--t3);font-weight:400">(${weekendShifts} shifts)</span>`;
+    if (eProgEl) eProgEl.style.width = `${ePct}%`;
+  } else {
+    if (ratioEl) ratioEl.textContent = '0% / 0%';
+    if (wValEl) wValEl.innerHTML = `₹0 · 0% <span style="font-size:9.5px;color:var(--t3);font-weight:400">(0 shifts)</span>`;
+    if (wProgEl) wProgEl.style.width = '0%';
+    if (eValEl) eValEl.innerHTML = `₹0 · 0% <span style="font-size:9.5px;color:var(--t3);font-weight:400">(0 shifts)</span>`;
+    if (eProgEl) eProgEl.style.width = '0%';
+  }
+}
+
+function renderSevenPointDowChart(dayTotals, dayCounts, dayOffCounts, peakDayIdx, topOffDayIdx) {
+  const container = document.getElementById('stats-7pt-chart-container');
+  if (!container) return;
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const width = 310;
+  const height = 82;
+  const padLeft = 22;
+  const padRight = 22;
+  const padTop = 14;
+  const padBottom = 22;
+  const chartW = width - padLeft - padRight;
+  const chartH = height - padTop - padBottom;
+
+  const maxAmt = Math.max(...dayTotals, 1);
+
+  const coords = [];
+  for (let i = 0; i < 7; i++) {
+    const x = padLeft + (i / 6) * chartW;
+    const amt = dayTotals[i];
+    const y = padTop + chartH - (amt / maxAmt) * chartH;
+    coords.push({
+      x,
+      y,
+      amt,
+      dayIdx: i,
+      dayName: dayNames[i],
+      shifts: dayCounts[i],
+      offs: dayOffCounts[i],
+      isPeak: i === peakDayIdx && amt > 0,
+      isTopOff: i === topOffDayIdx
+    });
+  }
+
+  // Smooth bezier curve
+  let linePath = `M ${coords[0].x.toFixed(1)} ${coords[0].y.toFixed(1)}`;
+  for (let i = 1; i < coords.length; i++) {
+    const prev = coords[i - 1];
+    const curr = coords[i];
+    const midX = (prev.x + curr.x) / 2;
+    linePath += ` C ${midX.toFixed(1)} ${prev.y.toFixed(1)}, ${midX.toFixed(1)} ${curr.y.toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+  }
+  const areaPath = `${linePath} L ${coords[coords.length - 1].x.toFixed(1)} ${(padTop + chartH).toFixed(1)} L ${coords[0].x.toFixed(1)} ${(padTop + chartH).toFixed(1)} Z`;
+
+  const baseLineY = (padTop + chartH).toFixed(1);
+  const midLineY = (padTop + chartH * 0.5).toFixed(1);
+
+  // SVG Circles & labels
+  const pointsMarkup = coords.map((c) => {
+    let circleColor = '#06B6D4';
+    let circleRadius = 3.5;
+    let strokeColor = '#FFFFFF';
+    let strokeW = 1.5;
+    let filterStyle = '';
+
+    if (c.isPeak) {
+      circleColor = '#2DD4A8';
+      circleRadius = 5.5;
+      strokeW = 2.2;
+      filterStyle = 'filter="drop-shadow(0 0 5px rgba(45,212,168,0.9))"';
+    } else if (c.isTopOff) {
+      circleColor = '#F59E0B';
+      circleRadius = 4.5;
+      strokeW = 1.8;
+      filterStyle = 'filter="drop-shadow(0 0 4px rgba(245,158,11,0.8))"';
+    } else if (c.amt === 0) {
+      circleColor = 'rgba(255,255,255,0.2)';
+      circleRadius = 2.5;
+      strokeW = 1;
+      strokeColor = 'rgba(255,255,255,0.4)';
+    }
+
+    const labelColor = c.isPeak ? '#2DD4A8' : (c.isTopOff ? '#F59E0B' : 'var(--t2)');
+    const fontWeight = (c.isPeak || c.isTopOff) ? '700' : '500';
+
+    return `
+      <g style="cursor:pointer" onclick="showTrendNodeTooltip(event, '${c.dayName}', '${fmtRs(c.amt)} (${c.shifts} shifts, ${c.offs} offs)', ${c.x}, ${c.y})" onmouseover="showTrendNodeTooltip(event, '${c.dayName}', '${fmtRs(c.amt)} (${c.shifts} shifts, ${c.offs} offs)', ${c.x}, ${c.y})">
+        <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${circleRadius}" fill="${circleColor}" stroke="${strokeColor}" stroke-width="${strokeW}" ${filterStyle} />
+        <text x="${c.x.toFixed(1)}" y="${(height - 4).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="${fontWeight}" fill="${labelColor}" font-family="'DM Mono', monospace">${c.dayName}</text>
+      </g>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" style="width:100%;height:82px;overflow:visible;display:block">
+      <defs>
+        <linearGradient id="dow-7pt-area-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#06B6D4" stop-opacity="0.32" />
+          <stop offset="60%" stop-color="#3B82F6" stop-opacity="0.10" />
+          <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.00" />
+        </linearGradient>
+        <linearGradient id="dow-7pt-line-grad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#F59E0B" />
+          <stop offset="40%" stop-color="#06B6D4" />
+          <stop offset="85%" stop-color="#2DD4A8" />
+          <stop offset="100%" stop-color="#3B82F6" />
+        </linearGradient>
+      </defs>
+      <line x1="${padLeft}" y1="${midLineY}" x2="${width - padRight}" y2="${midLineY}" stroke="rgba(255,255,255,0.04)" stroke-dasharray="3,3" stroke-width="1" />
+      <line x1="${padLeft}" y1="${baseLineY}" x2="${width - padRight}" y2="${baseLineY}" stroke="rgba(255,255,255,0.06)" stroke-width="1" />
+      <path d="${areaPath}" fill="url(#dow-7pt-area-grad)" />
+      <path d="${linePath}" fill="none" stroke="url(#dow-7pt-line-grad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      ${pointsMarkup}
+    </svg>
+  `;
 }
 
 function renderShiftCompAnalysis() {
@@ -12670,25 +13032,26 @@ function initializeEyeballTracking() {
 
 // Real-time live date and clock ticker for More View footer
 function initRealtimeLiveClock() {
+  const timeEl = document.getElementById('live-clock-time');
   const dayEl = document.getElementById('live-clock-day');
   const dateEl = document.getElementById('live-clock-full-date');
+
   const hmEl = document.getElementById('live-clock-hm');
   const secEl = document.getElementById('live-clock-sec');
   const ampmEl = document.getElementById('live-clock-ampm');
 
-  if (!dayEl || !dateEl || !hmEl || !secEl || !ampmEl) return;
+  if (!timeEl && (!hmEl || !dayEl)) return;
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-  let lastSec = -1;
 
   function update() {
     if (typeof currentView !== 'undefined' && currentView !== 'more' && !document.getElementById('view-more')?.classList.contains('active')) {
       return;
     }
     const now = new Date();
-    const dayName = days[now.getDay()];
+    const dayIdx = now.getDay();
+    const dayName = days[dayIdx];
     const dateNum = String(now.getDate()).padStart(2, '0');
     const monthName = months[now.getMonth()];
     const year = now.getFullYear();
@@ -12699,24 +13062,38 @@ function initRealtimeLiveClock() {
     hours = hours ? hours : 12;
     const hoursStr = String(hours).padStart(2, '0');
     const minutesStr = String(now.getMinutes()).padStart(2, '0');
-    const seconds = now.getSeconds();
-    const secondsStr = ':' + String(seconds).padStart(2, '0');
+    const secondsStr = String(now.getSeconds()).padStart(2, '0');
 
-    if (dayEl.textContent !== dayName) dayEl.textContent = dayName;
-    const fullDateStr = `${dateNum} ${monthName} ${year}`;
-    if (dateEl.textContent !== fullDateStr) dateEl.textContent = fullDateStr;
-    const hmStr = `${hoursStr}:${minutesStr}`;
-    if (hmEl.textContent !== hmStr) hmEl.textContent = hmStr;
-    if (ampmEl.textContent !== ampm) ampmEl.textContent = ampm;
-
-    if (seconds !== lastSec) {
-      lastSec = seconds;
-      secEl.textContent = secondsStr;
-      secEl.classList.remove('tick');
-      requestAnimationFrame(() => {
-        secEl.classList.add('tick');
-      });
+    // Line 1: Unified HR:MIN:SEC AM/PM
+    const formattedTime = `${hoursStr}:${minutesStr}:${secondsStr} ${ampm}`;
+    if (timeEl && timeEl.textContent !== formattedTime) {
+      timeEl.textContent = formattedTime;
     }
+
+    // Line 2: Date Month Year
+    const fullDateStr = `${dateNum} ${monthName} ${year}`;
+    if (dateEl && dateEl.textContent !== fullDateStr) {
+      dateEl.textContent = fullDateStr;
+    }
+
+    // Line 2: Day of Week with Sunday in Neon Rose and other days in Obsidian
+    if (dayEl) {
+      if (dayEl.textContent !== dayName) {
+        dayEl.textContent = dayName;
+      }
+      if (dayIdx === 0) { // Sunday -> Neon Rose (#F43F5E)
+        dayEl.style.color = '#F43F5E';
+        dayEl.style.textShadow = '0 0 8px rgba(244, 63, 94, 0.45)';
+      } else { // Monday - Saturday -> Obsidian (#94A3B8)
+        dayEl.style.color = '#94A3B8';
+        dayEl.style.textShadow = 'none';
+      }
+    }
+
+    // Legacy element fallbacks
+    if (hmEl) hmEl.textContent = `${hoursStr}:${minutesStr}`;
+    if (secEl) secEl.textContent = `:${secondsStr}`;
+    if (ampmEl) ampmEl.textContent = ampm;
   }
 
   update();
