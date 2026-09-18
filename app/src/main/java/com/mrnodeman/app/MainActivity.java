@@ -28,6 +28,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -50,6 +56,10 @@ import java.util.Map;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final String CHANNEL_ATTENDANCE = "channel_attendance";
+    public static final String CHANNEL_SALARY = "channel_salary";
+    public static final String CHANNEL_REMINDERS = "channel_reminders";
 
     private WebView webView;
     private ValueCallback<Uri[]> uploadMessage;
@@ -119,11 +129,15 @@ public class MainActivity extends AppCompatActivity {
         }
         webSettings.setRenderPriority(WebSettings.RenderPriority.HIGH);
 
-        // Handle URL loading: launch external links in device browser/app intent
+        // Handle URL loading: launch external links in device browser, but allow Google Auth in WebView
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url != null && (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("mailto:") || url.startsWith("tel:"))) {
+                    // Allow Google Sign-In and Google Identity Service flows to load within WebView
+                    if (url.contains("accounts.google.com") || url.contains("google.com/gsi") || url.contains("googleapis.com") || url.contains("gstatic.com")) {
+                        return false;
+                    }
                     try {
                         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         startActivity(intent);
@@ -190,6 +204,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Register custom JavaScript interface for exporting files and system integrations
         webView.addJavascriptInterface(new AndroidInterface(), "AndroidApp");
+
+        // Create Notification Channels for Attendance, Salary, and Reminders
+        createNotificationChannels();
 
         // Load the local HTML file from assets
         webView.loadUrl("file:///android_asset/index.html");
@@ -564,6 +581,133 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
+            }
+        }
+
+        // ── Native Google Sign-In Trigger ──
+        @JavascriptInterface
+        public void loginWithGoogle(final String webClientId) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (webView != null) {
+                            webView.loadUrl("javascript:if(typeof window.initiateWebGoogleSignIn==='function'){window.initiateWebGoogleSignIn('" + (webClientId != null ? webClientId.replace("'", "\\'") : "") + "');}");
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        // ── Native Device Notifications ──
+        @JavascriptInterface
+        public boolean postNativeNotification(final String title, final String message, final String channelType, final int notificationId) {
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String targetChannel = CHANNEL_ATTENDANCE;
+                            if ("salary".equalsIgnoreCase(channelType)) {
+                                targetChannel = CHANNEL_SALARY;
+                            } else if ("reminder".equalsIgnoreCase(channelType) || "streak".equalsIgnoreCase(channelType)) {
+                                targetChannel = CHANNEL_REMINDERS;
+                            }
+
+                            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            PendingIntent pendingIntent = PendingIntent.getActivity(
+                                MainActivity.this,
+                                notificationId,
+                                intent,
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, targetChannel)
+                                .setSmallIcon(R.mipmap.ic_launcher)
+                                .setContentTitle(title)
+                                .setContentText(message)
+                                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
+                                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                                .setContentIntent(pendingIntent)
+                                .setAutoCancel(true)
+                                .setVibrate(new long[]{0, 200, 100, 200});
+
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                                    notificationManager.notify(notificationId, builder.build());
+                                }
+                            } else {
+                                notificationManager.notify(notificationId, builder.build());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @JavascriptInterface
+        public boolean hasNotificationPermission() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+            }
+            return true;
+        }
+
+        @JavascriptInterface
+        public void requestNotificationPermission() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    requestRuntimePermissions();
+                }
+            });
+        }
+    }
+
+    // Creates high-priority notification channels on Android 8.0+
+    private void createNotificationChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                NotificationManager manager = getSystemService(NotificationManager.class);
+                if (manager != null) {
+                    NotificationChannel attChannel = new NotificationChannel(
+                        CHANNEL_ATTENDANCE,
+                        "Attendance & Shifts",
+                        NotificationManager.IMPORTANCE_HIGH
+                    );
+                    attChannel.setDescription("Daily shift reminders, attendance check-ins, and leave alerts");
+                    attChannel.enableVibration(true);
+                    manager.createNotificationChannel(attChannel);
+
+                    NotificationChannel salChannel = new NotificationChannel(
+                        CHANNEL_SALARY,
+                        "Salary & Payouts",
+                        NotificationManager.IMPORTANCE_HIGH
+                    );
+                    salChannel.setDescription("Monthly salary credit day alerts and payslip notifications");
+                    salChannel.enableVibration(true);
+                    manager.createNotificationChannel(salChannel);
+
+                    NotificationChannel remChannel = new NotificationChannel(
+                        CHANNEL_REMINDERS,
+                        "Reminders & Streaks",
+                        NotificationManager.IMPORTANCE_DEFAULT
+                    );
+                    remChannel.setDescription("Work streaks and general task reminders");
+                    manager.createNotificationChannel(remChannel);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
