@@ -1,5 +1,8 @@
 package com.mrnodeman.app;
 
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -66,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     private final static int FILECHOOSER_RESULTCODE = 1;
     private final static int PERMISSION_REQUEST_CODE = 100;
     private volatile boolean isIncognitoActive = false;
+    private BroadcastReceiver ringerModeReceiver;
+    private String lastKnownRingerMode = "";
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
@@ -149,6 +154,12 @@ public class MainActivity extends AppCompatActivity {
                 view.loadUrl(url);
                 return true;
             }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                checkAndDispatchRingerMode(true);
+            }
         });
 
         // Setup File Chooser & Permission Security for Web App
@@ -208,6 +219,9 @@ public class MainActivity extends AppCompatActivity {
         // Create Notification Channels for Attendance, Salary, and Reminders
         createNotificationChannels();
 
+        // Setup dynamic listener for device silent / vibrate / normal ringer mode
+        setupRingerModeListener();
+
         // Load the local HTML file from assets
         webView.loadUrl("file:///android_asset/index.html");
 
@@ -254,6 +268,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Native Interface exposing operations to JavaScript
     public class AndroidInterface {
+
+        // ── Device Ringer Mode Status Bridge ──
+        @JavascriptInterface
+        public String getRingerMode() {
+            return getCurrentRingerMode();
+        }
         
         // ── Ultra-crisp Native Haptic Feedback ──
         @JavascriptInterface
@@ -262,6 +282,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     try {
+                        // Suppress hardware vibrations when device is in silent mode
+                        try {
+                            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                            if (am != null && am.getRingerMode() == AudioManager.RINGER_MODE_SILENT) {
+                                return;
+                            }
+                        } catch (Exception ignored) {}
+
                         Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                         if (vibrator == null || !vibrator.hasVibrator()) {
                             return;
@@ -790,6 +818,76 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         enableHighRefreshRate();
+        checkAndDispatchRingerMode(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (ringerModeReceiver != null) {
+            try {
+                unregisterReceiver(ringerModeReceiver);
+            } catch (Exception ignored) {}
+        }
+    }
+
+    // Returns the current system ringer mode as string: "silent", "vibrate", or "normal"
+    public String getCurrentRingerMode() {
+        try {
+            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                int ringerMode = audioManager.getRingerMode();
+                if (ringerMode == AudioManager.RINGER_MODE_SILENT) {
+                    return "silent";
+                } else if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
+                    return "vibrate";
+                } else {
+                    return "normal";
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "normal";
+    }
+
+    // Dispatches device ringer mode changes into the WebView JavaScript runtime
+    private void checkAndDispatchRingerMode(final boolean force) {
+        final String currentMode = getCurrentRingerMode();
+        if (force || !currentMode.equals(lastKnownRingerMode)) {
+            lastKnownRingerMode = currentMode;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (webView != null) {
+                        String script = "if(typeof window.onDeviceRingerModeChanged==='function'){window.onDeviceRingerModeChanged('" + currentMode + "');}";
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                            webView.evaluateJavascript(script, null);
+                        } else {
+                            webView.loadUrl("javascript:" + script);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Registers dynamic receiver to track volume key and system ringer mode transitions
+    private void setupRingerModeListener() {
+        try {
+            ringerModeReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (AudioManager.RINGER_MODE_CHANGED_ACTION.equals(intent.getAction())) {
+                        checkAndDispatchRingerMode(false);
+                    }
+                }
+            };
+            IntentFilter filter = new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION);
+            ContextCompat.registerReceiver(this, ringerModeReceiver, filter, ContextCompat.RECEIVER_EXPORTED);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -797,6 +895,7 @@ public class MainActivity extends AppCompatActivity {
         super.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             enableHighRefreshRate();
+            checkAndDispatchRingerMode(false);
         }
     }
 

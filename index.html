@@ -6606,6 +6606,20 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
     <!-- TAB 3: SOUND & HAPTICS -->
     <div class="settings-tab-content" id="settings-tab-feedback">
+      <!-- Device Ringer Mode Dynamic Sync Banner -->
+      <div class="settings-card-item" id="cfg-device-ringer-card" style="border:1px solid var(--b2);background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));padding:12px 14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span id="cfg-device-ringer-icon" style="font-size:18px">🔔</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--t1)" id="cfg-device-ringer-title">Device Profile Sync</div>
+              <div style="font-size:11px;color:var(--t3)" id="cfg-device-ringer-desc">Dynamic sync with Android Silent / Vibrate / Ring mode</div>
+            </div>
+          </div>
+          <span id="cfg-device-ringer-badge" style="font-size:10px;font-weight:700;padding:4px 9px;border-radius:6px;background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3)">Ring Mode</span>
+        </div>
+      </div>
+
       <div class="settings-card-item">
         <div class="settings-row">
           <div>
@@ -15726,6 +15740,11 @@ function populateSettingsModalData() {
   
   const hapticIntensity = document.getElementById('cfg-haptic-intensity');
   if (hapticIntensity) hapticIntensity.value = localStorage.getItem('_mnm_haptic_intensity') || 'medium';
+
+  // Synchronize Device Ringer Mode Badge in Settings
+  if (typeof updateDeviceRingerBadgeFromCurrent === 'function') {
+    updateDeviceRingerBadgeFromCurrent();
+  }
   
   // Populate favorite clients
   let favorites = [];
@@ -16049,6 +16068,8 @@ function toggleAutofillToday(checked) {
 function toggleSoundSetting(checked) {
   localStorage.setItem('_mnm_sound_enabled', checked ? 'true' : 'false');
   if (typeof soundManager !== 'undefined') soundManager.enabled = checked;
+  const sToggles = [document.getElementById('sound-toggle'), document.getElementById('cfg-sound-toggle')];
+  sToggles.forEach(t => { if (t) t.checked = checked; });
   playSoundAndHaptic('tap', 'light');
   if (typeof saveUserData === 'function') saveUserData();
 }
@@ -16056,6 +16077,8 @@ function toggleSoundSetting(checked) {
 function toggleHapticSetting(checked) {
   localStorage.setItem('_mnm_haptic_enabled', checked ? 'true' : 'false');
   if (typeof hapticManager !== 'undefined') hapticManager.enabled = checked;
+  const hToggles = [document.getElementById('haptics-toggle'), document.getElementById('cfg-haptic-toggle')];
+  hToggles.forEach(t => { if (t) t.checked = checked; });
   playSoundAndHaptic('tap', 'light');
   if (typeof saveUserData === 'function') saveUserData();
 }
@@ -17721,6 +17744,151 @@ class HapticManager {
 // Initialize managers
 const soundManager = new SoundManager();
 const hapticManager = new HapticManager();
+
+/* ════════════════════════════════════════════
+   DYNAMIC ANDROID DEVICE RINGER MODE ENGINE
+   (Auto-adjusts sound & haptics based on Silent/Vibrate/Ring mode)
+════════════════════════════════════════════ */
+function updateDeviceRingerBadge(mode, modeTitle, icon, badgeColor, badgeBg, badgeBd) {
+  const badgeEl = document.getElementById('cfg-device-ringer-badge');
+  const iconEl = document.getElementById('cfg-device-ringer-icon');
+  const descEl = document.getElementById('cfg-device-ringer-desc');
+  if (badgeEl) {
+    badgeEl.textContent = modeTitle || (mode === 'silent' ? 'Silent Mode' : mode === 'vibrate' ? 'Vibrate Mode' : 'Ring Mode');
+    if (badgeColor) badgeEl.style.color = badgeColor;
+    if (badgeBg) badgeEl.style.background = badgeBg;
+    if (badgeBd) badgeEl.style.borderColor = badgeBd;
+  }
+  if (iconEl && icon) {
+    iconEl.textContent = icon;
+  }
+  if (descEl) {
+    if (mode === 'silent') {
+      descEl.textContent = 'Device is silent: Audio tones and vibrations auto-muted';
+    } else if (mode === 'vibrate') {
+      descEl.textContent = 'Device is in vibrate: Audio muted, tactile haptics active';
+    } else {
+      descEl.textContent = 'Device is in ring mode: Full audio effects & haptics active';
+    }
+  }
+}
+
+function updateDeviceRingerBadgeFromCurrent() {
+  let mode = 'normal';
+  if (window.AndroidApp && typeof window.AndroidApp.getRingerMode === 'function') {
+    try {
+      mode = window.AndroidApp.getRingerMode() || 'normal';
+    } catch(e) {}
+  } else {
+    mode = localStorage.getItem('_mnm_last_device_ringer_mode') || 'normal';
+  }
+  
+  const normalized = String(mode).toLowerCase();
+  if (normalized === 'silent') {
+    updateDeviceRingerBadge('silent', 'Silent Mode', '🔕', '#F87171', 'rgba(248,113,113,0.15)', 'rgba(248,113,113,0.3)');
+  } else if (normalized === 'vibrate') {
+    updateDeviceRingerBadge('vibrate', 'Vibrate Mode', '📳', '#FFB930', 'rgba(255,185,48,0.15)', 'rgba(255,185,48,0.3)');
+  } else {
+    updateDeviceRingerBadge('normal', 'Ring Mode', '🔔', '#10B981', 'rgba(16,185,129,0.15)', 'rgba(16,185,129,0.3)');
+  }
+}
+
+function applyDeviceRingerMode(mode, showNotification) {
+  if (!mode) return;
+  const normalizedMode = String(mode).toLowerCase();
+  
+  let soundOn = true;
+  let hapticOn = true;
+  let modeTitle = 'Ring Mode';
+  let badgeColor = '#10B981';
+  let badgeBg = 'rgba(16,185,129,0.15)';
+  let badgeBd = 'rgba(16,185,129,0.3)';
+  let icon = '🔔';
+  let toastMsg = '';
+
+  if (normalizedMode === 'silent') {
+    // Silent mode: Both sound AND haptics OFF
+    soundOn = false;
+    hapticOn = false;
+    modeTitle = 'Silent Mode';
+    badgeColor = '#F87171';
+    badgeBg = 'rgba(248,113,113,0.15)';
+    badgeBd = 'rgba(248,113,113,0.3)';
+    icon = '🔕';
+    toastMsg = '🔕 Device in Silent Mode: Sound & Haptics muted';
+  } else if (normalizedMode === 'vibrate') {
+    // Vibrate mode: Sound OFF, Haptics ON
+    soundOn = false;
+    hapticOn = true;
+    modeTitle = 'Vibrate Mode';
+    badgeColor = '#FFB930';
+    badgeBg = 'rgba(255,185,48,0.15)';
+    badgeBd = 'rgba(255,185,48,0.3)';
+    icon = '📳';
+    toastMsg = '📳 Device in Vibrate Mode: Sound muted, Haptics active';
+  } else {
+    // Ring / Normal mode: Sound ON, Haptics ON
+    soundOn = true;
+    hapticOn = true;
+    modeTitle = 'Ring Mode';
+    badgeColor = '#10B981';
+    badgeBg = 'rgba(16,185,129,0.15)';
+    badgeBd = 'rgba(16,185,129,0.3)';
+    icon = '🔔';
+    toastMsg = '🔔 Device in Ring Mode: Sound & Haptics enabled';
+  }
+
+  // Update manager states immediately
+  if (typeof soundManager !== 'undefined' && soundManager) {
+    soundManager.enabled = soundOn;
+  }
+  if (typeof hapticManager !== 'undefined' && hapticManager) {
+    hapticManager.enabled = hapticOn;
+  }
+
+  // Persist settings in localStorage
+  localStorage.setItem('_mnm_sound_enabled', soundOn ? 'true' : 'false');
+  localStorage.setItem('_mnm_haptic_enabled', hapticOn ? 'true' : 'false');
+  localStorage.setItem('_mnm_last_device_ringer_mode', normalizedMode);
+
+  // Synchronize UI Checkboxes across More View and Settings Modal
+  const sToggles = [document.getElementById('sound-toggle'), document.getElementById('cfg-sound-toggle')];
+  sToggles.forEach(t => { if (t) t.checked = soundOn; });
+
+  const hToggles = [document.getElementById('haptics-toggle'), document.getElementById('cfg-haptic-toggle')];
+  hToggles.forEach(t => { if (t) t.checked = hapticOn; });
+
+  // Update Settings Modal Badge
+  updateDeviceRingerBadge(normalizedMode, modeTitle, icon, badgeColor, badgeBg, badgeBd);
+
+  // Save to persistent user database
+  if (typeof saveUserData === 'function') {
+    try { saveUserData(); } catch (e) {}
+  }
+
+  // Display unobtrusive toast when mode changes actively
+  if (showNotification && typeof showToast === 'function' && toastMsg) {
+    showToast(toastMsg);
+  }
+}
+
+// Global hook invoked from native Android BroadcastReceiver
+function onDeviceRingerModeChanged(mode) {
+  applyDeviceRingerMode(mode, true);
+}
+window.onDeviceRingerModeChanged = onDeviceRingerModeChanged;
+
+// Initial startup synchronization with native Android device ringer mode
+if (window.AndroidApp && typeof window.AndroidApp.getRingerMode === 'function') {
+  try {
+    const initRinger = window.AndroidApp.getRingerMode();
+    if (initRinger) {
+      applyDeviceRingerMode(initRinger, false);
+    }
+  } catch (e) {
+    console.log('Initial ringer mode check error:', e);
+  }
+}
 
 // Unlock and pre-warm audio context on first user interaction
 function unlockAudioEngine() {
