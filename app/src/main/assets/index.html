@@ -2079,58 +2079,6 @@ select option{background:var(--s)}
 .reuse-btn:hover{border-color:var(--acc-bd);color:var(--acc);background:var(--acc-bg)}
 .reuse-btn:active{transform:scale(.94)}
 
-/* ════════════════════════════════════════════════
-   LIVE REAL-TIME CHRONO / CLOCK WIDGET (MORE VIEW)
-════════════════════════════════════════════════ */
-.live-clock-card {
-  margin-top: 16px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: 
-    radial-gradient(ellipse at 50% 0%, rgba(124, 111, 237, 0.12) 0%, transparent 70%),
-    linear-gradient(135deg, rgba(22, 22, 34, 0.75) 0%, rgba(12, 12, 20, 0.85) 100%);
-  border: 1px solid rgba(124, 111, 237, 0.22);
-  box-shadow: 
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4),
-    0 4px 16px rgba(0, 0, 0, 0.45),
-    0 0 14px rgba(124, 111, 237, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  user-select: none;
-}
-
-.live-clock-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 15%;
-  right: 15%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(124, 111, 237, 0.6), transparent);
-}
-
-.live-clock-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  font-family: 'Syne', sans-serif;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--t2);
-  opacity: 0.85;
-}
-
 .live-pulse-dot {
   width: 5px;
   height: 5px;
@@ -2145,81 +2093,6 @@ select option{background:var(--s)}
 @keyframes livePulseAnim {
   0%, 100% { transform: scale(0.85); opacity: 0.55; }
   50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #38ef7d; }
-}
-
-.live-clock-date {
-  font-family: 'DM Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: var(--t2);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.live-clock-date-day {
-  color: #A89EFF;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.live-clock-time-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-
-.live-clock-digits {
-  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 50%, #CBD5E1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
-}
-
-.live-clock-sec-box {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  background: rgba(56, 239, 125, 0.12);
-  border: 1px solid rgba(56, 239, 125, 0.28);
-  font-size: 11px;
-  font-weight: 700;
-  color: #38ef7d;
-  box-shadow: inset 0 0 6px rgba(56, 239, 125, 0.15);
-  transition: transform 0.12s ease;
-}
-
-.live-clock-sec-box.tick {
-  animation: secSpringTick 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes secSpringTick {
-  0% { transform: scale(1.22); filter: brightness(1.35); }
-  100% { transform: scale(1); filter: brightness(1); }
-}
-
-.live-clock-ampm {
-  font-size: 9px;
-  font-weight: 800;
-  padding: 2px 5px;
-  border-radius: 4px;
-  background: rgba(124, 111, 237, 0.16);
-  border: 1px solid rgba(124, 111, 237, 0.32);
-  color: #A89EFF;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 /* ════════════════════════════════════════════════
@@ -5708,22 +5581,14 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <a href="#" onclick="event.preventDefault(); showPrivacyPolicy()" style="font-size:11px;color:var(--acc);text-decoration:none;cursor:pointer">Privacy Policy</a>
       </div>
 
-      <!-- Real-Time Live Date & Clock Widget -->
-      <div class="live-clock-card" id="realtime-clock-container">
-        <div class="live-clock-header">
-          <span class="live-pulse-dot"></span>
-          <span>Live Chrono</span>
-        </div>
-        <div class="live-clock-date" id="live-clock-date">
-          <span class="live-clock-date-day" id="live-clock-day">--</span>
-          <span style="opacity:0.5">•</span>
-          <span id="live-clock-full-date">-- --- ----</span>
-        </div>
-        <div class="live-clock-time-wrap">
-          <span class="live-clock-digits" id="live-clock-hm">--:--</span>
-          <span class="live-clock-sec-box" id="live-clock-sec">:00</span>
-          <span class="live-clock-ampm" id="live-clock-ampm">--</span>
-        </div>
+      <!-- Real-Time Live Date & Clock Footer -->
+      <div id="realtime-clock-container" style="margin-top:16px;text-align:center;font-size:10px;color:var(--t3);letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap">
+        <span id="live-clock-day">--</span>
+        <span style="opacity:0.5">•</span>
+        <span id="live-clock-full-date">-- --- ----</span>
+        <span style="opacity:0.5">•</span>
+        <span style="display:inline-flex;align-items:center"><span id="live-clock-hm">--:--</span><span id="live-clock-sec">:00</span></span>
+        <span id="live-clock-ampm">--</span>
       </div>
     </div>
 
@@ -17343,10 +17208,6 @@ function initRealtimeLiveClock() {
     if (seconds !== lastSec) {
       lastSec = seconds;
       secEl.textContent = secondsStr;
-      secEl.classList.remove('tick');
-      requestAnimationFrame(() => {
-        secEl.classList.add('tick');
-      });
     }
   }
 
