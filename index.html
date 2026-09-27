@@ -881,7 +881,7 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   transform: scale(0.92);
 }
 
-.hmscroll{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
+.hmscroll{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;touch-action:pan-x pan-y;overscroll-behavior-x:contain}
 .hmscroll::-webkit-scrollbar{display:none}
 .hcell{width:11px;height:11px;border-radius:2.5px;cursor:pointer;transition:transform .12s,filter .12s;flex-shrink:0}
 .hcell:hover{transform:scale(1.55);filter:brightness(1.3);z-index:3;position:relative}
@@ -1388,54 +1388,104 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   min-width: 52px;
   min-height: 40px;
   border-radius: 14px;
-  background: linear-gradient(135deg, #00F5A0 0%, #00D9F5 100%);
-  color: #061814;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--t1, #EEEEF5);
   font-size: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1.5px solid rgba(255, 255, 255, 0.40);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   box-shadow: 
-    0 0 0 2px rgba(0, 245, 160, 0.22),
-    0 4px 16px -2px rgba(0, 217, 245, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.35),
-    inset 0 1px 2px rgba(255, 255, 255, 0.65),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.25);
-  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, filter 0.22s ease;
+    0 4px 16px rgba(0, 0, 0, 0.30),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.2);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s ease, background 0.22s ease, border-color 0.22s ease, color 0.22s ease;
   will-change: transform;
 }
 .fab svg {
   width: 22px;
   height: 22px;
-  stroke: #051410;
-  stroke-width: 2.6;
+  stroke: currentColor;
+  stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
   transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.fab:hover {
-  transform: scale(1.08) translateY(-2px);
+
+/* Glassy / Pastel Freelance Mode Button */
+.fab.fab-mode-freelance {
+  background: rgba(45, 212, 168, 0.12);
+  border: 1px solid rgba(45, 212, 168, 0.30);
+  color: #2DD4A8;
   box-shadow: 
-    0 0 0 5px rgba(0, 245, 160, 0.32),
-    0 12px 28px -2px rgba(0, 217, 245, 0.65),
-    0 6px 16px rgba(0, 0, 0, 0.55),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.85);
+    0 4px 16px rgba(45, 212, 168, 0.16),
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.30);
+}
+.fab.fab-mode-freelance:hover {
+  background: rgba(45, 212, 168, 0.20);
+  border-color: rgba(45, 212, 168, 0.48);
+  box-shadow: 
+    0 6px 20px rgba(45, 212, 168, 0.28),
+    0 0 0 3px rgba(45, 212, 168, 0.14),
+    inset 0 1px 2px rgba(255, 255, 255, 0.40);
+}
+
+/* Glassy / Pastel Office Worker Mode Button */
+.fab.fab-mode-office {
+  background: rgba(124, 111, 237, 0.14);
+  border: 1px solid rgba(124, 111, 237, 0.32);
+  color: #A594FD;
+  box-shadow: 
+    0 4px 16px rgba(124, 111, 237, 0.16),
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.30);
+}
+.fab.fab-mode-office:hover {
+  background: rgba(124, 111, 237, 0.22);
+  border-color: rgba(124, 111, 237, 0.50);
+  box-shadow: 
+    0 6px 20px rgba(124, 111, 237, 0.28),
+    0 0 0 3px rgba(124, 111, 237, 0.14),
+    inset 0 1px 2px rgba(255, 255, 255, 0.40);
+}
+
+/* Glassy / Pastel Dual Mode Button */
+.fab.fab-mode-dual, .fab:not(.fab-mode-freelance):not(.fab-mode-office) {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  color: #EEEEF5;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.30),
+    0 0 12px rgba(124, 111, 237, 0.10),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.28);
+}
+.fab.fab-mode-dual:hover, .fab:not(.fab-mode-freelance):not(.fab-mode-office):hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.32);
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.40),
+    0 0 0 3px rgba(255, 255, 255, 0.10),
+    inset 0 1px 2px rgba(255, 255, 255, 0.38);
+}
+
+.fab:hover {
+  transform: scale(1.06) translateY(-2px);
 }
 .fab:hover svg {
-  transform: scale(1.14);
+  transform: scale(1.10);
 }
 .fab:active {
-  transform: scale(0.92) translateY(1px) !important;
-  box-shadow: 
-    0 0 0 2px rgba(0, 245, 160, 0.16),
-    0 3px 10px rgba(0, 217, 245, 0.40) !important;
+  transform: scale(0.93) translateY(1px) !important;
 }
 .fab:active svg {
-  transform: scale(0.90);
+  transform: scale(0.92);
 }
 
 /* ════════════════════════════════════════════════
@@ -1448,6 +1498,7 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   z-index: 4000;
   display: flex;
   align-items: flex-end;
+  justify-content: center;
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   opacity: 0;
@@ -1480,6 +1531,8 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
   padding: 10px 20px calc(28px + env(safe-area-inset-bottom, 16px));
   width: 100%;
   max-height: 90vh;
+  margin: 0 auto;
+  box-sizing: border-box;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -1500,6 +1553,150 @@ body{font-family:'Syne',sans-serif;color:#EEEEF5;-webkit-font-smoothing:antialia
 }
 .msheet::-webkit-scrollbar {
   display: none;
+}
+
+/* ════════════════════════════════════════════════
+   DUAL ACTION QUICK SELECTOR MODAL & CARDS
+════════════════════════════════════════════════ */
+#dual-action-modal {
+  align-items: flex-end;
+  justify-content: center;
+}
+.dual-action-sheet {
+  max-width: 440px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  border-radius: 28px 28px 0 0 !important;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 16px)) !important;
+  box-sizing: border-box !important;
+  text-align: center;
+}
+@media (min-width: 600px) {
+  #dual-action-modal {
+    align-items: center !important;
+    padding: 20px !important;
+  }
+  .dual-action-sheet {
+    border-radius: 24px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+    padding: 20px 24px 24px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), inset 0 1px 1.5px rgba(255, 255, 255, 0.25) !important;
+  }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  #dual-action-modal {
+    align-items: center !important;
+  }
+  .dual-action-sheet {
+    max-height: 94vh !important;
+    border-radius: 20px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
+    padding: 12px 18px 16px !important;
+  }
+  .dual-action-card {
+    padding: 10px 14px !important;
+  }
+}
+.dual-action-card {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.dual-action-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.dual-action-card:active {
+  transform: scale(0.98) translateY(0);
+}
+.dual-action-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dual-action-card:hover .dual-action-icon-box {
+  transform: scale(1.08);
+}
+.dual-fl-icon {
+  background: rgba(45, 212, 168, 0.12);
+  border: 1px solid rgba(45, 212, 168, 0.28);
+  color: #2DD4A8;
+}
+.dual-off-icon {
+  background: rgba(124, 111, 237, 0.14);
+  border: 1px solid rgba(124, 111, 237, 0.30);
+  color: #A594FD;
+}
+.dual-action-info {
+  flex: 1;
+  min-width: 0;
+}
+.dual-action-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--t1, #EEEEF5);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dual-action-desc {
+  font-size: 11px;
+  color: var(--t2, #74748A);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dual-action-chevron {
+  color: var(--t2, #74748A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.dual-action-card:hover .dual-action-chevron {
+  color: var(--t1, #EEEEF5);
+  transform: translateX(3px);
+}
+.dual-cancel-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--t2, #74748A);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.dual-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--t1, #EEEEF5);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 .mhandle {
   width: 48px;
@@ -3505,50 +3702,64 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 .att-cal-month-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 .att-cal-nav-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--s2);
-  border: 1px solid var(--b);
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: transparent;
+  border: none;
   color: var(--t1);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.15s ease;
+  font-size: 13px;
+  font-weight: 700;
 }
 .att-cal-nav-btn:hover {
-  background: var(--s3);
-  border-color: var(--acc-bd);
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+.att-cal-nav-btn:active {
+  transform: scale(0.92);
+}
+.att-cal-nav-btn.att-cal-today-btn {
+  width: auto;
+  padding: 0 8px;
+  font-size: 10.5px;
   color: var(--acc);
 }
 .att-cal-grid-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 5px;
   margin-bottom: 6px;
   text-align: center;
 }
 .att-cal-weekday {
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--t3);
   text-transform: uppercase;
-  padding: 4px 0;
-  letter-spacing: 0.05em;
+  padding: 3px 0;
+  letter-spacing: 0.06em;
 }
 .att-cal-weekday.weekend {
-  color: var(--danger);
-  opacity: 0.85;
+  color: rgba(248, 113, 113, 0.75);
 }
 .att-cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 5px;
   touch-action: pan-y;
+  overscroll-behavior-x: contain;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 .att-cal-grid.slide-left-anim {
@@ -3566,30 +3777,31 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   to { opacity: 1; transform: translateX(0); }
 }
 .att-day-tile {
-  min-height: 52px;
-  background: var(--s2);
-  border: 1px solid var(--b);
-  border-radius: 9px;
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
   padding: 5px 4px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   user-select: none;
   -webkit-user-select: none;
   box-sizing: border-box;
 }
 .att-day-tile:hover {
-  transform: scale(1.05);
-  border-color: var(--acc-bd);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(124, 111, 237, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   z-index: 5;
 }
 .att-day-tile:active {
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 .att-day-tile.empty {
   background: transparent;
@@ -3598,43 +3810,41 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   pointer-events: none;
 }
 .att-day-tile.is-today {
-  border: 1.5px solid var(--acc);
-  background: rgba(124, 111, 237, 0.08);
-  box-shadow: 0 0 10px rgba(124, 111, 237, 0.3);
+  border: 1.5px solid var(--acc, #7C6FED);
+  background: rgba(124, 111, 237, 0.12);
+  box-shadow: 0 0 12px rgba(124, 111, 237, 0.25);
 }
-.att-day-tile.is-today::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--acc);
+.att-day-tile.is-today .day-num {
+  color: var(--acc, #7C6FED);
+  font-weight: 900;
 }
 .att-day-tile .day-num {
   font-size: 11.5px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--t1);
   line-height: 1;
+}
+.att-day-tile.weekend-tile .day-num {
+  color: rgba(248, 113, 113, 0.85);
 }
 .att-day-tile .day-badge {
   font-size: 8.5px;
   font-weight: 800;
   padding: 2px 5px;
-  border-radius: 4px;
-  line-height: 1.2;
+  border-radius: 5px;
+  line-height: 1.1;
   letter-spacing: 0.02em;
+  margin-top: 2px;
 }
 .att-day-tile .ot-tag {
   font-size: 7.5px;
   font-weight: 800;
   color: #FFB930;
-  background: rgba(255, 185, 48, 0.18);
-  border: 1px solid rgba(255, 185, 48, 0.35);
+  background: rgba(255, 185, 48, 0.16);
+  border: 1px solid rgba(255, 185, 48, 0.30);
   border-radius: 4px;
-  padding: 0 3px;
-  line-height: 1.1;
+  padding: 1px 3px;
+  line-height: 1;
 }
 .att-day-tile .notes-dot {
   width: 4px;
@@ -3642,35 +3852,76 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   border-radius: 50%;
   background: var(--acc);
   position: absolute;
-  bottom: 2px;
-  right: 2px;
+  bottom: 2.5px;
+  right: 2.5px;
 }
 
-/* Calendar Metrics Summary Bar */
+/* Calendar Metrics Summary Strip */
 .att-cal-metrics-bar {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
   margin-bottom: 12px;
 }
+@media (min-width: 440px) {
+  .att-cal-metrics-bar {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
 .att-cal-metric-item {
-  background: var(--s2);
-  border: 1px solid var(--b);
-  border-radius: 9px;
-  padding: 6px 8px;
-  text-align: center;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 7px 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 .att-cal-metric-label {
   font-size: 8.5px;
+  font-weight: 700;
   color: var(--t2);
   text-transform: uppercase;
-  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 .att-cal-metric-val {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 800;
-  color: var(--t1);
-  margin-top: 2px;
+  line-height: 1.2;
+}
+.att-cal-metric-val .sub {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--t3);
+  margin-left: 2px;
+}
+
+/* Minimal Calendar Legend */
+.att-cal-legend-bar {
+  display: flex;
+  gap: 10px 14px;
+  margin-top: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 9.5px;
+  color: var(--t2);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 9px;
+}
+.att-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+.att-legend-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 /* Donut Chart & SVG Visuals */
@@ -3947,6 +4198,65 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </button>
     </div>
 
+    <!-- ══════════════ ACTIVITY HEATMAP CARD (DIRECTLY BELOW MODE SWITCHER) ══════════════ -->
+    <div class="card anim no-section-swipe" id="dash-activity-heatmap-card" data-no-swipe="true">
+      <div class="hm-header-row">
+        <div class="hm-header-title-zone">
+          <div class="sec-title">Activity</div>
+          <span class="hm-live-badge" id="hm-year-indicator">Rolling 1Y</span>
+        </div>
+        <div class="hm-header-stats-zone">
+          <div class="hm-stat-box">
+            <div class="hm-stat-label">Active Days</div>
+            <div class="mono hm-stat-value" id="hm-days">0</div>
+          </div>
+          <div class="hm-stat-box">
+            <div class="hm-stat-label">Avg / Day</div>
+            <div class="mono hm-stat-value" id="hm-avg">₹0</div>
+          </div>
+        </div>
+      </div>
+      <!-- Dedicated Year Carousel & Same-Path Actions Toolbar -->
+      <div class="hm-toolbar">
+        <div class="hm-year-carousel" id="hm-year-carousel"></div>
+        <div class="hm-actions-cluster">
+          <button type="button" class="hm-tool-btn" onclick="stepHeatmapYear(-1)" title="Previous Year" aria-label="Previous Year">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="hm-select-wrapper" title="Choose Specific Year">
+            <select id="hm-year-select" class="hm-hidden-select" onchange="changeHeatmapYear(this.value)">
+              <option value="current">Current (1 Yr)</option>
+            </select>
+            <div class="hm-tool-btn hm-select-btn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-left:1px"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+          <button type="button" class="hm-tool-btn" onclick="stepHeatmapYear(1)" title="Next Year" aria-label="Next Year">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button id="hm-year-reset" type="button" class="hm-reset-chip" onclick="changeHeatmapYear('current')" title="Reset to Rolling 1-Year">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            <span>Reset</span>
+          </button>
+        </div>
+      </div>
+      <div class="hmscroll">
+        <div id="hm-years" style="position:relative;height:16px;margin-bottom:2px"></div>
+        <div id="hm-months" style="position:relative;height:16px;margin-bottom:4px"></div>
+        <div style="display:flex;gap:2px">
+          <div id="hm-dlabels" style="display:flex;flex-direction:column;gap:2px;margin-right:4px;flex-shrink:0"></div>
+          <div id="hm-weeks" style="display:flex;gap:2px"></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:var(--b)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">None</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(45,212,168,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Paid</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,185,48,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Pending</span></div>
+        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(160,200,120,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Mixed</span></div>
+      </div>
+    </div>
+
     <!-- ══════════════ TODAY'S OFFICE ATTENDANCE & OT CARD ══════════════ -->
     <div class="card anim office-sec" id="today-attendance-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
@@ -4035,22 +4345,25 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     </div>
 
     <!-- ══════════════ DASHBOARD INTERACTIVE ATTENDANCE CALENDAR CARD ══════════════ -->
-    <div class="card anim office-sec" id="dashboard-attendance-card" style="border-color:rgba(124,111,237,.25)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:32px;height:32px;border-radius:8px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <div class="card anim office-sec no-section-swipe" id="dashboard-attendance-card" data-no-swipe="true" style="border-color:rgba(124,111,237,.25)">
+      <div class="att-cal-header-bar">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:34px;height:34px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
           <div>
-            <div style="font-size:14px;font-weight:800;color:var(--t1)" id="dash-cal-month-title">September 2026</div>
+            <div style="font-size:14.5px;font-weight:800;color:var(--t1)" id="dash-cal-month-title">September 2026</div>
             <div style="font-size:10px;color:var(--t2)">Monthly Attendance &amp; Shift Grid</div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:6px">
+        
+        <!-- Clean Month Navigation & Modal Button -->
+        <div class="att-cal-month-nav">
           <button type="button" class="att-cal-nav-btn" onclick="stepAttendanceCalendarMonth(-1)" title="Previous Month">‹</button>
+          <button type="button" class="att-cal-nav-btn att-cal-today-btn" onclick="jumpAttendanceCalendarToToday()" title="Current Month">Today</button>
           <button type="button" class="att-cal-nav-btn" onclick="stepAttendanceCalendarMonth(1)" title="Next Month">›</button>
-          <button type="button" class="ss-btn" onclick="openAttendanceCalendar()" style="padding:6px 10px;border-radius:8px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10.5px;font-weight:700;display:flex;align-items:center;gap:4px">
-            Full Modal ↗
+          <button type="button" class="att-cal-nav-btn" onclick="openAttendanceCalendar()" title="Expand Full Roster" style="color:var(--acc)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
           </button>
         </div>
       </div>
@@ -4058,11 +4371,6 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <!-- Structured Monthly Overview Metrics Bar -->
       <div class="att-cal-metrics-bar" id="dash-cal-metrics-bar">
         <!-- Rendered dynamically -->
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:var(--t3);margin-bottom:6px;padding:0 2px">
-        <span>Tap any date to log/edit</span>
-        <span>👈 Swipe left / right to change month 👉</span>
       </div>
 
       <!-- 7-Day Headers -->
@@ -4081,15 +4389,14 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <!-- Generated dynamically by renderAttendanceCalendarGrid() -->
       </div>
 
-      <!-- Clean Single Legend -->
-      <div style="display:flex;gap:6px 10px;margin-top:12px;align-items:center;flex-wrap:wrap;font-size:9px;color:var(--t2);border-top:1px solid var(--b);padding-top:8px">
-        <span style="display:flex;align-items:center;gap:3px"><span class="att-badge att-badge-p" style="padding:1px 4px;font-size:7.5px">P</span> Present</span>
-        <span style="display:flex;align-items:center;gap:3px"><span class="att-badge att-badge-hd" style="padding:1px 4px;font-size:7.5px">HD</span> Half Day</span>
-        <span style="display:flex;align-items:center;gap:3px"><span class="att-badge att-badge-pl" style="padding:1px 4px;font-size:7.5px">PL</span> Paid Leave</span>
-        <span style="display:flex;align-items:center;gap:3px"><span class="att-badge att-badge-sl" style="padding:1px 4px;font-size:7.5px">SL</span> Sick Leave</span>
-        <span style="display:flex;align-items:center;gap:3px"><span class="att-badge att-badge-wo" style="padding:1px 4px;font-size:7.5px">WO</span> Week Off</span>
-        <span style="display:flex;align-items:center;gap:3px"><span class="att-badge att-badge-a" style="padding:1px 4px;font-size:7.5px">A</span> Absent</span>
-        <span style="display:flex;align-items:center;gap:3px"><span class="ot-tag" style="font-size:7.5px;padding:1px 3px">+Xh</span> Overtime</span>
+      <!-- Minimal Clean Dot Legend -->
+      <div class="att-cal-legend-bar">
+        <span class="att-legend-item"><span class="att-legend-dot" style="background:#10B981"></span> Present</span>
+        <span class="att-legend-item"><span class="att-legend-dot" style="background:#F59E0B"></span> Half Day</span>
+        <span class="att-legend-item"><span class="att-legend-dot" style="background:#0EA5E9"></span> Leave</span>
+        <span class="att-legend-item"><span class="att-legend-dot" style="background:#64748B"></span> Off</span>
+        <span class="att-legend-item"><span class="att-legend-dot" style="background:#EF4444"></span> Absent</span>
+        <span class="att-legend-item"><span class="att-legend-dot" style="background:#FFB930"></span> Overtime</span>
       </div>
     </div>
 
@@ -4159,65 +4466,6 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           <div class="mono" id="mstat-net-salary" style="font-size:18px;font-weight:800;color:var(--paid)">₹0</div>
           <div style="font-size:8px;color:var(--t3);margin-top:2px">Take-Home Payout</div>
         </div>
-      </div>
-    </div>
-
-    <!-- Heatmap -->
-    <div class="card anim">
-      <div class="hm-header-row">
-        <div class="hm-header-title-zone">
-          <div class="sec-title">Activity</div>
-          <span class="hm-live-badge" id="hm-year-indicator">Rolling 1Y</span>
-        </div>
-        <div class="hm-header-stats-zone">
-          <div class="hm-stat-box">
-            <div class="hm-stat-label">Active Days</div>
-            <div class="mono hm-stat-value" id="hm-days">0</div>
-          </div>
-          <div class="hm-stat-box">
-            <div class="hm-stat-label">Avg / Day</div>
-            <div class="mono hm-stat-value" id="hm-avg">₹0</div>
-          </div>
-        </div>
-      </div>
-      <!-- Dedicated Year Carousel & Same-Path Actions Toolbar -->
-      <div class="hm-toolbar">
-        <div class="hm-year-carousel" id="hm-year-carousel"></div>
-        <div class="hm-actions-cluster">
-          <button type="button" class="hm-tool-btn" onclick="stepHeatmapYear(-1)" title="Previous Year" aria-label="Previous Year">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <div class="hm-select-wrapper" title="Choose Specific Year">
-            <select id="hm-year-select" class="hm-hidden-select" onchange="changeHeatmapYear(this.value)">
-              <option value="current">Current (1 Yr)</option>
-            </select>
-            <div class="hm-tool-btn hm-select-btn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-left:1px"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
-          <button type="button" class="hm-tool-btn" onclick="stepHeatmapYear(1)" title="Next Year" aria-label="Next Year">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-          <button id="hm-year-reset" type="button" class="hm-reset-chip" onclick="changeHeatmapYear('current')" title="Reset to Rolling 1-Year">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
-      <div class="hmscroll">
-        <div id="hm-years" style="position:relative;height:16px;margin-bottom:2px"></div>
-        <div id="hm-months" style="position:relative;height:16px;margin-bottom:4px"></div>
-        <div style="display:flex;gap:2px">
-          <div id="hm-dlabels" style="display:flex;flex-direction:column;gap:2px;margin-right:4px;flex-shrink:0"></div>
-          <div id="hm-weeks" style="display:flex;gap:2px"></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:var(--b)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">None</span></div>
-        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(45,212,168,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Paid</span></div>
-        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(255,185,48,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Pending</span></div>
-        <div style="display:flex;align-items:center;gap:5px"><div style="width:8px;height:8px;border-radius:2px;background:rgba(160,200,120,.75)"></div><span style="font-size:9px;color:var(--t2);font-weight:600">Mixed</span></div>
       </div>
     </div>
     <!-- Highlighted Clients -->
@@ -4911,7 +5159,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
     </div>
     <!-- Activity Heatmap -->
-    <div class="card anim">
+    <div class="card anim no-section-swipe" id="stats-hm-card" data-no-swipe="true">
       <div class="hm-header-row">
         <div class="hm-header-title-zone">
           <div class="sec-title">Activity</div>
@@ -7069,11 +7317,6 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <!-- Populated dynamically by renderAttendanceCalendarGrid() -->
     </div>
 
-    <div style="display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:var(--t3);margin-bottom:6px;padding:0 2px">
-      <span>Monthly Attendance Sheet</span>
-      <span>👈 Swipe left / right to change month 👉</span>
-    </div>
-
     <!-- 7-Day Headers -->
     <div class="att-cal-grid-header">
       <div class="att-cal-weekday weekend">Sun</div>
@@ -7090,17 +7333,14 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <!-- Generated dynamically by renderAttendanceCalendarGrid() -->
     </div>
 
-    <!-- Comprehensive Single Clean Legend -->
-    <div style="display:flex;gap:8px 12px;margin-top:14px;align-items:center;flex-wrap:wrap;font-size:9.5px;color:var(--t2);border-top:1px solid var(--b);padding-top:10px">
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-p" style="padding:1px 5px;font-size:8px">P</span> Present</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-hd" style="padding:1px 5px;font-size:8px">HD</span> Half Day</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-pl" style="padding:1px 5px;font-size:8px">PL</span> Paid Leave</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-sl" style="padding:1px 5px;font-size:8px">SL</span> Sick Leave</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-cl" style="padding:1px 5px;font-size:8px">CL</span> Casual Leave</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-wo" style="padding:1px 5px;font-size:8px">WO</span> Week Off</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-hl" style="padding:1px 5px;font-size:8px">HL</span> Holiday</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="att-badge att-badge-a" style="padding:1px 5px;font-size:8px">A</span> Absent (LOP)</span>
-      <span style="display:flex;align-items:center;gap:4px"><span class="ot-tag" style="font-size:8px;padding:1px 4px">+Xh</span> Overtime</span>
+    <!-- Minimal Clean Dot Legend -->
+    <div class="att-cal-legend-bar">
+      <span class="att-legend-item"><span class="att-legend-dot" style="background:#10B981"></span> Present (P)</span>
+      <span class="att-legend-item"><span class="att-legend-dot" style="background:#F59E0B"></span> Half Day (HD)</span>
+      <span class="att-legend-item"><span class="att-legend-dot" style="background:#0EA5E9"></span> Leave (PL/SL/CL)</span>
+      <span class="att-legend-item"><span class="att-legend-dot" style="background:#64748B"></span> Off (WO/HL)</span>
+      <span class="att-legend-item"><span class="att-legend-dot" style="background:#EF4444"></span> Absent (A)</span>
+      <span class="att-legend-item"><span class="att-legend-dot" style="background:#FFB930"></span> Overtime (+Xh)</span>
     </div>
   </div>
 </div>
@@ -7312,38 +7552,42 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
 <!-- ══════════════ DUAL ACTION QUICK SELECTOR MODAL ══════════════ -->
 <div class="moverlay" id="dual-action-modal" onclick="overlayClose(event,'dual-action-modal')">
-  <div class="msheet" style="max-width:380px;text-align:center">
+  <div class="msheet dual-action-sheet">
     <div class="mhandle"></div>
-    <div style="font-size:16px;font-weight:800;color:var(--t1);margin-bottom:4px">Create New Entry</div>
-    <div style="font-size:11px;color:var(--t2);margin-bottom:16px">Select which work session you want to log</div>
+    <div style="font-size:17px;font-weight:800;color:var(--t1);margin-bottom:4px;letter-spacing:-.015em">Create New Entry</div>
+    <div style="font-size:11.5px;color:var(--t2);margin-bottom:18px">Choose which work session you want to log</div>
 
-    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px">
+    <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px;width:100%;box-sizing:border-box">
       <!-- Freelance Action -->
-      <button type="button" class="ss-btn" onclick="closeModal('dual-action-modal'); openEntryModal(null);" style="padding:14px;border-radius:12px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;transition:all 0.2s">
-        <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,245,160,.12);border:1px solid rgba(0,245,160,.3);display:flex;align-items:center;justify-content:center;color:#00F5A0;flex-shrink:0">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
+      <button type="button" class="ss-btn dual-action-card" onclick="closeModal('dual-action-modal'); openEntryModal(null);">
+        <div class="dual-action-icon-box dual-fl-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></svg>
         </div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:800;color:var(--t1)">Log Freelance Work</div>
-          <div style="font-size:10.5px;color:var(--t2)">Client billing, rate card, timer &amp; earnings</div>
+        <div class="dual-action-info">
+          <div class="dual-action-title">Log Freelance Work</div>
+          <div class="dual-action-desc">Client billing, rate card, timer &amp; earnings</div>
         </div>
-        <span style="font-size:12px;color:var(--acc);font-weight:700">→</span>
+        <div class="dual-action-chevron">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </button>
 
       <!-- Office Attendance Action -->
-      <button type="button" class="ss-btn" onclick="closeModal('dual-action-modal'); openAttendanceEntryModal(new Date().toISOString().slice(0, 10));" style="padding:14px;border-radius:12px;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;transition:all 0.2s">
-        <div style="width:40px;height:40px;border-radius:10px;background:rgba(124,111,237,.12);border:1px solid rgba(124,111,237,.3);display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="12" cy="10" r="3"/><path d="M7 18c0-2.5 2.2-4 5-4s5 1.5 5 4"/></svg>
+      <button type="button" class="ss-btn dual-action-card" onclick="closeModal('dual-action-modal'); openAttendanceEntryModal(new Date().toISOString().slice(0, 10));">
+        <div class="dual-action-icon-box dual-off-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3.5"/><circle cx="12" cy="9.5" r="2.8"/><path d="M6.5 18c0-2.3 2.5-3.8 5.5-3.8s5.5 1.5 5.5 3.8"/></svg>
         </div>
-        <div style="flex:1">
-          <div style="font-size:13px;font-weight:800;color:var(--t1)">Log Daily Attendance &amp; Activity</div>
-          <div style="font-size:10.5px;color:var(--t2)">Present, Half Day, Overtime &amp; Work ID notes</div>
+        <div class="dual-action-info">
+          <div class="dual-action-title">Log Daily Attendance &amp; Activity</div>
+          <div class="dual-action-desc">Present, Half Day, Overtime &amp; Work ID notes</div>
         </div>
-        <span style="font-size:12px;color:var(--acc);font-weight:700">→</span>
+        <div class="dual-action-chevron">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </button>
     </div>
 
-    <button type="button" class="ss-btn" onclick="closeModal('dual-action-modal')" style="width:100%;padding:10px;border-radius:10px;background:transparent;border:1px solid var(--b);color:var(--t3);font-size:11px;font-weight:700;cursor:pointer">Cancel</button>
+    <button type="button" class="ss-btn dual-cancel-btn" onclick="closeModal('dual-action-modal')">Cancel</button>
   </div>
 </div>
 
@@ -8205,12 +8449,24 @@ function setAppMode(mode) {
     if (mBtn) {
       if (m === currentAppMode) {
         mBtn.classList.add('active');
-        mBtn.style.background = 'var(--acc)';
-        mBtn.style.color = '#ffffff';
+        if (m === 'freelance') {
+          mBtn.style.background = 'rgba(45, 212, 168, 0.16)';
+          mBtn.style.color = '#2DD4A8';
+          mBtn.style.border = '1px solid rgba(45, 212, 168, 0.35)';
+        } else if (m === 'office') {
+          mBtn.style.background = 'rgba(124, 111, 237, 0.16)';
+          mBtn.style.color = '#A594FD';
+          mBtn.style.border = '1px solid rgba(124, 111, 237, 0.35)';
+        } else {
+          mBtn.style.background = 'rgba(255, 255, 255, 0.12)';
+          mBtn.style.color = '#EEEEF5';
+          mBtn.style.border = '1px solid rgba(255, 255, 255, 0.25)';
+        }
       } else {
         mBtn.classList.remove('active');
-        mBtn.style.background = '';
+        mBtn.style.background = 'transparent';
         mBtn.style.color = 'var(--t2)';
+        mBtn.style.border = '1px solid transparent';
       }
     }
   });
@@ -8220,19 +8476,19 @@ function setAppMode(mode) {
   if (activeBadge) {
     if (currentAppMode === 'office') {
       activeBadge.textContent = 'Office Worker';
-      activeBadge.style.color = 'var(--acc)';
-      activeBadge.style.background = 'var(--acc-bg)';
-      activeBadge.style.borderColor = 'var(--acc-bd)';
+      activeBadge.style.color = '#A594FD';
+      activeBadge.style.background = 'rgba(124, 111, 237, 0.14)';
+      activeBadge.style.borderColor = 'rgba(124, 111, 237, 0.30)';
     } else if (currentAppMode === 'freelance') {
       activeBadge.textContent = 'Freelance';
-      activeBadge.style.color = '#00F5A0';
-      activeBadge.style.background = 'rgba(0,245,160,0.12)';
-      activeBadge.style.borderColor = 'rgba(0,245,160,0.3)';
+      activeBadge.style.color = '#2DD4A8';
+      activeBadge.style.background = 'rgba(45, 212, 168, 0.14)';
+      activeBadge.style.borderColor = 'rgba(45, 212, 168, 0.30)';
     } else {
       activeBadge.textContent = 'Dual Mode';
-      activeBadge.style.color = 'var(--paid)';
-      activeBadge.style.background = 'var(--paid-bg)';
-      activeBadge.style.borderColor = 'var(--paid-bd)';
+      activeBadge.style.color = '#EEEEF5';
+      activeBadge.style.background = 'rgba(255, 255, 255, 0.10)';
+      activeBadge.style.borderColor = 'rgba(255, 255, 255, 0.22)';
     }
   }
 
@@ -8263,10 +8519,14 @@ function updateNavbarCenterButton() {
   const centerBtn = document.getElementById('navbar-center-btn');
   if (!iconWrap || !centerBtn) return;
 
+  centerBtn.classList.remove('fab-mode-office', 'fab-mode-freelance', 'fab-mode-dual');
+  centerBtn.style.background = '';
+
   if (currentAppMode === 'office') {
+    centerBtn.classList.add('fab-mode-office');
     // Office Worker Icon: ID Card / Badge with Profile
     iconWrap.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="3.5"></rect>
         <circle cx="12" cy="9.5" r="2.8"></circle>
         <path d="M6.5 18c0-2.3 2.5-3.8 5.5-3.8s5.5 1.5 5.5 3.8"></path>
@@ -8274,11 +8534,11 @@ function updateNavbarCenterButton() {
     `;
     centerBtn.setAttribute('title', 'Log Daily Attendance & Shift Activity');
     centerBtn.setAttribute('aria-label', 'Log Daily Attendance');
-    centerBtn.style.background = 'linear-gradient(135deg, #7C6FED 0%, #00D9F5 100%)';
   } else if (currentAppMode === 'freelance') {
+    centerBtn.classList.add('fab-mode-freelance');
     // Freelancer Icon: Code Tags with Slash
     iconWrap.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="16 18 22 12 16 6"></polyline>
         <polyline points="8 6 2 12 8 18"></polyline>
         <line x1="14" y1="4" x2="10" y2="20"></line>
@@ -8286,11 +8546,11 @@ function updateNavbarCenterButton() {
     `;
     centerBtn.setAttribute('title', 'Log Freelance Work Entry');
     centerBtn.setAttribute('aria-label', 'Log Freelance Work');
-    centerBtn.style.background = 'linear-gradient(135deg, #00F5A0 0%, #00D9F5 100%)';
   } else {
+    centerBtn.classList.add('fab-mode-dual');
     // Dual Mode: Code / Dual Work Session Icon
     iconWrap.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="16 18 22 12 16 6"></polyline>
         <polyline points="8 6 2 12 8 18"></polyline>
         <line x1="14" y1="4" x2="10" y2="20"></line>
@@ -8298,7 +8558,6 @@ function updateNavbarCenterButton() {
     `;
     centerBtn.setAttribute('title', 'Create New Entry (Freelance / Office)');
     centerBtn.setAttribute('aria-label', 'Create New Entry');
-    centerBtn.style.background = 'linear-gradient(135deg, #00F5A0 0%, #7C6FED 100%)';
   }
 }
 
@@ -8796,34 +9055,27 @@ function renderAttendanceCalendarGrid(year, month, animClass = '') {
   if (titleEl) titleEl.textContent = monthNameStr;
 
   const dashTitleEl = document.getElementById('dash-cal-month-title');
-  if (dashTitleEl) dashTitleEl.textContent = `${monthNameStr} Attendance`;
+  if (dashTitleEl) dashTitleEl.textContent = monthNameStr;
 
   const summary = getMonthlyAttendanceSummary(year, month);
+  const leaveCount = summary.pl + summary.sl + summary.cl;
 
-  // Render structured metrics summary bar for both modal and dashboard
+  // Render streamlined 4-card metrics summary bar for both modal and dashboard
   const metricsHtml = `
     <div class="att-cal-metric-item">
-      <div class="att-cal-metric-label" style="color:#10B981">Present Days</div>
-      <div class="att-cal-metric-val mono" style="color:#10B981">${summary.p} <span style="font-size:9px;font-weight:600;color:var(--t3)">/ ${summary.totalDays}</span></div>
+      <div class="att-cal-metric-label" style="color:#10B981">Present</div>
+      <div class="att-cal-metric-val mono" style="color:#10B981">${summary.p} <span class="sub">/ ${summary.totalDays}d</span></div>
     </div>
     <div class="att-cal-metric-item">
-      <div class="att-cal-metric-label" style="color:#F59E0B">Half Day / Leaves</div>
-      <div class="att-cal-metric-val mono" style="color:#F59E0B">${summary.hd} HD <span style="font-size:9px;font-weight:600;color:var(--t3)">• ${summary.pl + summary.sl + summary.cl} L</span></div>
-    </div>
-    <div class="att-cal-metric-item">
-      <div class="att-cal-metric-label" style="color:#94A3B8">Week Offs</div>
-      <div class="att-cal-metric-val mono" style="color:#94A3B8">${summary.wo} <span style="font-size:9px;font-weight:600;color:var(--t3)">days</span></div>
+      <div class="att-cal-metric-label" style="color:#F59E0B">HD &amp; Leaves</div>
+      <div class="att-cal-metric-val mono" style="color:#F59E0B">${summary.hd + leaveCount} <span class="sub">(${summary.hd}HD · ${leaveCount}L)</span></div>
     </div>
     <div class="att-cal-metric-item">
       <div class="att-cal-metric-label" style="color:#FFB930">Overtime</div>
-      <div class="att-cal-metric-val mono" style="color:#FFB930">${summary.totalOtHours}h <span style="font-size:9px;font-weight:600;color:var(--t3)">(${fmtRs(summary.totalOtPay)})</span></div>
-    </div>
-    <div class="att-cal-metric-item">
-      <div class="att-cal-metric-label" style="color:var(--danger)">Absent (LOP)</div>
-      <div class="att-cal-metric-val mono" style="color:${summary.a > 0 ? 'var(--danger)' : 'var(--t3)'}">${summary.a} <span style="font-size:9px;font-weight:600;color:var(--t3)">days</span></div>
+      <div class="att-cal-metric-val mono" style="color:#FFB930">${summary.totalOtHours}h <span class="sub">${summary.totalOtPay > 0 ? '(' + fmtRs(summary.totalOtPay) + ')' : ''}</span></div>
     </div>
     <div class="att-cal-metric-item" style="background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)">
-      <div class="att-cal-metric-label" style="color:var(--paid)">Net Est. Payout</div>
+      <div class="att-cal-metric-label" style="color:var(--paid)">Est. Payout</div>
       <div class="att-cal-metric-val mono" style="color:var(--paid)">${fmtRs(summary.netPay)}</div>
     </div>
   `;
@@ -8852,6 +9104,7 @@ function renderAttendanceCalendarGrid(year, month, animClass = '') {
     const dateStr = `${year}-${mStr}-${dStr}`;
     const rec = getAttendanceRecord(dateStr);
     const isToday = (dateStr === todayDs);
+    const isWeekend = (firstDayIndex + day - 1) % 7 === 0 || (firstDayIndex + day - 1) % 7 === 6;
 
     let statusBadgeHtml = '';
     let otBadgeHtml = '';
@@ -8878,13 +9131,12 @@ function renderAttendanceCalendarGrid(year, month, animClass = '') {
         notesDotHtml = `<span class="notes-dot" title="Has notes"></span>`;
       }
     } else {
-      if (dateStr <= todayDs) {
-        statusBadgeHtml = `<span class="day-badge" style="color:var(--t3);border:1px dashed var(--b2)">--</span>`;
-      }
+      // Unmarked days stay clean and decluttered without dashed noise
+      statusBadgeHtml = '';
     }
 
     html += `
-      <div class="att-day-tile ${isToday ? 'is-today' : ''}" onclick="openAttendanceEntryModal('${dateStr}')" title="Date: ${dateStr}">
+      <div class="att-day-tile ${isToday ? 'is-today' : ''} ${isWeekend ? 'weekend-tile' : ''}" onclick="openAttendanceEntryModal('${dateStr}')" title="Date: ${dateStr}">
         <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
           <span class="day-num">${day}</span>
           ${otBadgeHtml}
@@ -8932,11 +9184,16 @@ function setupCalendarSwipeEvents() {
 
     let startX = 0;
     let startY = 0;
+    let startTime = 0;
 
     el.addEventListener('touchstart', (e) => {
       if (e.touches && e.touches.length === 1) {
+        if (e.target && e.target.closest('button, select, input, .att-cal-nav-btn, .ss-btn, .att-day-tile')) {
+          // If tapping day tile or buttons, record start for possible swipe but do not block default tap
+        }
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+        startTime = Date.now();
       }
     }, { passive: true });
 
@@ -8946,9 +9203,10 @@ function setupCalendarSwipeEvents() {
       const endY = e.changedTouches[0].clientY;
       const diffX = endX - startX;
       const diffY = endY - startY;
+      const elapsed = Date.now() - startTime;
 
-      // Threshold: horizontal swipe > 42px and vertical deviation < 60px
-      if (Math.abs(diffX) > 42 && Math.abs(diffY) < 60) {
+      // Threshold: horizontal swipe > 36px, predominantly horizontal, within 500ms
+      if (Math.abs(diffX) > 36 && Math.abs(diffX) > Math.abs(diffY) * 1.15 && elapsed < 500) {
         if (diffX < 0) {
           // Swiped left -> Next month
           stepAttendanceCalendarMonth(1, 'slide-left-anim');
@@ -8959,6 +9217,7 @@ function setupCalendarSwipeEvents() {
       }
       startX = 0;
       startY = 0;
+      startTime = 0;
     }, { passive: true });
   });
 
@@ -17295,14 +17554,39 @@ function switchTabWithSwipe(id, direction) {
   let _swStartTime = 0;
   let _swTracking = false;
 
-  // Fast, non-blocking check if an element (or its ancestors) should block swipe navigation
+  // Fast, comprehensive check if an element (or its ancestors) should block global tab swipe navigation
   function isSwipeBlocked(el) {
     if (!el) return false;
     const tag = el.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-    if (el.closest && el.closest('.moverlay, .msheet, #confirm-modal, #toast, .table-wrap, .scroller-h, [data-horizontal-scroll], .scicalc-grid, .scicalc-sci-grid')) {
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return true;
+    
+    // Check if element or any ancestor is an interactive or horizontally scrollable/swipeable container
+    if (el.closest && el.closest(
+      '#dash-activity-heatmap-card, #dashboard-attendance-card, #today-attendance-card, #monthly-office-snapshot-card, ' +
+      '#stats-hm-card, #fullscreen-heatmap-modal, #attendance-calendar-modal, ' +
+      '.hmscroll, .hm-toolbar, .hm-year-carousel, #hm-year-carousel, #hm-weeks, #hm-years, #hm-months, .hcell, ' +
+      '.att-cal-grid, #dash-attendance-grid, #att-calendar-grid, .att-cal-metrics-bar, .att-cal-header-bar, .att-cal-legend-bar, .att-day-tile, ' +
+      '.ot-quick-strip, .fchips, .highlighted-slider, .table-wrap, .scroller-h, ' +
+      '.moverlay, .msheet, #confirm-modal, #toast, ' +
+      '[data-horizontal-scroll], [data-no-swipe], .no-section-swipe, .scicalc-grid, .scicalc-sci-grid'
+    )) {
       return true;
     }
+
+    // Fallback: Check custom classes or data attributes up the DOM tree
+    try {
+      let curr = el;
+      while (curr && curr !== document.body && curr !== document.documentElement) {
+        if (curr.classList && (curr.classList.contains('no-section-swipe') || curr.classList.contains('hmscroll') || curr.classList.contains('att-cal-grid'))) {
+          return true;
+        }
+        if (curr.getAttribute && (curr.getAttribute('data-no-swipe') === 'true' || curr.getAttribute('data-horizontal-scroll') !== null)) {
+          return true;
+        }
+        curr = curr.parentElement;
+      }
+    } catch (err) {}
+
     return false;
   }
 
@@ -17317,11 +17601,22 @@ function switchTabWithSwipe(id, direction) {
     _swTracking = true;
   }, { passive: true });
 
+  document.addEventListener('touchcancel', function() {
+    _swTracking = false;
+  }, { passive: true });
+
   document.addEventListener('touchend', function(e) {
     if (!_swTracking) return;
     _swTracking = false;
 
     if (currentModal) return;
+
+    // Safety checks on end target
+    if (e.target && isSwipeBlocked(e.target)) return;
+    if (e.changedTouches && e.changedTouches[0]) {
+      const endEl = document.elementFromPoint(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      if (endEl && isSwipeBlocked(endEl)) return;
+    }
 
     const endX = e.changedTouches[0].clientX;
     const endY = e.changedTouches[0].clientY;
