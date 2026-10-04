@@ -3948,6 +3948,126 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   color: var(--acc);
   box-shadow: 0 0 8px rgba(124, 111, 237, 0.3);
 }
+/* ── Work Profile Wizard Step UI ── */
+.wp-prog-dot {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--b);
+  background: var(--s2);
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11.5px; font-weight: 800; color: var(--t3);
+  transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+.wp-prog-dot::after {
+  content: attr(data-step);
+}
+.wp-prog-dot.active {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: #fff;
+  box-shadow: 0 0 14px rgba(124,111,237,0.45);
+  transform: scale(1.08);
+}
+.wp-prog-dot.done {
+  background: #10B981;
+  border-color: #10B981;
+  color: #fff;
+}
+.wp-prog-dot.done::after { content: '✓'; }
+.wp-prog-line {
+  flex: 1; height: 2.5px;
+  background: var(--b);
+  align-self: center;
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+.wp-prog-line.done { background: #10B981; }
+.wp-step-panel { animation: wpPanelIn 0.22s cubic-bezier(0.16,1,0.3,1); }
+@keyframes wpPanelIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.wp-toggle-card {
+  flex: 1;
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 12px 14px; border-radius: 12px;
+  background: var(--s2); border: 2px solid var(--b);
+  cursor: pointer; transition: all 0.2s ease;
+  text-align: left;
+}
+.wp-toggle-card.active {
+  background: var(--acc-bg);
+  border-color: var(--acc);
+  box-shadow: 0 4px 14px rgba(124,111,237,0.18);
+}
+.wp-toggle-card .wtc-title { font-size: 12.5px; font-weight: 800; color: var(--t1); }
+.wp-toggle-card.active .wtc-title { color: var(--acc); }
+.wp-toggle-card .wtc-sub { font-size: 9.5px; color: var(--t2); margin-top: 2px; line-height: 1.35; }
+.wp-preset-chip {
+  padding: 5px 10px; border-radius: 8px;
+  background: var(--s3); border: 1px solid var(--b);
+  font-size: 10px; font-weight: 700; color: var(--t2);
+  cursor: pointer; transition: all 0.16s ease;
+  white-space: nowrap;
+}
+.wp-preset-chip:hover, .wp-preset-chip.active {
+  background: var(--acc-bg); border-color: var(--acc-bd); color: var(--acc);
+}
+.wp-perf-row {
+  display: flex; gap: 8px; align-items: center;
+  background: var(--s2); border: 1px solid var(--b);
+  border-radius: 11px; padding: 10px 12px;
+  transition: border-color 0.18s ease;
+}
+.wp-perf-row:hover { border-color: var(--acc-bd); }
+.wp-perf-row .fgrp { margin: 0; }
+.wp-star-badge {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(255,185,48,0.12); border: 1px solid rgba(255,185,48,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; color: #FFB930; flex-shrink: 0;
+}
+.rating-quick-chip {
+  padding: 6px 12px; border-radius: 9px;
+  background: var(--s3); border: 1px solid var(--b);
+  font-size: 11px; font-weight: 700; color: var(--t2);
+  cursor: pointer; transition: all 0.18s ease;
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.rating-quick-chip.active {
+  background: rgba(255,185,48,0.16); border-color: #FFB930; color: #FFB930;
+  box-shadow: 0 2px 8px rgba(255,185,48,0.25);
+}
+.rating-quick-chip .rq-sal { font-size: 9.5px; opacity: 0.85; }
+.wp-ot-radio-card {
+  flex: 1; display: flex; align-items: flex-start; gap: 9px;
+  background: var(--s2); border: 2px solid var(--b);
+  border-radius: 12px; padding: 12px; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.wp-ot-radio-card.active {
+  background: rgba(249,115,22,0.08); border-color: #F97316;
+  box-shadow: 0 4px 12px rgba(249,115,22,0.15);
+}
+.wp-shift-tab {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px; border-radius: 8px;
+  font-size: 12px; font-weight: 700;
+  border: none; cursor: pointer;
+  color: var(--t2); background: transparent;
+  transition: all 0.18s ease;
+}
+.wp-shift-tab.active {
+  background: var(--s1,var(--s2));
+  color: var(--acc);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
 </style>
 
 </head>
@@ -4011,17 +4131,17 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </div>
       </div>
 
-      <!-- Sub-Breakdown Badges: Freelance vs Office -->
+      <!-- Sub-Breakdown Badges: Gig vs Shift -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
         <div style="background:rgba(0,245,160,.08);border:1px solid rgba(0,245,160,.22);border-radius:10px;padding:8px 10px">
           <div style="font-size:9px;font-weight:700;color:var(--paid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;display:flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg> Freelance
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg> Gig
           </div>
           <div class="mono" id="s-freelance-chip" style="font-size:12px;font-weight:700;color:var(--paid)">₹0 (0 entries)</div>
         </div>
         <div style="background:rgba(124,111,237,.08);border:1px solid rgba(124,111,237,.22);border-radius:10px;padding:8px 10px">
           <div style="font-size:9px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;display:flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path><line x1="9" y1="1" x2="15" y2="1"></line><line x1="12" y1="1" x2="12" y2="4"></line></svg> Worker
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg> Shift
           </div>
           <div class="mono" id="s-office-chip" style="font-size:12px;font-weight:700;color:var(--acc)">₹0 (0 days)</div>
         </div>
@@ -4055,19 +4175,19 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
     </div>
 
-    <!-- Mode Switcher: Dual Mode / Worker / Freelance (Directly Below Top Summary) -->
+    <!-- Mode Switcher: Hybrid Mode / Shift / Gig (Directly Below Top Summary) -->
     <div class="mode-switch-wrapper anim" id="dash-mode-switch">
       <button type="button" class="mode-switch-btn active" id="mode-btn-all" onclick="setAppMode('all')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
-        Dual Mode
+        Hybrid Mode
       </button>
       <button type="button" class="mode-switch-btn" id="mode-btn-office" onclick="setAppMode('office')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path><line x1="9" y1="1" x2="15" y2="1"></line><line x1="12" y1="1" x2="12" y2="4"></line></svg>
-        Worker
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
+        Shift
       </button>
       <button type="button" class="mode-switch-btn" id="mode-btn-freelance" onclick="setAppMode('freelance')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg>
-        Freelance
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
+        Gig
       </button>
     </div>
 
@@ -4143,6 +4263,19 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </div>
         <div id="today-status-chip-container">
           <span class="att-badge att-badge-wo" id="today-current-status-badge">Not Marked</span>
+        </div>
+      </div>
+
+      <!-- Interactive Performance Rating Selector Strip (Shown ONLY if rating-based salary is enabled) -->
+      <div id="worker-rating-interactive-bar" style="display:none;background:var(--s2);border:1px solid var(--b);border-radius:11px;padding:9px 12px;margin-bottom:11px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:4px">
+            <span style="color:#FFB930">★</span> Performance Rating: <span id="worker-active-rating-label" style="color:#FFB930;font-weight:800">Rating 4</span>
+          </div>
+          <span id="worker-active-rating-sal-badge" class="mono" style="font-size:11px;font-weight:700;color:var(--paid)">₹38,000/mo</span>
+        </div>
+        <div class="rating-quick-strip" id="worker-rating-pills-container" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px">
+          <!-- Populated dynamically: [★ 1: ₹20k] [★ 2: ₹25k] ... -->
         </div>
       </div>
 
@@ -4463,15 +4596,15 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <div class="mono" id="current-streak" style="font-size:28px;font-weight:700;color:var(--acc);margin-bottom:6px">0 days</div>
         <div id="current-streak-date" style="font-size:11px;color:var(--t2)">-</div>
 
-        <!-- Dual Breakdown Badges -->
+        <!-- Hybrid Breakdown Badges -->
         <div style="display:flex;justify-content:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--b);font-size:10.5px">
           <span style="color:var(--paid);display:inline-flex;align-items:center;gap:4px">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg>
-            Freelance: <strong id="stats-streak-fl" class="mono">0 days</strong>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
+            Gig: <strong id="stats-streak-fl" class="mono">0 days</strong>
           </span>
           <span style="color:var(--acc);display:inline-flex;align-items:center;gap:4px">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path><line x1="9" y1="1" x2="15" y2="1"></line><line x1="12" y1="1" x2="12" y2="4"></line></svg>
-            Worker: <strong id="stats-streak-off" class="mono">0 days</strong>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
+            Shift: <strong id="stats-streak-off" class="mono">0 days</strong>
           </span>
         </div>
       </div>
@@ -4495,6 +4628,11 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
     </div>
 
     <!-- ══════════════ UNIFIED ANALYTICS SUITE ══════════════ -->
+    <!-- 0. Worker Performance Rating & Salary Tier Sync Card -->
+    <div class="card anim office-sec" id="stats-perf-rating-card" style="display:none;background:linear-gradient(135deg, rgba(255,185,48,.08), rgba(124,111,237,.06));border-color:rgba(255,185,48,.28)">
+      <!-- Rendered dynamically by renderOfficeStats() -->
+    </div>
+
     <!-- 1. Attendance Distribution Donut / Pie Chart Card -->
     <div class="card anim" id="stats-att-donut-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -5419,17 +5557,17 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <span class="mono" id="more-current-streak-val" style="font-size:16px;font-weight:800;color:var(--acc)">0 days</span>
       </div>
 
-      <!-- Streak Breakdown Badges: Freelance & Office -->
+      <!-- Streak Breakdown Badges: Gig & Shift -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
         <div style="background:rgba(0,245,160,.08);border:1px solid rgba(0,245,160,.22);border-radius:10px;padding:8px 10px">
           <div style="font-size:9px;color:var(--paid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;display:flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg> Freelance Streak
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg> Gig Streak
           </div>
           <div class="mono" id="more-freelance-streak" style="font-size:13px;font-weight:700;color:var(--paid)">0 days</div>
         </div>
         <div style="background:rgba(124,111,237,.08);border:1px solid rgba(124,111,237,.22);border-radius:10px;padding:8px 10px">
           <div style="font-size:9px;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;display:flex;align-items:center;gap:4px">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path><line x1="9" y1="1" x2="15" y2="1"></line><line x1="12" y1="1" x2="12" y2="4"></line></svg> Worker Streak
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg> Shift Streak
           </div>
           <div class="mono" id="more-office-streak" style="font-size:13px;font-weight:700;color:var(--acc)">0 days</div>
         </div>
@@ -5450,34 +5588,34 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           </div>
           <div>
             <div style="font-size:14px;font-weight:800;color:var(--t1)">Workspace Mode</div>
-            <div style="font-size:10.5px;color:var(--t2)">Switch between Freelance, Worker &amp; Dual Mode</div>
+            <div style="font-size:10.5px;color:var(--t2)">Switch between Gig, Shift &amp; Hybrid Mode</div>
           </div>
         </div>
-        <span id="more-active-mode-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--acc-bg);color:var(--acc);border:1px solid var(--acc-bd)">Freelance</span>
+        <span id="more-active-mode-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--acc-bg);color:var(--acc);border:1px solid var(--acc-bd)">Gig</span>
       </div>
 
       <!-- Segmented Switcher Controls -->
       <div class="mode-switch-bar" style="margin:0 0 10px 0;width:100%;display:flex;gap:4px;background:var(--s2);padding:4px;border-radius:10px;border:1px solid var(--b)">
         <button type="button" class="mode-pill active" id="more-mode-btn-freelance" onclick="setAppMode('freelance')" style="flex:1;padding:8px 4px;font-size:11px;font-weight:700;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg>
-          Freelance
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
+          Gig
         </button>
         <button type="button" class="mode-pill" id="more-mode-btn-office" onclick="setAppMode('office')" style="flex:1;padding:8px 4px;font-size:11px;font-weight:700;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path><line x1="9" y1="1" x2="15" y2="1"></line><line x1="12" y1="1" x2="12" y2="4"></line></svg>
-          Worker
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
+          Shift
         </button>
         <button type="button" class="mode-pill" id="more-mode-btn-all" onclick="setAppMode('all')" style="flex:1;padding:8px 4px;font-size:11px;font-weight:700;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
-          Dual
+          Hybrid
         </button>
       </div>
 
       <!-- Center Action Button Dynamic Explanation -->
       <div id="more-mode-expl-box" style="font-size:11px;color:var(--t2);background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:9px 12px;display:flex;align-items:center;gap:8px">
         <span id="more-mode-expl-icon" style="color:var(--acc);font-size:15px;display:flex;align-items:center">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
         </span>
-        <span id="more-mode-expl-text" style="flex:1;line-height:1.4">Navbar Center Button: <strong>Log Freelance Work Session</strong></span>
+        <span id="more-mode-expl-text" style="flex:1;line-height:1.4">Navbar Center Button: <strong>Log Gig Work Session</strong></span>
       </div>
     </div>
 
@@ -6921,241 +7059,551 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 <div class="moverlay" id="work-profile-modal" onclick="overlayClose(event,'work-profile-modal')">
   <div class="msheet" style="max-width:520px">
     <div class="mhandle"></div>
+    <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
       <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:36px;height:36px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="22" x2="9" y2="2"/><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01M8 18h.01M16 18h.01"/></svg>
+        <div style="width:40px;height:40px;border-radius:12px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
         </div>
         <div>
-          <div style="font-size:16px;font-weight:800;color:var(--t1)">Work ID &amp; Office Setup</div>
-          <div style="font-size:11px;color:var(--t2)">Company details, salary, OT rate, PF &amp; leaves</div>
+          <div style="font-size:16px;font-weight:800;color:var(--t1)">Worker ID &amp; Profile Setup</div>
+          <div style="font-size:10.5px;color:var(--t2)">Pehchan · Shift Timings · Salary &amp; Payday · OT Rate</div>
         </div>
       </div>
-      <button type="button" class="ss-btn" onclick="closeModal('work-profile-modal')" style="width:28px;height:28px;border-radius:8px;background:var(--s2);border:1px solid var(--b);color:var(--t2);display:flex;align-items:center;justify-content:center">✕</button>
+      <button type="button" class="ss-btn" onclick="closeModal('work-profile-modal')" style="width:30px;height:30px;border-radius:9px;background:var(--s2);border:1px solid var(--b);color:var(--t2);display:flex;align-items:center;justify-content:center">✕</button>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:12px;max-height:72vh;overflow-y:auto;padding-right:2px">
-      <!-- 1. Company & Employee Info -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px">
-        <div style="font-size:11px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">1. Company &amp; Designation</div>
-        <div class="fg2" style="margin-bottom:8px">
-          <div class="fgrp">
-            <label class="ss-label">Company / Employer Name</label>
-            <input class="ss-input" type="text" id="wp-in-company" placeholder="e.g. Acme Tech Solutions" value=""/>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label">Work / Employee ID</label>
-            <input class="ss-input" type="text" id="wp-in-empid" placeholder="e.g. EMP-1024" value=""/>
-          </div>
-        </div>
-        <div class="fg2">
-          <div class="fgrp">
-            <label class="ss-label">Designation / Role</label>
-            <input class="ss-input" type="text" id="wp-in-desig" placeholder="e.g. Lead Software Engineer" value=""/>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label">Department</label>
-            <input class="ss-input" type="text" id="wp-in-dept" placeholder="e.g. Engineering &amp; IT" value=""/>
-          </div>
-        </div>
-        <!-- Performance Rating -->
-        <div style="margin-top:8px">
-          <label class="ss-label">Performance Rating &amp; Appraisal Tier</label>
-          <div style="display:flex;gap:8px;align-items:center">
-            <select class="ss-input" id="wp-in-rating" style="flex:1" onchange="onWorkProfileRatingChange()">
-              <option value="5.0">★★★★★ Top Performer (15% Bonus/Appraisal)</option>
-              <option value="4.5">★★★★½ Exceeds Expectations (10% Bonus)</option>
-              <option value="4.0">★★★★☆ Meets Expectations (5% Bonus)</option>
-              <option value="3.5">★★★½☆ Standard Performance (0% Bonus)</option>
-              <option value="3.0">★★★☆☆ Needs Improvement (0%)</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Bi-directional Salary Engine -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-size:11px;font-weight:700;color:var(--paid);text-transform:uppercase;letter-spacing:.05em">2. Salary Structure</div>
-          <span style="font-size:9px;color:var(--t2)">Auto-Calculates All Terms</span>
-        </div>
-
-        <div style="display:flex;gap:4px;background:var(--s3);padding:3px;border-radius:8px;margin-bottom:10px">
-          <button type="button" class="mode-switch-btn active" id="sal-tab-month" onclick="setSalaryInputMode('month')">Per Month</button>
-          <button type="button" class="mode-switch-btn" id="sal-tab-day" onclick="setSalaryInputMode('day')">Per Day</button>
-          <button type="button" class="mode-switch-btn" id="sal-tab-year" onclick="setSalaryInputMode('year')">Per Annum (CTC)</button>
-        </div>
-
-        <div class="fg2" style="margin-bottom:8px">
-          <div class="fgrp">
-            <label class="ss-label" id="wp-sal-input-label">Monthly Salary (₹)</label>
-            <input class="ss-input mono" type="number" id="wp-in-salary" placeholder="50000" value="50000" oninput="onSalaryAmountChange()"/>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label">Working Days / Month</label>
-            <select class="ss-input" id="wp-in-workdays" onchange="onSalaryAmountChange()">
-              <option value="26">26 Days (6-Day Work Week)</option>
-              <option value="22">22 Days (5-Day Work Week)</option>
-              <option value="30">30 Days (Calendar Month Standard)</option>
-              <option value="24">24 Days (Alternate Saturdays Off)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="fg2" style="margin-bottom:10px">
-          <div class="fgrp">
-            <label class="ss-label">Standard Shift (hrs / day)</label>
-            <select class="ss-input" id="wp-in-shifthours" onchange="onSalaryAmountChange()">
-              <option value="8">8 Hours / Day</option>
-              <option value="9">9 Hours / Day</option>
-              <option value="10">10 Hours / Day</option>
-              <option value="12">12 Hours / Day</option>
-            </select>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label">Calculated Hourly Rate</label>
-            <input class="ss-input mono" type="text" id="wp-out-hourly" readonly style="opacity:0.8;background:var(--s3)"/>
-          </div>
-        </div>
-
-        <!-- Live Converted Overview Cards -->
-        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;text-align:center;background:var(--s3);border-radius:10px;padding:8px">
-          <div>
-            <div style="font-size:8px;color:var(--t2);text-transform:uppercase">Per Day</div>
-            <div class="mono" id="wp-prev-day" style="font-size:12px;font-weight:700;color:var(--t1)">₹1,923</div>
-          </div>
-          <div>
-            <div style="font-size:8px;color:var(--t2);text-transform:uppercase">Per Month</div>
-            <div class="mono" id="wp-prev-month" style="font-size:12px;font-weight:700;color:var(--paid)">₹50,000</div>
-          </div>
-          <div>
-            <div style="font-size:8px;color:var(--t2);text-transform:uppercase">Per Annum (CTC)</div>
-            <div class="mono" id="wp-prev-year" style="font-size:12px;font-weight:700;color:var(--acc)">₹6,00,000</div>
-          </div>
-        </div>
-
-        <div class="fgrp" style="margin-top:10px">
-          <label class="ss-label" style="display:flex;justify-content:space-between;align-items:center">
-            <span>💰 Monthly Salary Payout Date</span>
-            <span style="color:var(--paid);font-weight:700;font-size:9.5px">Alerts on this date</span>
-          </label>
-          <select class="ss-input" id="wp-in-salarypayday">
-            <option value="1">1st of every month</option>
-            <option value="5" selected>5th of every month</option>
-            <option value="7">7th of every month</option>
-            <option value="10">10th of every month</option>
-            <option value="15">15th of every month</option>
-            <option value="20">20th of every month</option>
-            <option value="25">25th of every month</option>
-            <option value="28">28th of every month</option>
-            <option value="30">30th / Last day of month</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- 3. Week Off (WO) Preset Selector -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-          <div style="font-size:11px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em">3. Default Weekly Offs (WO)</div>
-          <span style="font-size:9px;color:var(--t2)">Auto-marked on calendar</span>
-        </div>
-        <div style="font-size:10px;color:var(--t3);margin-bottom:6px">Tap days that are your regular weekly holidays:</div>
-        <div class="day-pill-grid" id="wp-weekoff-grid">
-          <button type="button" class="day-pill-btn active" data-day="0" onclick="toggleWeekOffDay(0)">Sun</button>
-          <button type="button" class="day-pill-btn" data-day="1" onclick="toggleWeekOffDay(1)">Mon</button>
-          <button type="button" class="day-pill-btn" data-day="2" onclick="toggleWeekOffDay(2)">Tue</button>
-          <button type="button" class="day-pill-btn" data-day="3" onclick="toggleWeekOffDay(3)">Wed</button>
-          <button type="button" class="day-pill-btn" data-day="4" onclick="toggleWeekOffDay(4)">Thu</button>
-          <button type="button" class="day-pill-btn" data-day="5" onclick="toggleWeekOffDay(5)">Fri</button>
-          <button type="button" class="day-pill-btn" data-day="6" onclick="toggleWeekOffDay(6)">Sat</button>
-        </div>
-      </div>
-
-      <!-- 4. Overtime (OT) & PF (Provident Fund) Configuration -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px">
-        <div style="font-size:11px;font-weight:700;color:#FFB930;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">4. Overtime &amp; PF Deductions</div>
-        
-        <div class="fg2" style="margin-bottom:10px">
-          <div class="fgrp">
-            <label class="ss-label">Overtime (OT) Rate Multiplier</label>
-            <select class="ss-input" id="wp-in-otmult" onchange="onOtMultiplierChange()">
-              <option value="1.5">1.5x of Hourly Wage (Standard)</option>
-              <option value="2.0">2.0x Double Rate</option>
-              <option value="1.25">1.25x Normal Rate</option>
-              <option value="1.0">1.0x Flat Hourly Rate</option>
-              <option value="custom">Custom ₹ / Hour...</option>
-            </select>
-          </div>
-          <div class="fgrp" id="wp-custom-ot-wrap" style="display:none">
-            <label class="ss-label">Custom OT Rate (₹/hr)</label>
-            <input class="ss-input mono" type="number" id="wp-in-otcustom" placeholder="350"/>
-          </div>
-        </div>
-
-        <!-- PF Config -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--b)">
-          <div>
-            <div style="font-size:12px;font-weight:700;color:var(--t1)">Provident Fund (PF)</div>
-            <div style="font-size:10px;color:var(--t2)">Separate statutory deduction &amp; accumulated savings</div>
-          </div>
-          <label class="mnm-switch">
-            <input type="checkbox" id="wp-in-pfenabled" checked onchange="togglePfInputs(this.checked)"/>
-            <span class="mnm-slider"></span>
-          </label>
-        </div>
-
-        <div id="wp-pf-details-box" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="fgrp">
-            <label class="ss-label">PF Deduction Type</label>
-            <select class="ss-input" id="wp-in-pftype" onchange="onPfTypeChange()">
-              <option value="percent">12% Standard PF</option>
-              <option value="fixed">Fixed Monthly Amount (₹)</option>
-            </select>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label" id="wp-pf-val-label">PF Rate (%)</label>
-            <input class="ss-input mono" type="number" id="wp-in-pfval" value="12" step="0.5"/>
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. Leave Quotas (PL, SL, CL) & Policy -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px">
-        <div style="font-size:11px;font-weight:700;color:#0EA5E9;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">5. Company Leave Quotas (Annual)</div>
-        
-        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px;margin-bottom:10px">
-          <div class="fgrp">
-            <label class="ss-label" style="color:#0EA5E9">Paid Leaves (PL)</label>
-            <input class="ss-input mono" type="number" id="wp-in-pl" value="18" placeholder="18"/>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label" style="color:#8B5CF6">Sick Leaves (SL)</label>
-            <input class="ss-input mono" type="number" id="wp-in-sl" value="12" placeholder="12"/>
-          </div>
-          <div class="fgrp">
-            <label class="ss-label" style="color:#06B6D4">Casual (CL)</label>
-            <input class="ss-input mono" type="number" id="wp-in-cl" value="10" placeholder="10"/>
-          </div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--b)">
-          <div>
-            <div style="font-size:11px;font-weight:600;color:var(--t1)">Deduct Salary for Unpaid / Excess Leaves</div>
-            <div style="font-size:9px;color:var(--t2)">Cuts per-day rate for unapproved/excess absent days</div>
-          </div>
-          <label class="mnm-switch">
-            <input type="checkbox" id="wp-in-deductexcess" checked/>
-            <span class="mnm-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Save Button -->
-      <button type="button" class="ss-btn" onclick="saveWorkProfileFromModal()" style="width:100%;padding:14px;border-radius:12px;background:var(--acc);color:#fff;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,111,237,0.4)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Save Work ID &amp; Profile
-      </button>
+    <!-- Step Progress Bar -->
+    <div id="wp-step-progress" style="display:flex;gap:4px;margin-bottom:12px;align-items:center">
+      <div class="wp-prog-dot active" data-step="1" onclick="wpGoStep(1)" title="Identity"></div>
+      <div class="wp-prog-line"></div>
+      <div class="wp-prog-dot" data-step="2" onclick="wpGoStep(2)" title="Shift"></div>
+      <div class="wp-prog-line"></div>
+      <div class="wp-prog-dot" data-step="3" onclick="wpGoStep(3)" title="Salary"></div>
+      <div class="wp-prog-line"></div>
+      <div class="wp-prog-dot" data-step="4" onclick="wpGoStep(4)" title="Overtime"></div>
+      <div class="wp-prog-line"></div>
+      <div class="wp-prog-dot" data-step="5" onclick="wpGoStep(5)" title="Review"></div>
     </div>
+
+    <!-- Step Title Banner -->
+    <div id="wp-step-banner" style="display:flex;align-items:center;gap:10px;background:var(--s3);border-radius:11px;padding:10px 13px;margin-bottom:12px">
+      <div id="wp-step-banner-icon" style="width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
+      <div>
+        <div id="wp-step-banner-title" style="font-size:13px;font-weight:800;color:var(--t1)"></div>
+        <div id="wp-step-banner-sub" style="font-size:10px;color:var(--t2)"></div>
+      </div>
+      <div style="margin-left:auto;font-size:10.5px;font-weight:700;color:var(--t3)" id="wp-step-counter"></div>
+    </div>
+
+    <!-- Step Panels -->
+    <div style="max-height:62vh;overflow-y:auto;padding-right:2px" id="wp-panels-container">
+
+      <!-- ══ STEP 1: Worker & Workplace Profile ══ -->
+      <div class="wp-step-panel" id="wp-panel-1">
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px;display:flex;flex-direction:column;gap:10px">
+          <div class="fg2">
+            <div class="fgrp">
+              <label class="ss-label">Worker / Employee Name</label>
+              <input class="ss-input" type="text" id="wp-in-name" placeholder="e.g. Ramesh Kumar"/>
+            </div>
+            <div class="fgrp">
+              <label class="ss-label">Employee ID / Badge No.</label>
+              <input class="ss-input" type="text" id="wp-in-empid" placeholder="e.g. EMP-1024"/>
+            </div>
+          </div>
+          <div class="fg2">
+            <div class="fgrp">
+              <label class="ss-label">Company / Mill / Workplace Name</label>
+              <input class="ss-input" type="text" id="wp-in-company" placeholder="e.g. Tata Motors / Acme Tech"/>
+            </div>
+            <div class="fgrp">
+              <label class="ss-label">Department / Unit / Line</label>
+              <input class="ss-input" type="text" id="wp-in-dept" placeholder="e.g. Assembly Line A / IT"/>
+            </div>
+          </div>
+          <div class="fgrp">
+            <label class="ss-label">Designation / Job Role</label>
+            <input class="ss-input" type="text" id="wp-in-desig" placeholder="e.g. Machine Operator / Technician"/>
+            <!-- Quick Role Chips -->
+            <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px">
+              <button type="button" class="wp-preset-chip" onclick="document.getElementById('wp-in-desig').value='Machine Operator'">Operator</button>
+              <button type="button" class="wp-preset-chip" onclick="document.getElementById('wp-in-desig').value='Technician'">Technician</button>
+              <button type="button" class="wp-preset-chip" onclick="document.getElementById('wp-in-desig').value='Supervisor'">Supervisor</button>
+              <button type="button" class="wp-preset-chip" onclick="document.getElementById('wp-in-desig').value='Helper / Worker'">Helper</button>
+              <button type="button" class="wp-preset-chip" onclick="document.getElementById('wp-in-desig').value='Staff / Engineer'">Engineer</button>
+            </div>
+          </div>
+          <div class="fg2">
+            <div class="fgrp">
+              <label class="ss-label">Date of Joining (DOJ)</label>
+              <input class="ss-input" type="date" id="wp-in-doj"/>
+            </div>
+            <div class="fgrp">
+              <label class="ss-label">Employment Type</label>
+              <select class="ss-input" id="wp-in-emptype">
+                <option value="permanent">Full-time / Permanent</option>
+                <option value="contract">Contract / Theka Basis</option>
+                <option value="daily">Daily Wage / Casual Worker</option>
+                <option value="probation">Probation / Trainee</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <button type="button" onclick="wpGoStep(2)" style="width:100%;margin-top:12px;padding:13px;border-radius:12px;background:var(--acc);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,111,237,0.35)">
+          Next: Shift &amp; Schedule
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <!-- ══ STEP 2: Shift Schedule (Fixed vs Changing Shift) ══ -->
+      <div class="wp-step-panel" id="wp-panel-2" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <!-- Shift Type Toggle Cards -->
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px">
+            <div style="font-size:11px;font-weight:800;color:#3B82F6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Shift Type (Shift All-Time Fix Hai Ya Change Hoti Hai?)</div>
+            
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <div class="wp-toggle-card active" id="shift-type-card-fixed" onclick="wpSetShiftType('fixed')">
+                <div style="width:24px;height:24px;border-radius:6px;background:rgba(59,130,246,0.15);display:flex;align-items:center;justify-content:center;color:#3B82F6;flex-shrink:0">🔒</div>
+                <div>
+                  <div class="wtc-title">Fixed Shift</div>
+                  <div class="wtc-sub">Har roz timing fix rehti hai (All-time same)</div>
+                </div>
+              </div>
+              <div class="wp-toggle-card" id="shift-type-card-rotating" onclick="wpSetShiftType('rotating')">
+                <div style="width:24px;height:24px;border-radius:6px;background:rgba(249,115,22,0.15);display:flex;align-items:center;justify-content:center;color:#F97316;flex-shrink:0">🔄</div>
+                <div>
+                  <div class="wtc-title">Changing Shift</div>
+                  <div class="wtc-sub">Day / Night shift rotation hoti hai</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fixed Shift Config -->
+            <div id="wp-fixed-shift-config">
+              <!-- Quick Timing Presets -->
+              <div style="margin-bottom:10px">
+                <div style="font-size:10px;color:var(--t2);margin-bottom:6px">Quick Shift Presets (1-Tap Selection):</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
+                  <button type="button" class="wp-preset-chip" onclick="wpApplyShiftPreset('09:00','18:00',8)">General (9 AM - 6 PM)</button>
+                  <button type="button" class="wp-preset-chip" onclick="wpApplyShiftPreset('08:00','16:30',8)">Morning (8 AM - 4:30 PM)</button>
+                  <button type="button" class="wp-preset-chip" onclick="wpApplyShiftPreset('16:00','00:30',8)">Evening (4 PM - 12:30 AM)</button>
+                  <button type="button" class="wp-preset-chip" onclick="wpApplyShiftPreset('20:00','05:00',8)">Night (8 PM - 5 AM)</button>
+                  <button type="button" class="wp-preset-chip" onclick="wpApplyShiftPreset('08:00','20:00',12)">12-Hour Duty</button>
+                </div>
+              </div>
+
+              <div class="fg2">
+                <div class="fgrp">
+                  <label class="ss-label">Shift Start Time (Aane Ka Time)</label>
+                  <input class="ss-input" type="time" id="wp-in-shiftstart" value="09:00"/>
+                </div>
+                <div class="fgrp">
+                  <label class="ss-label">Shift End Time (Jane Ka Time)</label>
+                  <input class="ss-input" type="time" id="wp-in-shiftend" value="18:00"/>
+                </div>
+              </div>
+              <div class="fg2" style="margin-top:8px">
+                <div class="fgrp">
+                  <label class="ss-label">Standard Hours / Day (Roz Ke Ghante)</label>
+                  <select class="ss-input" id="wp-in-shifthours" onchange="onSalaryAmountChange()">
+                    <option value="4">4 Hours (Half-Day)</option>
+                    <option value="6">6 Hours</option>
+                    <option value="8" selected>8 Hours / Day</option>
+                    <option value="9">9 Hours / Day</option>
+                    <option value="10">10 Hours / Day</option>
+                    <option value="12">12 Hours / Day</option>
+                  </select>
+                </div>
+                <div class="fgrp">
+                  <label class="ss-label">Working Days / Month (Mahine Ke Din)</label>
+                  <select class="ss-input" id="wp-in-workdays" onchange="onSalaryAmountChange()">
+                    <option value="26" selected>26 Days (6-Day Week)</option>
+                    <option value="22">22 Days (5-Day Week)</option>
+                    <option value="24">24 Days (Alt. Sat Off)</option>
+                    <option value="28">28 Days</option>
+                    <option value="30">30 Days (Full Month)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rotating Shift Config -->
+            <div id="wp-rotating-shift-config" style="display:none">
+              <div style="background:var(--s3);border-radius:10px;padding:10px;font-size:11px;color:var(--t2);margin-bottom:10px">
+                🔄 Changing / Rotating Shift ke liye aap niche custom shift slots add kar sakte hain, ya attendance calendar par roz actual timings enter kar sakte hain.
+              </div>
+              <div id="wp-rotating-slots" style="display:flex;flex-direction:column;gap:7px"></div>
+              <button type="button" onclick="wpAddRotatingSlot()" style="width:100%;margin-top:8px;padding:9px;border-radius:9px;border:1.5px dashed var(--acc-bd);color:var(--acc);background:var(--acc-bg);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                + Add Shift Slot (e.g. Day/Night)
+              </button>
+              <div class="fg2" style="margin-top:10px">
+                <div class="fgrp">
+                  <label class="ss-label">Avg Std Hours / Day</label>
+                  <select class="ss-input" id="wp-in-shifthours-rot" onchange="wpSyncRotShiftHours()">
+                    <option value="8">8 Hours</option>
+                    <option value="9">9 Hours</option>
+                    <option value="10">10 Hours</option>
+                    <option value="12">12 Hours</option>
+                  </select>
+                </div>
+                <div class="fgrp">
+                  <label class="ss-label">Working Days / Month</label>
+                  <select class="ss-input" id="wp-in-workdays-rot" onchange="wpSyncRotShiftHours()">
+                    <option value="26">26 Days</option>
+                    <option value="24">24 Days</option>
+                    <option value="22">22 Days</option>
+                    <option value="30">30 Days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Week Offs -->
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="font-size:11px;font-weight:800;color:var(--t1);text-transform:uppercase;letter-spacing:.05em">Weekly Off Days (Chhutti Ke Din)</div>
+              <span style="font-size:9.5px;color:var(--t2)">Calendar par auto-mark honge</span>
+            </div>
+            <div style="font-size:10px;color:var(--t3);margin-bottom:8px">Apne regular holiday wale din tap karke select karein:</div>
+            <div class="day-pill-grid" id="wp-weekoff-grid">
+              <button type="button" class="day-pill-btn active" data-day="0" onclick="toggleWeekOffDay(0)">Sun</button>
+              <button type="button" class="day-pill-btn" data-day="1" onclick="toggleWeekOffDay(1)">Mon</button>
+              <button type="button" class="day-pill-btn" data-day="2" onclick="toggleWeekOffDay(2)">Tue</button>
+              <button type="button" class="day-pill-btn" data-day="3" onclick="toggleWeekOffDay(3)">Wed</button>
+              <button type="button" class="day-pill-btn" data-day="4" onclick="toggleWeekOffDay(4)">Thu</button>
+              <button type="button" class="day-pill-btn" data-day="5" onclick="toggleWeekOffDay(5)">Fri</button>
+              <button type="button" class="day-pill-btn" data-day="6" onclick="toggleWeekOffDay(6)">Sat</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button type="button" onclick="wpGoStep(1)" style="padding:13px 16px;border-radius:12px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+          </button>
+          <button type="button" onclick="wpGoStep(3)" style="flex:1;padding:13px;border-radius:12px;background:var(--acc);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,111,237,0.35)">
+            Next: Salary &amp; Payday<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ STEP 3: Salary Engine & Payday Date ══ -->
+      <div class="wp-step-panel" id="wp-panel-3" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px">
+            <div style="font-size:11px;font-weight:800;color:var(--paid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Salary Structure (Kamai Ka Format)</div>
+            
+            <!-- Salary Type Toggle Cards -->
+            <div style="display:flex;gap:8px;margin-bottom:12px">
+              <div class="wp-toggle-card active" id="sal-type-card-fixed" onclick="wpSetSalaryType('fixed')">
+                <div style="width:24px;height:24px;border-radius:6px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;color:var(--paid);flex-shrink:0">💵</div>
+                <div>
+                  <div class="wtc-title">Fixed Salary</div>
+                  <div class="wtc-sub">Single entry: Har mahine ya roz ka fix paisa</div>
+                </div>
+              </div>
+              <div class="wp-toggle-card" id="sal-type-card-perf" onclick="wpSetSalaryType('performance')">
+                <div style="width:24px;height:24px;border-radius:6px;background:rgba(255,185,48,0.15);display:flex;align-items:center;justify-content:center;color:#FFB930;flex-shrink:0">🌟</div>
+                <div>
+                  <div class="wtc-title">Rating / Performance Wise</div>
+                  <div class="wtc-sub">Performance ke hisab se alag salary slabs</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fixed Salary Panel (Single Branch Entry) -->
+            <div id="wp-fixed-salary-config">
+              <div style="display:flex;gap:4px;background:var(--s3);padding:3px;border-radius:8px;margin-bottom:10px">
+                <button type="button" class="mode-switch-btn active" id="sal-tab-month" onclick="setSalaryInputMode('month')">Per Month (Monthly)</button>
+                <button type="button" class="mode-switch-btn" id="sal-tab-day" onclick="setSalaryInputMode('day')">Per Day (Daily Wage)</button>
+                <button type="button" class="mode-switch-btn" id="sal-tab-year" onclick="setSalaryInputMode('year')">Per Annum (Annual)</button>
+              </div>
+              <div class="fg2" style="margin-bottom:10px">
+                <div class="fgrp">
+                  <label class="ss-label" id="wp-sal-input-label">Monthly Salary (₹)</label>
+                  <input class="ss-input mono" type="number" id="wp-in-salary" placeholder="50000" value="50000" oninput="onSalaryAmountChange()"/>
+                </div>
+                <div class="fgrp">
+                  <label class="ss-label">Hourly Base Rate (Auto)</label>
+                  <input class="ss-input mono" type="text" id="wp-out-hourly" readonly style="opacity:.85;background:var(--s3)"/>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;background:var(--s3);border-radius:10px;padding:9px">
+                <div><div style="font-size:8px;color:var(--t2);text-transform:uppercase">Per Day</div><div class="mono" id="wp-prev-day" style="font-size:13px;font-weight:700;color:var(--t1)">₹1,923</div></div>
+                <div><div style="font-size:8px;color:var(--t2);text-transform:uppercase">Per Month</div><div class="mono" id="wp-prev-month" style="font-size:13px;font-weight:700;color:var(--paid)">₹50,000</div></div>
+                <div><div style="font-size:8px;color:var(--t2);text-transform:uppercase">Per Annum</div><div class="mono" id="wp-prev-year" style="font-size:13px;font-weight:700;color:var(--acc)">₹6,00,000</div></div>
+              </div>
+            </div>
+
+            <!-- Performance / Rating-Based Salary Panel -->
+            <div id="wp-perf-salary-config" style="display:none">
+              <div style="font-size:10.5px;color:var(--t2);margin-bottom:10px;background:var(--s3);border-radius:9px;padding:10px;line-height:1.5">
+                🌟 <strong>Performance Rating Engine:</strong> Plus (+) icon ko press karke 1, 2, 3, 4, 5... jitna rating me salary milta hai wo add karein. Baad me app me directly rating select karke salary check kar sakte hain!
+              </div>
+
+              <!-- Rating Slabs List -->
+              <div id="wp-perf-salary-rows" style="display:flex;flex-direction:column;gap:8px"></div>
+              
+              <!-- Add Level Button -->
+              <button type="button" onclick="wpAddPerfSalaryRow()" style="width:100%;margin-top:10px;padding:10px;border-radius:10px;border:1.5px dashed var(--acc-bd);color:var(--acc);background:var(--acc-bg);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                + Add Rating Level (New Salary Tier)
+              </button>
+
+              <!-- Active Rating Preview -->
+              <div id="wp-perf-effective-display" style="margin-top:12px;background:var(--s3);border:1px solid var(--b);border-radius:11px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-size:10px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em">Active Rating Selection</div>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+                    <select class="ss-input" id="wp-in-perf-active-rating" style="padding:4px 8px;font-size:11.5px;font-weight:700;width:auto" onchange="onWorkProfilePerfActiveRatingChange(this.value)">
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:9px;color:var(--t2);text-transform:uppercase">Effective Salary</div>
+                  <div class="mono" id="wp-perf-eff-amount" style="font-size:17px;font-weight:800;color:var(--paid)">₹0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Salary Payment Date (Payday) & Notification Alert -->
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div>
+                <div style="font-size:12px;font-weight:800;color:var(--t1)">💰 Payment Date (Kis Date Ko Salary Aati Hai?)</div>
+                <div style="font-size:9.5px;color:var(--t2)">Payment date aane par app subah reminder notification bhejega</div>
+              </div>
+              <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;padding:3px 7px;font-size:9.5px;font-weight:700;color:#D97706">🔔 Alert Sync</div>
+            </div>
+            <div class="fg2">
+              <div class="fgrp">
+                <label class="ss-label">Monthly Payment Date (Payday)</label>
+                <select class="ss-input" id="wp-in-salarypayday" onchange="wpPaydayChange()">
+                  <option value="1">1st of every month</option>
+                  <option value="5" selected>5th of every month</option>
+                  <option value="7">7th of every month</option>
+                  <option value="10">10th of every month</option>
+                  <option value="15">15th of every month</option>
+                  <option value="20">20th of every month</option>
+                  <option value="25">25th of every month</option>
+                  <option value="28">28th of every month</option>
+                  <option value="30">30th / Month End</option>
+                  <option value="custom">Custom Date (1 to 31)...</option>
+                </select>
+              </div>
+              <div class="fgrp" id="wp-custom-payday-wrap" style="display:none">
+                <label class="ss-label">Custom Day (1–31)</label>
+                <input class="ss-input mono" type="number" id="wp-in-payday-custom" min="1" max="31" placeholder="e.g. 3"/>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--b)">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:var(--t1)">Payday Morning Notification</div>
+                <div style="font-size:9.5px;color:var(--t2)">Salary credit day par subah 9:30 AM par push notification</div>
+              </div>
+              <label class="mnm-switch">
+                <input type="checkbox" id="wp-in-salary-notif" checked/>
+                <span class="mnm-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button type="button" onclick="wpGoStep(2)" style="padding:13px 16px;border-radius:12px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+          </button>
+          <button type="button" onclick="wpGoStep(4)" style="flex:1;padding:13px;border-radius:12px;background:var(--acc);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,111,237,0.35)">
+            Next: Overtime (OT)<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ STEP 4: Overtime (OT) Setup ══ -->
+      <div class="wp-step-panel" id="wp-panel-4" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <!-- OT Rate & Limit Card -->
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px">
+            <div style="font-size:11px;font-weight:800;color:#F97316;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Overtime (OT) Rate &amp; Paisa</div>
+            
+            <!-- Rate Mode Switcher -->
+            <div style="display:flex;gap:4px;background:var(--s3);padding:3px;border-radius:8px;margin-bottom:10px">
+              <button type="button" class="mode-switch-btn" id="ot-mode-btn-hourly" onclick="wpSetOtRateType('hourly')">Fixed ₹ Per Hour Rate</button>
+              <button type="button" class="mode-switch-btn active" id="ot-mode-btn-mult" onclick="wpSetOtRateType('multiplier')">Multiplier Rate (1.5x / 2.0x)</button>
+            </div>
+
+            <!-- Direct Hourly OT Rate Input -->
+            <div id="wp-ot-hourly-rate-wrap" style="display:none;margin-bottom:10px">
+              <div class="fgrp">
+                <label class="ss-label" style="color:#F97316">OT Rate (₹ per Hour)</label>
+                <input class="ss-input mono" type="number" id="wp-in-othourly" placeholder="e.g. 200" oninput="wpUpdateOtPreview()"/>
+                <div style="font-size:9.5px;color:var(--t2);margin-top:3px">Har 1 ghante overtime ka seedha ye amount milega.</div>
+              </div>
+            </div>
+
+            <!-- Multiplier OT Rate Input -->
+            <div id="wp-ot-mult-rate-wrap" style="margin-bottom:10px">
+              <div class="fg2">
+                <div class="fgrp">
+                  <label class="ss-label">OT Multiplier</label>
+                  <select class="ss-input" id="wp-in-otmult" onchange="onOtMultiplierChange()">
+                    <option value="1.5" selected>1.5× Standard OT Rate</option>
+                    <option value="2.0">2.0× Double Rate (2 Guna)</option>
+                    <option value="1.25">1.25× Normal+</option>
+                    <option value="1.0">1.0× Normal Hourly Rate</option>
+                    <option value="custom">Custom ₹/hr...</option>
+                  </select>
+                </div>
+                <div class="fgrp" id="wp-custom-ot-wrap" style="display:none">
+                  <label class="ss-label">Custom Rate (₹/hr)</label>
+                  <input class="ss-input mono" type="number" id="wp-in-otcustom" placeholder="300" oninput="wpUpdateOtPreview()"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Effective OT Rate Display Pill -->
+            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.22);border-radius:9px;padding:8px 12px;margin-bottom:12px">
+              <span style="font-size:11px;font-weight:700;color:var(--t1)">Effective OT Rate:</span>
+              <span class="mono" id="wp-effective-ot-rate-disp" style="font-size:13px;font-weight:800;color:#F97316">₹0 / hr</span>
+            </div>
+
+            <!-- Kitne Hours Ke Liye Set Kar Sakta Hai -->
+            <div class="fg2" style="border-top:1px solid var(--b);padding-top:10px;margin-bottom:10px">
+              <div class="fgrp">
+                <label class="ss-label">OT Starts After (hrs/day)</label>
+                <input class="ss-input mono" type="number" id="wp-in-otthreshold" value="8" min="1" max="24" step="0.5" placeholder="8"/>
+                <div style="font-size:9px;color:var(--t3);margin-top:2px">Roz itne ghante ke baad OT shuru hoga</div>
+              </div>
+              <div class="fgrp">
+                <label class="ss-label">Max Daily OT Limit (Kitne Hr Tak?)</label>
+                <select class="ss-input" id="wp-in-otmaxhours">
+                  <option value="2">Max 2 Hours / Day</option>
+                  <option value="4" selected>Max 4 Hours / Day</option>
+                  <option value="6">Max 6 Hours / Day</option>
+                  <option value="8">Max 8 Hours / Day</option>
+                  <option value="0">Unlimited / No Cap</option>
+                </select>
+                <div style="font-size:9px;color:var(--t3);margin-top:2px">Daily safe OT logging limit</div>
+              </div>
+            </div>
+
+            <!-- Uss Particular Day Me OT Hai Ya Alag Se Day Ka OT Hai -->
+            <div style="border-top:1px solid var(--b);padding-top:10px">
+              <div style="font-size:11px;font-weight:800;color:var(--t1);margin-bottom:8px">OT Logging Type (Usi Din Ya Alag Chhutti Ke Din?)</div>
+              <div style="display:flex;gap:8px">
+                <div class="wp-ot-radio-card active" id="ot-type-sameday-card" onclick="wpSetOtLogType('sameday')">
+                  <input type="radio" name="wp-ot-type" id="wp-ot-type-sameday" value="sameday" checked style="margin-top:2px;flex-shrink:0"/>
+                  <div>
+                    <div style="font-size:11.5px;font-weight:800;color:var(--t1)">Same-Day Shift OT</div>
+                    <div style="font-size:9.5px;color:var(--t2);margin-top:2px;line-height:1.35">Normal working day ke shift ke sath extra hours OT judega.</div>
+                  </div>
+                </div>
+                <div class="wp-ot-radio-card" id="ot-type-separate-card" onclick="wpSetOtLogType('separate')">
+                  <input type="radio" name="wp-ot-type" id="wp-ot-type-separate" value="separate" style="margin-top:2px;flex-shrink:0"/>
+                  <div>
+                    <div style="font-size:11.5px;font-weight:800;color:var(--t1)">Separate Day OT</div>
+                    <div style="font-size:9.5px;color:var(--t2);margin-top:2px;line-height:1.35">Sunday ya holiday ke din pura din alag OT duty lagti hai.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional Deductions & Benefits (Collapsible) -->
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:12px 14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="wpToggleDeductionsWrap()">
+              <div style="font-size:11.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px">
+                <span>🛡️</span> PF, ESIC &amp; Leave Quotas (Optional)
+              </div>
+              <span id="wp-deduct-chevron" style="font-size:12px;color:var(--t2)">▼</span>
+            </div>
+            
+            <div id="wp-deductions-wrap" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--b)">
+              <!-- PF Toggle -->
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <div><div style="font-size:11px;font-weight:700;color:var(--t1)">Provident Fund (PF)</div><div style="font-size:9px;color:var(--t2)">Monthly PF savings deduction</div></div>
+                <label class="mnm-switch"><input type="checkbox" id="wp-in-pfenabled" checked onchange="togglePfInputs(this.checked)"/><span class="mnm-slider"></span></label>
+              </div>
+              <div id="wp-pf-details-box" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+                <div class="fgrp">
+                  <label class="ss-label">PF Type</label>
+                  <select class="ss-input" id="wp-in-pftype" onchange="onPfTypeChange()">
+                    <option value="percent">12% Standard PF</option>
+                    <option value="fixed">Fixed Amount (₹)</option>
+                  </select>
+                </div>
+                <div class="fgrp">
+                  <label class="ss-label" id="wp-pf-val-label">PF Rate (%)</label>
+                  <input class="ss-input mono" type="number" id="wp-in-pfval" value="12" step="0.5"/>
+                </div>
+              </div>
+
+              <!-- Annual Leaves Quota -->
+              <div style="border-top:1px solid var(--b);padding-top:8px;margin-top:8px">
+                <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:6px">Annual Leave Quota (Chhutti Quota)</div>
+                <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:6px">
+                  <div style="background:var(--s3);border-radius:8px;padding:6px;text-align:center">
+                    <div style="font-size:9px;font-weight:700;color:#0EA5E9">PL (Paid)</div>
+                    <input class="ss-input mono" type="number" id="wp-in-pl" value="18" style="text-align:center;font-weight:800;padding:2px;width:100%"/>
+                  </div>
+                  <div style="background:var(--s3);border-radius:8px;padding:6px;text-align:center">
+                    <div style="font-size:9px;font-weight:700;color:#8B5CF6">SL (Sick)</div>
+                    <input class="ss-input mono" type="number" id="wp-in-sl" value="12" style="text-align:center;font-weight:800;padding:2px;width:100%"/>
+                  </div>
+                  <div style="background:var(--s3);border-radius:8px;padding:6px;text-align:center">
+                    <div style="font-size:9px;font-weight:700;color:#06B6D4">CL (Casual)</div>
+                    <input class="ss-input mono" type="number" id="wp-in-cl" value="10" style="text-align:center;font-weight:800;padding:2px;width:100%"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button type="button" onclick="wpGoStep(3)" style="padding:13px 16px;border-radius:12px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+          </button>
+          <button type="button" onclick="wpGoStep(5)" style="flex:1;padding:13px;border-radius:12px;background:var(--acc);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,111,237,0.35)">
+            Next: Review &amp; Save<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ STEP 5: Review & Save Confirmation ══ -->
+      <div class="wp-step-panel" id="wp-panel-5" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <!-- Summary Review Card -->
+          <div style="background:var(--s2);border:1px solid var(--b);border-radius:13px;padding:14px">
+            <div style="font-size:12px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px;margin-bottom:10px">
+              <span>📋</span> Worker Profile Verification
+            </div>
+            <div id="wp-summary-preview" style="display:flex;flex-direction:column;gap:6px"></div>
+          </div>
+
+          <!-- Ready Message -->
+          <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:11px;padding:10px 12px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">✅</span>
+            <div style="font-size:11px;color:var(--t1);line-height:1.4">
+              <strong>Sabhi details sync ke liye taiyar hain!</strong> Save karte hi Dashboard, Attendance, Overtime aur Monthly Stats turant update ho jayenge.
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button type="button" onclick="wpGoStep(4)" style="padding:13px 16px;border-radius:12px;background:var(--s2);border:1px solid var(--b);color:var(--t2);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>Back
+          </button>
+          <button type="button" onclick="saveWorkProfileFromModal()" style="flex:1;padding:14px;border-radius:12px;background:var(--acc);color:#fff;font-size:14px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(124,111,237,0.4)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Save Worker ID Profile
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /scroll container -->
   </div>
 </div>
 
@@ -7421,21 +7869,21 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   </div>
 </div>
 
-<!-- ══════════════ DUAL ACTION QUICK SELECTOR MODAL ══════════════ -->
+<!-- ══════════════ HYBRID ACTION QUICK SELECTOR MODAL ══════════════ -->
 <div class="moverlay" id="dual-action-modal" onclick="overlayClose(event,'dual-action-modal')">
   <div class="msheet dual-action-sheet">
     <div class="mhandle"></div>
     <div style="font-size:17px;font-weight:800;color:var(--t1);margin-bottom:4px;letter-spacing:-.015em">Create New Entry</div>
-    <div style="font-size:11.5px;color:var(--t2);margin-bottom:18px">Choose which work session you want to log</div>
+    <div style="font-size:11.5px;color:var(--t2);margin-bottom:18px">Choose whether to log a Gig session or Shift attendance</div>
 
     <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:14px;width:100%;box-sizing:border-box">
-      <!-- Freelance Action -->
+      <!-- Gig Action -->
       <button type="button" class="ss-btn dual-action-card" onclick="closeModal('dual-action-modal'); openEntryModal(null);">
         <div class="dual-action-icon-box dual-fl-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline><polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline><line x1="13" y1="8" x2="11" y2="12"></line></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
         </div>
         <div class="dual-action-info">
-          <div class="dual-action-title">Log Freelance Work</div>
+          <div class="dual-action-title">Log Gig Work</div>
           <div class="dual-action-desc">Client billing, rate card, timer &amp; earnings</div>
         </div>
         <div class="dual-action-chevron">
@@ -7443,14 +7891,14 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </div>
       </button>
 
-      <!-- Worker Attendance Action -->
+      <!-- Shift Attendance Action -->
       <button type="button" class="ss-btn dual-action-card" onclick="closeModal('dual-action-modal'); openAttendanceEntryModal(new Date().toISOString().slice(0, 10));">
         <div class="dual-action-icon-box dual-off-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path><line x1="9" y1="1" x2="15" y2="1"></line><line x1="12" y1="1" x2="12" y2="4"></line></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
         </div>
         <div class="dual-action-info">
-          <div class="dual-action-title">Log Daily Attendance &amp; Activity</div>
-          <div class="dual-action-desc">Present, Half Day, Overtime &amp; Work ID notes</div>
+          <div class="dual-action-title">Log Daily Shift &amp; Attendance</div>
+          <div class="dual-action-desc">Present, Half Day, Overtime &amp; Shift notes</div>
         </div>
         <div class="dual-action-chevron">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -8088,11 +8536,7 @@ function loadLS(){
     }
 
     // Recalculate salary figures to ensure consistency
-    const salCalc = calcWorkProfileSalary(workProfile.salaryMode || 'month', workProfile.salaryAmount || workProfile.monthlySalary || 50000, workProfile.workDaysPerMonth || 26, workProfile.shiftHours || 8);
-    workProfile.monthlySalary = salCalc.monthly;
-    workProfile.dailySalary = salCalc.daily;
-    workProfile.annualSalary = salCalc.annual;
-    workProfile.hourlyRate = salCalc.hourly;
+    syncEffectiveWorkProfileSalary();
 
     // Pre-assign colors safely
     CLIENTS.forEach(n => cColor(n));
@@ -8173,11 +8617,38 @@ function calcWorkProfileSalary(sourceField, amount, workDays, shiftHours) {
 
 function getEffectiveOtRate(profile) {
   if (!profile) profile = workProfile;
+  if (profile.otRateType === 'hourly' && (parseFloat(profile.otCustomRate) || 0) > 0) {
+    return parseFloat(profile.otCustomRate);
+  }
   if (profile.otMultiplier === 'custom') {
-    return parseFloat(profile.otCustomRate) || (profile.hourlyRate * 1.5);
+    return parseFloat(profile.otCustomRate) || ((profile.hourlyRate || 0) * 1.5);
   }
   const mult = parseFloat(profile.otMultiplier) || 1.5;
   return Math.round(((profile.hourlyRate || 0) * mult) * 100) / 100;
+}
+
+function getActiveEffectiveSalary(profile) {
+  if (!profile) profile = workProfile;
+  if (profile.salaryType === 'performance' && Array.isArray(profile.perfSalaryTiers) && profile.perfSalaryTiers.length > 0) {
+    const r = parseFloat(profile.rating) || 1;
+    let closest = profile.perfSalaryTiers.reduce((prev, curr) =>
+      Math.abs(curr.rating - r) < Math.abs(prev.rating - r) ? curr : prev
+    , profile.perfSalaryTiers[0]);
+    return parseFloat(closest.amount) || parseFloat(profile.salaryAmount) || 50000;
+  }
+  return parseFloat(profile.salaryAmount) || parseFloat(profile.monthlySalary) || 50000;
+}
+
+function syncEffectiveWorkProfileSalary() {
+  if (!workProfile) return;
+  const effMonthly = getActiveEffectiveSalary(workProfile);
+  const workDays = parseFloat(workProfile.workDaysPerMonth) || 26;
+  const shiftHours = parseFloat(workProfile.shiftHours) || 8;
+  const res = calcWorkProfileSalary('month', effMonthly, workDays, shiftHours);
+  workProfile.monthlySalary = res.monthly;
+  workProfile.dailySalary = res.daily;
+  workProfile.annualSalary = res.annual;
+  workProfile.hourlyRate = res.hourly;
 }
 
 function isConfiguredWeekOff(dateObj) {
@@ -8218,6 +8689,7 @@ function deleteAttendanceRecord(dateStr) {
 
 /* 2. Monthly Summary Engine */
 function getMonthlyAttendanceSummary(year, month) {
+  syncEffectiveWorkProfileSalary();
   const totalDays = new Date(year, month + 1, 0).getDate();
   let p = 0, hd = 0, pl = 0, sl = 0, cl = 0, wo = 0, hl = 0, a = 0, notMarked = 0;
   let totalOtHours = 0;
@@ -8298,44 +8770,44 @@ function getMonthlyAttendanceSummary(year, month) {
   };
 }
 
-/* ── UNIFIED APPLICATION MODE SVG ICONS ── */
+/* ── UNIFIED APPLICATION MODE SVG ICONS (GIG, SHIFT, HYBRID) ── */
 const APP_MODE_ICONS = {
-  freelance: (size = 16, stroke = 2.2) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" class="mode-icon-svg mode-icon-freelance">
+  gig: (size = 16, stroke = 2.2) => `
+    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" class="mode-icon-svg mode-icon-gig">
       <rect x="3" y="4" width="18" height="12" rx="2"></rect>
       <path d="M2 20h20"></path>
-      <polyline points="8.5 8.5 6.5 10 8.5 11.5"></polyline>
-      <polyline points="15.5 8.5 17.5 10 15.5 11.5"></polyline>
-      <line x1="13" y1="8" x2="11" y2="12"></line>
+      <path d="m13 7-3 4h3.5l-1.5 4"></path>
     </svg>
   `.trim(),
-  office: (size = 16, stroke = 2.2) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" class="mode-icon-svg mode-icon-office">
-      <rect x="3" y="4" width="18" height="16" rx="3"></rect>
-      <circle cx="12" cy="10" r="3"></circle>
-      <path d="M7 17.5c0-2.2 2.2-3.5 5-3.5s5 1.3 5 3.5"></path>
-      <line x1="9" y1="1" x2="15" y2="1"></line>
-      <line x1="12" y1="1" x2="12" y2="4"></line>
+  shift: (size = 16, stroke = 2.2) => `
+    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" class="mode-icon-svg mode-icon-shift">
+      <circle cx="12" cy="12" r="7.5"></circle>
+      <polyline points="12 8.5 12 12 14.5 13.5"></polyline>
+      <path d="M12 2a10 10 0 0 1 9.5 7"></path>
+      <path d="M12 22a10 10 0 0 1-9.5-7"></path>
     </svg>
   `.trim(),
-  all: (size = 16, stroke = 2.2) => `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" class="mode-icon-svg mode-icon-dual">
+  hybrid: (size = 16, stroke = 2.2) => `
+    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round" class="mode-icon-svg mode-icon-hybrid">
       <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
       <polyline points="2 12 12 17 22 12"></polyline>
       <polyline points="2 17 12 22 22 17"></polyline>
     </svg>
   `.trim()
 };
-APP_MODE_ICONS.worker = APP_MODE_ICONS.office;
-APP_MODE_ICONS.dual = APP_MODE_ICONS.all;
+APP_MODE_ICONS.freelance = APP_MODE_ICONS.gig;
+APP_MODE_ICONS.office = APP_MODE_ICONS.shift;
+APP_MODE_ICONS.worker = APP_MODE_ICONS.shift;
+APP_MODE_ICONS.all = APP_MODE_ICONS.hybrid;
+APP_MODE_ICONS.dual = APP_MODE_ICONS.hybrid;
 
 function getModeSvgIcon(mode, size = 16, stroke = 2.2) {
-  const m = mode === 'worker' ? 'office' : (mode === 'dual' ? 'all' : (mode || 'all'));
-  const fn = APP_MODE_ICONS[m] || APP_MODE_ICONS.all;
+  const norm = (mode === 'office' || mode === 'worker' || mode === 'shift') ? 'shift' : ((mode === 'freelance' || mode === 'gig') ? 'gig' : 'hybrid');
+  const fn = APP_MODE_ICONS[norm] || APP_MODE_ICONS.hybrid;
   return fn(size, stroke);
 }
 
-/* 3. Mode Switcher (All / Office / Freelance) */
+/* 3. Mode Switcher (Hybrid / Shift / Gig) */
 function setAppMode(mode) {
   currentAppMode = mode || 'all';
   localStorage.setItem('_mnm_app_mode', currentAppMode);
@@ -8402,17 +8874,17 @@ function setAppMode(mode) {
   const activeBadge = document.getElementById('more-active-mode-badge');
   if (activeBadge) {
     if (currentAppMode === 'office') {
-      activeBadge.textContent = 'Worker';
+      activeBadge.textContent = 'Shift';
       activeBadge.style.color = '#A594FD';
       activeBadge.style.background = 'rgba(124, 111, 237, 0.14)';
       activeBadge.style.borderColor = 'rgba(124, 111, 237, 0.30)';
     } else if (currentAppMode === 'freelance') {
-      activeBadge.textContent = 'Freelance';
+      activeBadge.textContent = 'Gig';
       activeBadge.style.color = '#2DD4A8';
       activeBadge.style.background = 'rgba(45, 212, 168, 0.14)';
       activeBadge.style.borderColor = 'rgba(45, 212, 168, 0.30)';
     } else {
-      activeBadge.textContent = 'Dual Mode';
+      activeBadge.textContent = 'Hybrid Mode';
       activeBadge.style.color = '#EEEEF5';
       activeBadge.style.background = 'rgba(255, 255, 255, 0.10)';
       activeBadge.style.borderColor = 'rgba(255, 255, 255, 0.22)';
@@ -8423,14 +8895,14 @@ function setAppMode(mode) {
   const explText = document.getElementById('more-mode-expl-text');
   if (explText) {
     if (currentAppMode === 'office') {
-      if (explIcon) explIcon.innerHTML = getModeSvgIcon('office', 16, 2.2);
-      explText.innerHTML = `Navbar Center Button: <strong>Log Daily Attendance &amp; Shift Activity (${workProfile.company || 'Office'})</strong>`;
+      if (explIcon) explIcon.innerHTML = getModeSvgIcon('shift', 16, 2.2);
+      explText.innerHTML = `Navbar Center Button: <strong>Log Daily Shift &amp; Attendance (${workProfile.company || 'Shift Workplace'})</strong>`;
     } else if (currentAppMode === 'freelance') {
-      if (explIcon) explIcon.innerHTML = getModeSvgIcon('freelance', 16, 2.2);
-      explText.innerHTML = `Navbar Center Button: <strong>Log Freelance Work Session (Client &amp; Hourly Pay)</strong>`;
+      if (explIcon) explIcon.innerHTML = getModeSvgIcon('gig', 16, 2.2);
+      explText.innerHTML = `Navbar Center Button: <strong>Log Gig Work Session (Client &amp; Hourly Pay)</strong>`;
     } else {
-      if (explIcon) explIcon.innerHTML = getModeSvgIcon('all', 16, 2.2);
-      explText.innerHTML = `Navbar Center Button: <strong>Quick Switcher (Choose Freelance or Worker)</strong>`;
+      if (explIcon) explIcon.innerHTML = getModeSvgIcon('hybrid', 16, 2.2);
+      explText.innerHTML = `Navbar Center Button: <strong>Quick Switcher (Choose Gig or Shift)</strong>`;
     }
   }
 
@@ -8451,18 +8923,18 @@ function updateNavbarCenterButton() {
 
   if (currentAppMode === 'office') {
     centerBtn.classList.add('fab-mode-office');
-    iconWrap.innerHTML = getModeSvgIcon('office', 22, 2.2);
-    centerBtn.setAttribute('title', 'Log Daily Attendance & Shift Activity');
-    centerBtn.setAttribute('aria-label', 'Log Daily Attendance');
+    iconWrap.innerHTML = getModeSvgIcon('shift', 22, 2.2);
+    centerBtn.setAttribute('title', 'Log Daily Shift & Attendance');
+    centerBtn.setAttribute('aria-label', 'Log Daily Shift & Attendance');
   } else if (currentAppMode === 'freelance') {
     centerBtn.classList.add('fab-mode-freelance');
-    iconWrap.innerHTML = getModeSvgIcon('freelance', 22, 2.2);
-    centerBtn.setAttribute('title', 'Log Freelance Work Entry');
-    centerBtn.setAttribute('aria-label', 'Log Freelance Work');
+    iconWrap.innerHTML = getModeSvgIcon('gig', 22, 2.2);
+    centerBtn.setAttribute('title', 'Log Gig Work Entry');
+    centerBtn.setAttribute('aria-label', 'Log Gig Work');
   } else {
     centerBtn.classList.add('fab-mode-dual');
-    iconWrap.innerHTML = getModeSvgIcon('all', 22, 2.2);
-    centerBtn.setAttribute('title', 'Create New Entry (Freelance / Worker)');
+    iconWrap.innerHTML = getModeSvgIcon('hybrid', 22, 2.2);
+    centerBtn.setAttribute('title', 'Create New Entry (Gig / Shift)');
     centerBtn.setAttribute('aria-label', 'Create New Entry');
   }
 }
@@ -8583,6 +9055,7 @@ function renderTodayAttendanceWidget() {
   if (baseVal) baseVal.textContent = fmtRs(Math.round(todayBase));
   if (otVal) otVal.textContent = fmtRs(Math.round(todayOtPay));
   if (totalVal) totalVal.textContent = fmtRs(Math.round(todayTotal));
+  if (typeof renderWorkerRatingSelector === 'function') renderWorkerRatingSelector();
 }
 
 /* 5. Home View: Monthly Office Snapshot */
@@ -8677,42 +9150,314 @@ function promptCustomOt() {
 }
 
 /* 7. Work Profile & ID Modal Controllers */
-function openWorkProfileModal() {
+/* ════════════ WORK PROFILE WIZARD STEP SYSTEM ════════════ */
+const WP_STEP_INFO = [
+  null, // index 0 unused
+  { title: 'Worker & Workplace Info', sub: 'Pehchan, badge ID, company name aur job designation', color: 'var(--acc)', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>', bg: 'var(--acc-bg)', border: 'var(--acc-bd)' },
+  { title: 'Shift & Schedule',        sub: 'Worker ki shift all-time fix hai ya change hoti hai', color: '#3B82F6', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>', bg: '#EFF6FF', border: '#BFDBFE' },
+  { title: 'Salary & Payday',         sub: 'Fixed salary ya rating-wise slabs aur payment date reminder', color: 'var(--paid)', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>', bg: 'rgba(74,222,128,.12)', border: 'rgba(74,222,128,.25)' },
+  { title: 'Overtime (OT) Setup',     sub: 'OT ka paisa (rate), daily ghante limit aur OT ka prakar', color: '#F97316', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>', bg: '#FFF7ED', border: '#FED7AA' },
+  { title: 'Review & Confirm',        sub: 'Sabhi worker data verify karein aur app me apply karein', color: 'var(--acc)', icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><polyline points="9 11 12 14 22 4"/></svg>', bg: 'var(--acc-bg)', border: 'var(--acc-bd)' }
+];
+let _wpCurrentStep = 1;
+
+function wpGoStep(step) {
+  _wpCurrentStep = Math.max(1, Math.min(5, step));
+  // Hide all panels
+  for (let i = 1; i <= 5; i++) {
+    const panel = document.getElementById('wp-panel-' + i);
+    if (panel) panel.style.display = (i === _wpCurrentStep) ? '' : 'none';
+  }
+  // Update progress dots & lines
+  const dots = document.querySelectorAll('.wp-prog-dot');
+  const lines = document.querySelectorAll('.wp-prog-line');
+  dots.forEach(d => {
+    const s = parseInt(d.getAttribute('data-step'), 10);
+    d.classList.toggle('active', s === _wpCurrentStep);
+    d.classList.toggle('done', s < _wpCurrentStep);
+  });
+  lines.forEach((l, i) => l.classList.toggle('done', i < _wpCurrentStep - 1));
+  
+  // Update banner
+  const info = WP_STEP_INFO[_wpCurrentStep];
+  if (info) {
+    const banner = document.getElementById('wp-step-banner');
+    if (banner) banner.style.borderLeft = `3.5px solid ${info.color}`;
+    const iconEl = document.getElementById('wp-step-banner-icon');
+    if (iconEl) { iconEl.innerHTML = info.icon; iconEl.style.background = info.bg; iconEl.style.border = `1px solid ${info.border}`; iconEl.style.color = info.color; }
+    const titleEl = document.getElementById('wp-step-banner-title');
+    if (titleEl) titleEl.textContent = info.title;
+    const subEl = document.getElementById('wp-step-banner-sub');
+    if (subEl) subEl.textContent = info.sub;
+    const counter = document.getElementById('wp-step-counter');
+    if (counter) counter.textContent = `Step ${_wpCurrentStep} / 5`;
+  }
+  
+  // Step-specific updates
+  if (_wpCurrentStep === 2) renderWeekOffButtons();
+  if (_wpCurrentStep === 3) {
+    if (workProfile.salaryType === 'performance') {
+      wpRenderPerfSalaryRows();
+      wpUpdatePerfEffective();
+    } else {
+      onSalaryAmountChange();
+    }
+  }
+  if (_wpCurrentStep === 4) wpUpdateOtPreview();
+  if (_wpCurrentStep === 5) wpRenderSummaryPreview();
+
+  // Scroll to top of panels container
+  const container = document.getElementById('wp-panels-container');
+  if (container) container.scrollTop = 0;
+}
+
+function openWorkProfileModal(startStep = 1) {
   const setVal = (id, val) => {
     const el = document.getElementById(id);
     if (el) el.value = (val !== undefined && val !== null) ? val : '';
   };
+  const setChk = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!val;
+  };
 
-  setVal('wp-in-company', workProfile.company);
-  setVal('wp-in-empid', workProfile.employeeId);
-  setVal('wp-in-desig', workProfile.designation);
-  setVal('wp-in-dept', workProfile.department);
-  setVal('wp-in-rating', workProfile.rating || '4.5');
-  setVal('wp-in-salary', workProfile.salaryAmount || workProfile.monthlySalary || 50000);
-  setVal('wp-in-workdays', workProfile.workDaysPerMonth || 26);
+  // Step 1: Worker & Workplace Profile
+  setVal('wp-in-name', workProfile.workerName || (currentUser ? currentUser.name : 'Authorized Worker'));
+  setVal('wp-in-company', workProfile.company || 'My Company');
+  setVal('wp-in-empid', workProfile.employeeId || 'EMP-1024');
+  setVal('wp-in-desig', workProfile.designation || 'Machine Operator');
+  setVal('wp-in-dept', workProfile.department || 'Production');
+  setVal('wp-in-doj', workProfile.doj || '');
+  setVal('wp-in-emptype', workProfile.empType || 'permanent');
+
+  // Step 2: Shift Schedule (Fixed vs Changing Shift)
+  const shiftType = workProfile.shiftType || 'fixed';
+  wpSetShiftType(shiftType);
+  setVal('wp-in-shiftstart', workProfile.shiftStart || '09:00');
+  setVal('wp-in-shiftend', workProfile.shiftEnd || '18:00');
   setVal('wp-in-shifthours', workProfile.shiftHours || 8);
+  setVal('wp-in-workdays', workProfile.workDaysPerMonth || 26);
+  renderWeekOffButtons();
+  wpRenderRotatingSlots();
+
+  // Step 3: Salary Engine & Payday
+  const salaryType = workProfile.salaryType || 'fixed';
+  wpSetSalaryType(salaryType);
+  setSalaryInputMode(workProfile.salaryMode || 'month');
+  setVal('wp-in-salary', workProfile.salaryAmount || workProfile.monthlySalary || 50000);
+  
+  if (!Array.isArray(workProfile.perfSalaryTiers) || workProfile.perfSalaryTiers.length === 0) {
+    workProfile.perfSalaryTiers = [
+      { rating: 1, label: 'Rating 1 (Base)', amount: 20000 },
+      { rating: 2, label: 'Rating 2 (Average)', amount: 25000 },
+      { rating: 3, label: 'Rating 3 (Good)', amount: 30000 },
+      { rating: 4, label: 'Rating 4 (Very Good)', amount: 38000 },
+      { rating: 5, label: 'Rating 5 (Outstanding)', amount: 50000 }
+    ];
+  }
+  wpRenderPerfSalaryRows();
+  wpPopulatePerfActiveRatingSelect();
+  wpUpdatePerfEffective();
+  onSalaryAmountChange();
+
+  const payday = workProfile.salaryPayDay || 5;
+  const stdPaydays = ['1','5','7','10','15','20','25','28','30'];
+  if (stdPaydays.includes(String(payday))) {
+    setVal('wp-in-salarypayday', payday);
+    const customWrap = document.getElementById('wp-custom-payday-wrap');
+    if (customWrap) customWrap.style.display = 'none';
+  } else {
+    setVal('wp-in-salarypayday', 'custom');
+    setVal('wp-in-payday-custom', payday);
+    const customWrap = document.getElementById('wp-custom-payday-wrap');
+    if (customWrap) customWrap.style.display = '';
+  }
+  setChk('wp-in-salary-notif', workProfile.salaryNotif !== false);
+
+  // Step 4: Overtime (OT) Setup
+  const otRateType = workProfile.otRateType || 'multiplier';
+  wpSetOtRateType(otRateType);
+  setVal('wp-in-othourly', workProfile.otCustomRate || 200);
   setVal('wp-in-otmult', workProfile.otMultiplier || '1.5');
-  setVal('wp-in-otcustom', workProfile.otCustomRate || 0);
+  setVal('wp-in-otcustom', workProfile.otCustomRate || 200);
+  setVal('wp-in-otthreshold', workProfile.otThresholdHrs || workProfile.shiftHours || 8);
+  setVal('wp-in-otmaxhours', (workProfile.otMaxDailyHours !== undefined) ? workProfile.otMaxDailyHours : 4);
+  onOtMultiplierChange();
+  
+  const otType = workProfile.otLogType || 'sameday';
+  wpSetOtLogType(otType);
+  wpUpdateOtPreview();
+
+  // Deductions
+  setChk('wp-in-pfenabled', workProfile.pfEnabled !== false);
+  togglePfInputs(workProfile.pfEnabled !== false);
   setVal('wp-in-pftype', workProfile.pfType || 'percent');
   setVal('wp-in-pfval', workProfile.pfType === 'fixed' ? workProfile.pfFixedAmount : (workProfile.pfPercent || 12));
   setVal('wp-in-pl', workProfile.plQuota || 18);
   setVal('wp-in-sl', workProfile.slQuota || 12);
   setVal('wp-in-cl', workProfile.clQuota || 10);
-  setVal('wp-in-salarypayday', workProfile.salaryPayDay || 5);
 
-  const pfSwitch = document.getElementById('wp-in-pfenabled');
-  if (pfSwitch) pfSwitch.checked = workProfile.pfEnabled !== false;
-
-  const leaveDeductSwitch = document.getElementById('wp-in-deductexcess');
-  if (leaveDeductSwitch) leaveDeductSwitch.checked = workProfile.deductExcessLeaves !== false;
-
-  setSalaryInputMode(workProfile.salaryMode || 'month');
-  renderWeekOffButtons();
-  onOtMultiplierChange();
-  togglePfInputs(workProfile.pfEnabled !== false);
-  onSalaryAmountChange();
-
+  // Open modal at requested step (default 1)
+  wpGoStep(startStep || 1);
   openModal('work-profile-modal');
+}
+
+/* ── Shift Schedule Controllers ── */
+function wpSetShiftType(type) {
+  workProfile.shiftType = type;
+  const fixedCard = document.getElementById('shift-type-card-fixed');
+  const rotCard   = document.getElementById('shift-type-card-rotating');
+  const fixedCfg  = document.getElementById('wp-fixed-shift-config');
+  const rotCfg    = document.getElementById('wp-rotating-shift-config');
+  if (fixedCard) fixedCard.classList.toggle('active', type === 'fixed');
+  if (rotCard)   rotCard.classList.toggle('active', type === 'rotating');
+  if (fixedCfg)  fixedCfg.style.display = type === 'fixed' ? '' : 'none';
+  if (rotCfg)    rotCfg.style.display   = type === 'rotating' ? '' : 'none';
+}
+
+function wpApplyShiftPreset(start, end, hours) {
+  const sIn = document.getElementById('wp-in-shiftstart');
+  const eIn = document.getElementById('wp-in-shiftend');
+  const hIn = document.getElementById('wp-in-shifthours');
+  if (sIn) sIn.value = start;
+  if (eIn) eIn.value = end;
+  if (hIn) hIn.value = hours;
+  workProfile.shiftStart = start;
+  workProfile.shiftEnd = end;
+  workProfile.shiftHours = hours;
+  onSalaryAmountChange();
+  showToast(`⚡ Shift preset applied: ${start} - ${end} (${hours}h)`);
+}
+
+function wpAddRotatingSlot() {
+  if (!Array.isArray(workProfile.rotatingSlots)) workProfile.rotatingSlots = [];
+  workProfile.rotatingSlots.push({ label: 'Shift ' + (workProfile.rotatingSlots.length + 1), start: '08:00', end: '16:30' });
+  wpRenderRotatingSlots();
+}
+
+function wpRenderRotatingSlots() {
+  const container = document.getElementById('wp-rotating-slots');
+  if (!container) return;
+  const slots = workProfile.rotatingSlots || [];
+  if (slots.length === 0) {
+    container.innerHTML = '<div style="font-size:11px;color:var(--t3);text-align:center;padding:10px">No custom shift slots added yet. Tap button below to add.</div>';
+    return;
+  }
+  container.innerHTML = slots.map((s, i) => `
+    <div class="wp-perf-row">
+      <input class="ss-input" type="text" value="${s.label || ''}" placeholder="Shift Name" style="flex:1" oninput="workProfile.rotatingSlots[${i}].label=this.value"/>
+      <input class="ss-input" type="time" value="${s.start || '08:00'}" style="flex:1" oninput="workProfile.rotatingSlots[${i}].start=this.value"/>
+      <span style="font-size:10px;color:var(--t2)">to</span>
+      <input class="ss-input" type="time" value="${s.end || '16:30'}" style="flex:1" oninput="workProfile.rotatingSlots[${i}].end=this.value"/>
+      <button type="button" onclick="wpRemoveRotatingSlot(${i})" style="width:28px;height:28px;border-radius:7px;background:var(--s2);border:1px solid var(--b);color:#ef4444;cursor:pointer;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function wpRemoveRotatingSlot(i) {
+  if (!Array.isArray(workProfile.rotatingSlots)) return;
+  workProfile.rotatingSlots.splice(i, 1);
+  wpRenderRotatingSlots();
+}
+
+function wpSyncRotShiftHours() {
+  const hrs = document.getElementById('wp-in-shifthours-rot')?.value;
+  const days = document.getElementById('wp-in-workdays-rot')?.value;
+  const mainHrs = document.getElementById('wp-in-shifthours');
+  const mainDays = document.getElementById('wp-in-workdays');
+  if (mainHrs && hrs) mainHrs.value = hrs;
+  if (mainDays && days) mainDays.value = days;
+  onSalaryAmountChange();
+}
+
+/* ── Salary Engine Controllers (Fixed vs Rating/Performance Wise) ── */
+function wpSetSalaryType(type) {
+  workProfile.salaryType = type;
+  const fixedCard = document.getElementById('sal-type-card-fixed');
+  const perfCard  = document.getElementById('sal-type-card-perf');
+  const fixedCfg  = document.getElementById('wp-fixed-salary-config');
+  const perfCfg   = document.getElementById('wp-perf-salary-config');
+  if (fixedCard) fixedCard.classList.toggle('active', type === 'fixed');
+  if (perfCard)  perfCard.classList.toggle('active', type === 'performance');
+  if (fixedCfg)  fixedCfg.style.display = type === 'fixed' ? '' : 'none';
+  if (perfCfg)   perfCfg.style.display  = type === 'performance' ? '' : 'none';
+
+  if (type === 'performance') {
+    wpRenderPerfSalaryRows();
+    wpPopulatePerfActiveRatingSelect();
+    wpUpdatePerfEffective();
+  } else {
+    onSalaryAmountChange();
+  }
+}
+
+function wpAddPerfSalaryRow() {
+  if (!Array.isArray(workProfile.perfSalaryTiers)) workProfile.perfSalaryTiers = [];
+  const nextRating = workProfile.perfSalaryTiers.length + 1;
+  const defaultAmount = nextRating * 7000 + 15000;
+  workProfile.perfSalaryTiers.push({
+    rating: nextRating,
+    label: `Rating ${nextRating}`,
+    amount: defaultAmount
+  });
+  wpRenderPerfSalaryRows();
+  wpPopulatePerfActiveRatingSelect();
+  wpUpdatePerfEffective();
+}
+
+function wpRenderPerfSalaryRows() {
+  const container = document.getElementById('wp-perf-salary-rows');
+  if (!container) return;
+  const tiers = workProfile.perfSalaryTiers || [];
+  if (tiers.length === 0) {
+    container.innerHTML = '<div style="font-size:11px;color:var(--t3);text-align:center;padding:12px">Koi rating slab add nahi hai. Niche "+ Add Rating Level" button dabayein.</div>';
+    return;
+  }
+  container.innerHTML = tiers.map((t, i) => `
+    <div class="wp-perf-row">
+      <div class="wp-star-badge" title="Rating Level ${t.rating}">★ ${t.rating}</div>
+      <input class="ss-input" type="text" value="${t.label || ('Rating ' + t.rating)}" placeholder="e.g. Rating ${t.rating}" style="flex:1" oninput="workProfile.perfSalaryTiers[${i}].label=this.value"/>
+      <div style="position:relative;flex:1.2;display:flex;align-items:center">
+        <span style="position:absolute;left:10px;font-size:12px;color:var(--t2);pointer-events:none">₹</span>
+        <input class="ss-input mono" type="number" value="${t.amount || 0}" placeholder="25000" style="padding-left:22px;font-weight:700;color:var(--paid)" oninput="workProfile.perfSalaryTiers[${i}].amount=parseFloat(this.value)||0;wpUpdatePerfEffective()"/>
+      </div>
+      <button type="button" onclick="wpRemovePerfRow(${i})" title="Delete Tier" style="width:28px;height:28px;border-radius:7px;background:var(--s3);border:1px solid var(--b);color:#ef4444;cursor:pointer;flex-shrink:0" ${tiers.length <= 1 ? 'disabled style="opacity:0.3;cursor:not-allowed"' : ''}>✕</button>
+    </div>`).join('');
+}
+
+function wpRemovePerfRow(i) {
+  if (!Array.isArray(workProfile.perfSalaryTiers) || workProfile.perfSalaryTiers.length <= 1) return;
+  workProfile.perfSalaryTiers.splice(i, 1);
+  wpRenderPerfSalaryRows();
+  wpPopulatePerfActiveRatingSelect();
+  wpUpdatePerfEffective();
+}
+
+function wpPopulatePerfActiveRatingSelect() {
+  const sel = document.getElementById('wp-in-perf-active-rating');
+  if (!sel) return;
+  const tiers = workProfile.perfSalaryTiers || [];
+  const current = String(workProfile.rating || (tiers[0] ? tiers[0].rating : 1));
+  sel.innerHTML = tiers.map(t => `<option value="${t.rating}" ${String(t.rating) === current ? 'selected' : ''}>★ Rating ${t.rating} — ${t.label || ('Tier ' + t.rating)}</option>`).join('');
+}
+
+function onWorkProfilePerfActiveRatingChange(val) {
+  workProfile.rating = String(val);
+  wpUpdatePerfEffective();
+}
+
+function wpUpdatePerfEffective() {
+  const effMonthly = getActiveEffectiveSalary(workProfile);
+  const workDays = parseFloat(document.getElementById('wp-in-workdays')?.value) || parseFloat(workProfile.workDaysPerMonth) || 26;
+  const shiftHours = parseFloat(document.getElementById('wp-in-shifthours')?.value) || parseFloat(workProfile.shiftHours) || 8;
+  const res = calcWorkProfileSalary('month', effMonthly, workDays, shiftHours);
+
+  const effEl = document.getElementById('wp-perf-eff-amount');
+  if (effEl) effEl.textContent = `${fmtRs(Math.round(effMonthly))} / mo`;
+  
+  const hourlyIn = document.getElementById('wp-out-hourly');
+  if (hourlyIn) hourlyIn.value = fmtRs(Math.round(res.hourly)) + ' / hr';
+  
+  wpUpdateOtPreview();
 }
 
 function setSalaryInputMode(mode) {
@@ -8724,20 +9469,12 @@ function setSalaryInputMode(mode) {
       else btn.classList.remove('active');
     }
   });
-
   const label = document.getElementById('wp-sal-input-label');
   const input = document.getElementById('wp-in-salary');
   if (label && input) {
-    if (mode === 'month') {
-      label.textContent = 'Monthly Salary (₹)';
-      input.value = workProfile.monthlySalary || 50000;
-    } else if (mode === 'day') {
-      label.textContent = 'Daily Wage Rate (₹)';
-      input.value = Math.round(workProfile.dailySalary || 1923);
-    } else if (mode === 'year') {
-      label.textContent = 'Annual CTC Salary (₹)';
-      input.value = workProfile.annualSalary || 600000;
-    }
+    if (mode === 'month') { label.textContent = 'Monthly Salary (₹)'; input.value = workProfile.monthlySalary || 50000; }
+    else if (mode === 'day') { label.textContent = 'Daily Wage Rate (₹)'; input.value = Math.round(workProfile.dailySalary || 1923); }
+    else if (mode === 'year') { label.textContent = 'Annual CTC Salary (₹)'; input.value = workProfile.annualSalary || 600000; }
   }
   onSalaryAmountChange();
 }
@@ -8747,42 +9484,100 @@ function onSalaryAmountChange() {
   const workDays = parseFloat(document.getElementById('wp-in-workdays')?.value) || 26;
   const shiftHours = parseFloat(document.getElementById('wp-in-shifthours')?.value) || 8;
   const mode = workProfile.salaryMode || 'month';
-
   const res = calcWorkProfileSalary(mode, amt, workDays, shiftHours);
-
-  const setEl = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = fmtRs(Math.round(val));
-  };
-
+  const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = fmtRs(Math.round(val)); };
   setEl('wp-prev-day', res.daily);
   setEl('wp-prev-month', res.monthly);
   setEl('wp-prev-year', res.annual);
-
   const hourlyIn = document.getElementById('wp-out-hourly');
   if (hourlyIn) hourlyIn.value = fmtRs(Math.round(res.hourly)) + ' / hr';
+  wpUpdateOtPreview();
 }
 
-function onWorkProfileRatingChange() {
-  const ratingVal = document.getElementById('wp-in-rating')?.value || '4.5';
-  let bonus = 0;
-  if (ratingVal === '5.0') bonus = 15;
-  else if (ratingVal === '4.5') bonus = 10;
-  else if (ratingVal === '4.0') bonus = 5;
-  workProfile.rating = ratingVal;
-  workProfile.ratingBonusPct = bonus;
+function wpPaydayChange() {
+  const sel = document.getElementById('wp-in-salarypayday')?.value;
+  const customWrap = document.getElementById('wp-custom-payday-wrap');
+  if (customWrap) customWrap.style.display = (sel === 'custom') ? '' : 'none';
+}
+
+/* ── Overtime (OT) Controllers ── */
+function wpSetOtRateType(type) {
+  workProfile.otRateType = type;
+  const hourlyBtn = document.getElementById('ot-mode-btn-hourly');
+  const multBtn   = document.getElementById('ot-mode-btn-mult');
+  const hourlyWrap = document.getElementById('wp-ot-hourly-rate-wrap');
+  const multWrap   = document.getElementById('wp-ot-mult-rate-wrap');
+  if (hourlyBtn) hourlyBtn.classList.toggle('active', type === 'hourly');
+  if (multBtn)   multBtn.classList.toggle('active', type === 'multiplier');
+  if (hourlyWrap) hourlyWrap.style.display = (type === 'hourly') ? '' : 'none';
+  if (multWrap)   multWrap.style.display   = (type === 'multiplier') ? '' : 'none';
+  wpUpdateOtPreview();
+}
+
+function onOtMultiplierChange() {
+  const sel = document.getElementById('wp-in-otmult')?.value;
+  const customWrap = document.getElementById('wp-custom-ot-wrap');
+  if (customWrap) customWrap.style.display = (sel === 'custom') ? '' : 'none';
+  wpUpdateOtPreview();
+}
+
+function wpUpdateOtPreview() {
+  const otType = workProfile.otRateType || 'multiplier';
+  let effRate = 0;
+  if (otType === 'hourly') {
+    effRate = parseFloat(document.getElementById('wp-in-othourly')?.value) || parseFloat(workProfile.otCustomRate) || 0;
+  } else {
+    const multVal = document.getElementById('wp-in-otmult')?.value || workProfile.otMultiplier || '1.5';
+    if (multVal === 'custom') {
+      effRate = parseFloat(document.getElementById('wp-in-otcustom')?.value) || parseFloat(workProfile.otCustomRate) || 0;
+    } else {
+      const mult = parseFloat(multVal) || 1.5;
+      const hourlyStr = document.getElementById('wp-out-hourly')?.value || '';
+      let baseHourly = 0;
+      if (hourlyStr) {
+        const num = hourlyStr.replace(/[^0-9.]/g, '');
+        baseHourly = parseFloat(num) || 0;
+      }
+      if (!baseHourly) {
+        const effSal = getActiveEffectiveSalary(workProfile);
+        const workDays = parseFloat(document.getElementById('wp-in-workdays')?.value) || 26;
+        const shiftHours = parseFloat(document.getElementById('wp-in-shifthours')?.value) || 8;
+        baseHourly = (effSal / workDays) / shiftHours;
+      }
+      effRate = Math.round(baseHourly * mult);
+    }
+  }
+  const disp = document.getElementById('wp-effective-ot-rate-disp');
+  if (disp) disp.textContent = `${fmtRs(Math.round(effRate))} / hr`;
+}
+
+function wpSetOtLogType(type) {
+  workProfile.otLogType = type;
+  const sameCard = document.getElementById('ot-type-sameday-card');
+  const sepCard  = document.getElementById('ot-type-separate-card');
+  const sameRadio = document.getElementById('wp-ot-type-sameday');
+  const sepRadio  = document.getElementById('wp-ot-type-separate');
+  if (sameRadio) sameRadio.checked = (type === 'sameday');
+  if (sepRadio)  sepRadio.checked  = (type === 'separate');
+  if (sameCard)  sameCard.classList.toggle('active', type === 'sameday');
+  if (sepCard)   sepCard.classList.toggle('active', type === 'separate');
+}
+
+function wpToggleDeductionsWrap() {
+  const wrap = document.getElementById('wp-deductions-wrap');
+  const chv = document.getElementById('wp-deduct-chevron');
+  if (!wrap) return;
+  const isHidden = (wrap.style.display === 'none' || !wrap.style.display);
+  wrap.style.display = isHidden ? '' : 'none';
+  if (chv) chv.textContent = isHidden ? '▲' : '▼';
 }
 
 function toggleWeekOffDay(dayNum) {
   if (!Array.isArray(workProfile.weekOffDays)) workProfile.weekOffDays = [0];
   const idx = workProfile.weekOffDays.indexOf(dayNum);
   if (idx >= 0) {
-    if (workProfile.weekOffDays.length > 1) {
-      workProfile.weekOffDays.splice(idx, 1);
-    } else {
-      showToast('⚠️ At least one week off day is required');
-      return;
-    }
+    if (workProfile.weekOffDays.length > 1) workProfile.weekOffDays.splice(idx, 1);
+    else { showToast('⚠️ At least one week off day is required'); return; }
   } else {
     workProfile.weekOffDays.push(dayNum);
   }
@@ -8792,28 +9587,15 @@ function toggleWeekOffDay(dayNum) {
 function renderWeekOffButtons() {
   const grid = document.getElementById('wp-weekoff-grid');
   if (!grid) return;
-  const buttons = grid.querySelectorAll('.day-pill-btn');
-  buttons.forEach(btn => {
+  grid.querySelectorAll('.day-pill-btn').forEach(btn => {
     const day = parseInt(btn.getAttribute('data-day'), 10);
-    if (workProfile.weekOffDays && workProfile.weekOffDays.includes(day)) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    btn.classList.toggle('active', !!(workProfile.weekOffDays && workProfile.weekOffDays.includes(day)));
   });
-}
-
-function onOtMultiplierChange() {
-  const sel = document.getElementById('wp-in-otmult')?.value;
-  const customWrap = document.getElementById('wp-custom-ot-wrap');
-  if (customWrap) {
-    customWrap.style.display = sel === 'custom' ? '' : 'none';
-  }
 }
 
 function togglePfInputs(enabled) {
   const box = document.getElementById('wp-pf-details-box');
-  if (box) box.style.opacity = enabled ? '1' : '0.4';
+  if (box) { box.style.opacity = enabled ? '1' : '0.4'; box.style.pointerEvents = enabled ? '' : 'none'; }
 }
 
 function onPfTypeChange() {
@@ -8821,69 +9603,176 @@ function onPfTypeChange() {
   const label = document.getElementById('wp-pf-val-label');
   const valInput = document.getElementById('wp-in-pfval');
   if (label && valInput) {
-    if (type === 'percent') {
-      label.textContent = 'PF Rate (%)';
-      valInput.value = '12';
-    } else {
-      label.textContent = 'Fixed PF Amount (₹)';
-      valInput.value = '1800';
-    }
+    if (type === 'percent') { label.textContent = 'PF Rate (%)'; valInput.value = '12'; }
+    else { label.textContent = 'Fixed PF Amount (₹)'; valInput.value = '1800'; }
   }
 }
 
+/* ── Step 5: Summary Preview ── */
+function wpRenderSummaryPreview() {
+  const el = document.getElementById('wp-summary-preview');
+  if (!el) return;
+  const row = (label, val, color = 'var(--t1)') =>
+    `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--b);font-size:11.5px">
+       <span style="color:var(--t2)">${label}</span>
+       <span style="font-weight:700;color:${color}">${val}</span>
+     </div>`;
+  
+  const workerName = document.getElementById('wp-in-name')?.value || workProfile.workerName || 'Worker';
+  const company = document.getElementById('wp-in-company')?.value || workProfile.company || 'Company';
+  const desig = document.getElementById('wp-in-desig')?.value || workProfile.designation || 'Operator';
+  const shiftTypeStr = (workProfile.shiftType === 'rotating') ? 'Rotating Shift' : `Fixed (${document.getElementById('wp-in-shiftstart')?.value || '09:00'} - ${document.getElementById('wp-in-shiftend')?.value || '18:00'})`;
+  
+  const isPerf = (workProfile.salaryType === 'performance');
+  const effAmt = getActiveEffectiveSalary(workProfile);
+  const salStr = isPerf 
+    ? `Rating Wise (★ ${workProfile.rating || 4} = ${fmtRs(Math.round(effAmt))}/mo)` 
+    : `${fmtRs(Math.round(parseFloat(document.getElementById('wp-in-salary')?.value) || workProfile.monthlySalary || 50000))}/mo`;
+  
+  const paydaySel = document.getElementById('wp-in-salarypayday')?.value;
+  const paydayVal = paydaySel === 'custom' ? (document.getElementById('wp-in-payday-custom')?.value || 5) : (paydaySel || 5);
+  const notifOn = document.getElementById('wp-in-salary-notif')?.checked !== false;
+
+  const otRateText = document.getElementById('wp-effective-ot-rate-disp')?.textContent || '1.5x';
+  const otTypeStr = (workProfile.otLogType === 'separate') ? 'Separate Day OT' : 'Same-Day Shift OT';
+
+  el.innerHTML = [
+    row('Worker Name & ID', `${workerName} (${document.getElementById('wp-in-empid')?.value || 'EMP-1'})`, 'var(--acc)'),
+    row('Workplace & Role', `${company} · ${desig}`),
+    row('Shift Schedule', shiftTypeStr),
+    row('Salary Structure', salStr, 'var(--paid)'),
+    row('Monthly Payday', `${paydayVal}th of month ${notifOn ? '🔔 Reminder ON' : ''}`),
+    row('OT Rate & Type', `${otRateText} · ${otTypeStr}`, '#F97316'),
+    row('Working Days & Hours', `${document.getElementById('wp-in-workdays')?.value || 26} days/mo · ${document.getElementById('wp-in-shifthours')?.value || 8} hrs/day`)
+  ].join('');
+}
+
+/* ── Save Worker ID Profile from Wizard ── */
 function saveWorkProfileFromModal() {
   const getVal = id => document.getElementById(id)?.value;
+  const getChk = id => !!(document.getElementById(id)?.checked);
 
+  // Step 1: Worker & Workplace Profile
+  workProfile.workerName = getVal('wp-in-name') || (currentUser ? currentUser.name : 'Authorized Worker');
   workProfile.company = getVal('wp-in-company') || 'My Company';
-  workProfile.employeeId = getVal('wp-in-empid') || 'EMP-01';
-  workProfile.designation = getVal('wp-in-desig') || 'Staff';
+  workProfile.employeeId = getVal('wp-in-empid') || 'EMP-1024';
+  workProfile.designation = getVal('wp-in-desig') || 'Operator';
   workProfile.department = getVal('wp-in-dept') || 'General';
-  workProfile.rating = getVal('wp-in-rating') || '4.5';
-  
-  onWorkProfileRatingChange();
+  workProfile.doj = getVal('wp-in-doj') || '';
+  workProfile.empType = getVal('wp-in-emptype') || 'permanent';
 
-  const salAmt = parseFloat(getVal('wp-in-salary')) || 50000;
-  const workDays = parseFloat(getVal('wp-in-workdays')) || 26;
-  const shiftHours = parseFloat(getVal('wp-in-shifthours')) || 8;
+  // Step 2: Shift Schedule
+  workProfile.shiftType = workProfile.shiftType || 'fixed';
+  workProfile.shiftStart = getVal('wp-in-shiftstart') || '09:00';
+  workProfile.shiftEnd = getVal('wp-in-shiftend') || '18:00';
+  workProfile.shiftHours = parseFloat(getVal('wp-in-shifthours')) || 8;
+  workProfile.workDaysPerMonth = parseFloat(getVal('wp-in-workdays')) || 26;
+
+  // Step 3: Salary Engine
+  workProfile.salaryType = workProfile.salaryType || 'fixed';
   const mode = workProfile.salaryMode || 'month';
+  if (workProfile.salaryType === 'fixed') {
+    const salAmt = parseFloat(getVal('wp-in-salary')) || 50000;
+    workProfile.salaryAmount = salAmt;
+    const res = calcWorkProfileSalary(mode, salAmt, workProfile.workDaysPerMonth, workProfile.shiftHours);
+    workProfile.monthlySalary = res.monthly;
+    workProfile.dailySalary = res.daily;
+    workProfile.annualSalary = res.annual;
+    workProfile.hourlyRate = res.hourly;
+  } else {
+    // Rating / Performance Wise: compute effective monthly from active tier
+    wpUpdatePerfEffective();
+    syncEffectiveWorkProfileSalary();
+  }
 
-  workProfile.salaryAmount = salAmt;
-  workProfile.workDaysPerMonth = workDays;
-  workProfile.shiftHours = shiftHours;
+  const paydaySel = getVal('wp-in-salarypayday');
+  workProfile.salaryPayDay = (paydaySel === 'custom') ? (parseInt(getVal('wp-in-payday-custom')) || 5) : (parseInt(paydaySel) || 5);
+  workProfile.salaryNotif = getChk('wp-in-salary-notif');
 
-  const res = calcWorkProfileSalary(mode, salAmt, workDays, shiftHours);
-  workProfile.monthlySalary = res.monthly;
-  workProfile.dailySalary = res.daily;
-  workProfile.annualSalary = res.annual;
-  workProfile.hourlyRate = res.hourly;
-
+  // Step 4: Overtime (OT) Setup
+  workProfile.otRateType = workProfile.otRateType || 'multiplier';
+  workProfile.otCustomRate = parseFloat(getVal('wp-in-othourly')) || parseFloat(getVal('wp-in-otcustom')) || 200;
   workProfile.otMultiplier = getVal('wp-in-otmult') || '1.5';
-  workProfile.otCustomRate = parseFloat(getVal('wp-in-otcustom')) || 0;
+  workProfile.otThresholdHrs = parseFloat(getVal('wp-in-otthreshold')) || workProfile.shiftHours || 8;
+  workProfile.otMaxDailyHours = parseFloat(getVal('wp-in-otmaxhours')) || 4;
+  workProfile.otLogType = document.getElementById('wp-ot-type-separate')?.checked ? 'separate' : 'sameday';
 
-  const pfSwitch = document.getElementById('wp-in-pfenabled');
-  workProfile.pfEnabled = pfSwitch ? pfSwitch.checked : true;
+  // Deductions
+  workProfile.pfEnabled = getChk('wp-in-pfenabled');
   workProfile.pfType = getVal('wp-in-pftype') || 'percent';
   const pfVal = parseFloat(getVal('wp-in-pfval')) || (workProfile.pfType === 'percent' ? 12 : 1800);
   if (workProfile.pfType === 'percent') workProfile.pfPercent = pfVal;
   else workProfile.pfFixedAmount = pfVal;
-
   workProfile.plQuota = parseFloat(getVal('wp-in-pl')) || 18;
   workProfile.slQuota = parseFloat(getVal('wp-in-sl')) || 12;
   workProfile.clQuota = parseFloat(getVal('wp-in-cl')) || 10;
-  workProfile.salaryPayDay = parseInt(getVal('wp-in-salarypayday'), 10) || 5;
 
-  const leaveDeductSwitch = document.getElementById('wp-in-deductexcess');
-  workProfile.deductExcessLeaves = leaveDeductSwitch ? leaveDeductSwitch.checked : true;
-
+  // Final synchronization
+  syncEffectiveWorkProfileSalary();
   saveLS();
   closeModal('work-profile-modal');
+
+  // Re-render all application views
   renderTodayAttendanceWidget();
   renderMonthlyOfficeSnapshot();
   renderWorkProfileCard();
+  renderWorkerRatingSelector();
   if (typeof renderOfficeStats === 'function') renderOfficeStats(statsSelectedYear, statsSelectedMonth);
 
-  showToast('✅ Work ID & Profile saved successfully!');
+  showToast('✅ Worker ID & Salary Profile saved successfully!');
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'medium');
+}
+
+/* ── Interactive Worker Rating Selector (On Dashboard & Stats) ── */
+function renderWorkerRatingSelector() {
+  const bar = document.getElementById('worker-rating-interactive-bar');
+  if (!bar) return;
+
+  // Requirement: If fixed salary, hide rating selector completely!
+  if (workProfile.salaryType !== 'performance') {
+    bar.style.display = 'none';
+    return;
+  }
+
+  // If rating-wise, show interactive selector
+  bar.style.display = '';
+  const tiers = workProfile.perfSalaryTiers || [];
+  const currentRating = parseFloat(workProfile.rating) || 1;
+  const currentTier = tiers.find(t => Math.abs(t.rating - currentRating) < 0.1) || tiers[0] || { rating: currentRating, amount: workProfile.monthlySalary || 50000 };
+
+  const lbl = document.getElementById('worker-active-rating-label');
+  if (lbl) lbl.textContent = `★ ${currentTier.rating} (${currentTier.label || ('Rating ' + currentTier.rating)})`;
+
+  const badge = document.getElementById('worker-active-rating-sal-badge');
+  if (badge) badge.textContent = `${fmtRs(Math.round(currentTier.amount))}/mo`;
+
+  const container = document.getElementById('worker-rating-pills-container');
+  if (container) {
+    container.innerHTML = tiers.map(t => {
+      const isActive = Math.abs(t.rating - currentRating) < 0.1;
+      return `
+        <button type="button" class="rating-quick-chip ${isActive ? 'active' : ''}" onclick="setWorkerActiveRating(${t.rating})">
+          <span>★ ${t.rating}</span>
+          <span class="rq-sal mono">(${fmtRs(Math.round(t.amount))})</span>
+        </button>
+      `;
+    }).join('');
+  }
+}
+
+function setWorkerActiveRating(ratingVal) {
+  workProfile.rating = String(ratingVal);
+  syncEffectiveWorkProfileSalary();
+  saveLS();
+  
+  renderTodayAttendanceWidget();
+  renderMonthlyOfficeSnapshot();
+  renderWorkProfileCard();
+  renderWorkerRatingSelector();
+  if (typeof renderOfficeStats === 'function') renderOfficeStats(statsSelectedYear, statsSelectedMonth);
+
+  showToast(`★ Rating ${ratingVal} Active! Salary: ${fmtRs(workProfile.monthlySalary)}/mo`);
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'light');
 }
 
 /* 8. More View Card Renderer */
@@ -8893,16 +9782,28 @@ function renderWorkProfileCard() {
     if (el) el.textContent = val;
   };
 
+  syncEffectiveWorkProfileSalary();
+
   setEl('wp-comp-name-disp', workProfile.company || 'Company / Employer');
   setEl('wp-empid-disp', workProfile.employeeId || 'EMP-ID');
   setEl('wp-desig-disp', workProfile.designation || 'Designation');
-  setEl('wp-rating-badge', `★ ${workProfile.rating || '4.5'}`);
+  
+  const ratingBadge = document.getElementById('wp-rating-badge');
+  if (ratingBadge) {
+    if (workProfile.salaryType === 'performance') {
+      ratingBadge.style.display = 'flex';
+      ratingBadge.textContent = `★ ${workProfile.rating || '4.0'}`;
+    } else {
+      ratingBadge.style.display = 'none'; // hidden for fixed salary
+    }
+  }
 
   setEl('wp-salary-disp', fmtRs(Math.round(workProfile.monthlySalary || 50000)));
   setEl('wp-daily-disp', fmtRs(Math.round(workProfile.dailySalary || 1923)));
   setEl('wp-annual-disp', fmtRs(Math.round(workProfile.annualSalary || 600000)));
 
-  const otRateText = workProfile.otMultiplier === 'custom' ? `${fmtRs(workProfile.otCustomRate)}/h` : `${workProfile.otMultiplier}x (${fmtRs(Math.round(getEffectiveOtRate(workProfile)))}/h)`;
+  const otRateVal = Math.round(getEffectiveOtRate(workProfile));
+  const otRateText = (workProfile.otRateType === 'hourly') ? `${fmtRs(otRateVal)}/h (Fixed)` : `${workProfile.otMultiplier}x (${fmtRs(otRateVal)}/h)`;
   setEl('wp-ot-rate-disp', otRateText);
 
   const pfText = workProfile.pfEnabled ? (workProfile.pfType === 'percent' ? `${workProfile.pfPercent}% PF` : `${fmtRs(workProfile.pfFixedAmount)}/mo`) : 'Disabled';
@@ -8911,6 +9812,8 @@ function renderWorkProfileCard() {
   const totalLeaves = (workProfile.plQuota || 18) + (workProfile.slQuota || 12) + (workProfile.clQuota || 10);
   setEl('wp-leaves-disp', `${totalLeaves} d/yr`);
 }
+
+
 
 /* 9. Attendance Interactive Calendar Roster */
 function openAttendanceCalendar(year, month) {
@@ -9264,11 +10167,218 @@ function renderOfficeStats(year, month) {
 
   const summary = getMonthlyAttendanceSummary(statsSelectedYear, statsSelectedMonth);
 
+  renderWorkerPerformanceStatsCard(summary, statsSelectedYear, statsSelectedMonth);
   renderAttendanceDonutChart(summary);
   renderSalaryMultiBarChart(statsSelectedYear, statsSelectedMonth);
   renderOtTrendCurve(statsSelectedYear, statsSelectedMonth);
   renderPfCorpusCard(summary);
   renderLeaveQuotaGauges(statsSelectedYear);
+}
+
+function renderWorkerPerformanceStatsCard(summary, year, month) {
+  const card = document.getElementById('stats-perf-rating-card');
+  if (!card) return;
+
+  if (currentAppMode === 'freelance') {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+
+  syncEffectiveWorkProfileSalary();
+
+  // Payday countdown computation
+  const today = new Date();
+  const curDay = today.getDate();
+  const payDayNum = parseInt(workProfile.salaryPayDay) || 5;
+  let daysRemaining = payDayNum - curDay;
+  let paydayMonthName = today.toLocaleDateString('en-IN', { month: 'short' });
+  if (daysRemaining < 0) {
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    daysRemaining = (daysInMonth - curDay) + payDayNum;
+    const nextMo = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    paydayMonthName = nextMo.toLocaleDateString('en-IN', { month: 'short' });
+  }
+  const paydayBadgeText = (daysRemaining === 0)
+    ? '🎉 Aaj Payday hai!'
+    : `⏳ ${daysRemaining} din baaki (${payDayNum} ${paydayMonthName})`;
+
+  const otRate = Math.round(getEffectiveOtRate(workProfile));
+  const otTypeStr = (workProfile.otLogType === 'separate') ? 'Separate Day OT' : 'Same-Day Shift OT';
+  const shiftStr = (workProfile.shiftType === 'rotating') ? '🔄 Rotating Shift' : `⏰ ${workProfile.shiftStart || '09:00'} - ${workProfile.shiftEnd || '18:00'}`;
+
+  if (workProfile.salaryType === 'performance') {
+    const tiers = (Array.isArray(workProfile.perfSalaryTiers) && workProfile.perfSalaryTiers.length > 0)
+      ? workProfile.perfSalaryTiers
+      : [
+          { rating: 1, label: 'Rating 1 (Base)', amount: 20000 },
+          { rating: 2, label: 'Rating 2 (Average)', amount: 25000 },
+          { rating: 3, label: 'Rating 3 (Good)', amount: 30000 },
+          { rating: 4, label: 'Rating 4 (Very Good)', amount: 38000 },
+          { rating: 5, label: 'Rating 5 (Outstanding)', amount: 50000 }
+        ];
+
+    const currentRating = parseFloat(workProfile.rating) || 1;
+    let activeTier = tiers.reduce((prev, curr) =>
+      Math.abs(curr.rating - currentRating) < Math.abs(prev.rating - currentRating) ? curr : prev
+    , tiers[0]);
+
+    const effMonthly = Math.round(activeTier.amount);
+    const effDaily = Math.round(effMonthly / (parseFloat(workProfile.workDaysPerMonth) || 26));
+    const maxTierAmt = Math.max(...tiers.map(t => t.amount), effMonthly, 1);
+
+    const pillsHtml = tiers.map(t => {
+      const isActive = Math.abs(t.rating - currentRating) < 0.1;
+      return `
+        <button type="button" class="rating-quick-chip ${isActive ? 'active' : ''}" onclick="setWorkerActiveRating(${t.rating})" style="cursor:pointer">
+          <span>★ ${t.rating}</span>
+          <span class="rq-sal mono">(${fmtRs(Math.round(t.amount))})</span>
+        </button>
+      `;
+    }).join('');
+
+    const tierBarsHtml = tiers.map(t => {
+      const isCur = Math.abs(t.rating - currentRating) < 0.1;
+      const pct = Math.max(16, Math.min(100, Math.round((t.amount / maxTierAmt) * 100)));
+      return `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div style="width:34px;font-size:11px;font-weight:700;color:${isCur ? 'var(--pend)' : 'var(--t2)'}">★ ${t.rating}</div>
+          <div style="flex:1;background:var(--s2);border-radius:6px;height:20px;overflow:hidden;position:relative;border:1px solid ${isCur ? 'var(--pend)' : 'var(--b)'}">
+            <div style="width:${pct}%;height:100%;background:${isCur ? 'linear-gradient(90deg, #FFB930, #F59E0B)' : 'linear-gradient(90deg, #7C6FED, #8B5CF6)'};border-radius:5px;transition:width 0.4s ease"></div>
+            <div style="position:absolute;left:8px;top:2px;font-size:9.5px;font-weight:700;color:${isCur ? '#000' : '#fff'};font-family:monospace">${t.label || ('Rating ' + t.rating)}</div>
+          </div>
+          <div class="mono" style="width:70px;text-align:right;font-size:11px;font-weight:${isCur ? '800' : '600'};color:${isCur ? 'var(--pend)' : 'var(--t1)'}">
+            ${fmtRs(Math.round(t.amount))}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-size:13.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px">
+            <span>⭐ Worker Performance &amp; Dynamic Salary</span>
+          </div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px">Live rating sync with attendance &amp; salary payout</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;background:rgba(255,185,48,.18);color:var(--pend);border:1px solid rgba(255,185,48,.3)">
+            ★ Rating Plan
+          </span>
+          <button type="button" onclick="openWorkProfileModal(3)" style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:3px 8px;font-size:10px;color:var(--t2);cursor:pointer">⚙️ Slabs</button>
+        </div>
+      </div>
+
+      <!-- Active Tier Highlight Box -->
+      <div style="background:var(--s1);border:1px solid rgba(255,185,48,.25);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Active Rating Tier</div>
+          <div style="font-size:15px;font-weight:800;color:var(--pend);display:flex;align-items:center;gap:6px;margin-top:1px">
+            <span>★ ${activeTier.rating}</span>
+            <span style="font-size:11.5px;font-weight:600;color:var(--t2)">(${activeTier.label || 'Active Level'})</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9.5px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Effective Monthly Pay</div>
+          <div class="mono" style="font-size:15px;font-weight:800;color:var(--paid);margin-top:1px">${fmtRs(effMonthly)} <span style="font-size:10px;font-weight:600;color:var(--t3)">/mo</span></div>
+        </div>
+        <div style="width:100%;border-top:1px dashed var(--b);padding-top:6px;display:flex;justify-content:space-between;font-size:10px;color:var(--t2);flex-wrap:wrap;gap:4px">
+          <span>Daily: <strong class="mono" style="color:var(--t1)">${fmtRs(effDaily)}/day</strong></span>
+          <span>OT: <strong class="mono" style="color:#F97316">${fmtRs(otRate)}/hr</strong></span>
+          <span>Shift: <strong style="color:var(--t1)">${shiftStr}</strong></span>
+        </div>
+      </div>
+
+      <!-- Live Rating Selector Chips -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:9.5px;color:var(--t2);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Tap to Change Active Rating:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${pillsHtml}
+        </div>
+      </div>
+
+      <!-- Slab Comparison Matrix -->
+      <div style="margin-bottom:10px">
+        <div style="font-size:9.5px;color:var(--t2);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Salary Slab Tiers (${tiers.length} Tiers):</div>
+        ${tierBarsHtml}
+      </div>
+
+      <!-- Payday & Notification Status Footer -->
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span>💰</span>
+          <span style="font-weight:700;color:var(--t1)">${paydayBadgeText}</span>
+        </div>
+        <div style="color:var(--t2);display:flex;align-items:center;gap:4px">
+          <span>${workProfile.salaryNotif !== false ? '🔔 Reminder ON' : '🔕 Muted'}</span>
+          <span>•</span>
+          <span>${otTypeStr}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    // Fixed Salary Mode
+    const fixedMonthly = Math.round(workProfile.monthlySalary || 50000);
+    const fixedDaily = Math.round(workProfile.dailySalary || (fixedMonthly / (parseFloat(workProfile.workDaysPerMonth) || 26)));
+
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <div>
+          <div style="font-size:13.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px">
+            <span>💼 Worker Compensation &amp; Schedule Snapshot</span>
+          </div>
+          <div style="font-size:10px;color:var(--t2);margin-top:2px">Fixed salary contract with automated payday &amp; OT tracking</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;background:rgba(124,111,237,.15);color:var(--acc);border:1px solid rgba(124,111,237,.3)">
+            Fixed Plan
+          </span>
+          <button type="button" onclick="openWorkProfileModal()" style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:3px 8px;font-size:10px;color:var(--t2);cursor:pointer">⚙️ Edit</button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-bottom:10px">
+        <div style="background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--t3);text-transform:uppercase">Fixed Monthly</div>
+          <div class="mono" style="font-size:13.5px;font-weight:800;color:var(--paid);margin-top:2px">${fmtRs(fixedMonthly)}</div>
+          <div style="font-size:8.5px;color:var(--t3)">per month</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--t3);text-transform:uppercase">Daily Wage</div>
+          <div class="mono" style="font-size:13.5px;font-weight:800;color:var(--t1);margin-top:2px">${fmtRs(fixedDaily)}</div>
+          <div style="font-size:8.5px;color:var(--t3)">/${workProfile.workDaysPerMonth || 26} d/mo</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--b);border-radius:9px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:var(--t3);text-transform:uppercase">OT Rate</div>
+          <div class="mono" style="font-size:13.5px;font-weight:800;color:#F97316;margin-top:2px">${fmtRs(otRate)}</div>
+          <div style="font-size:8.5px;color:var(--t3)">per hour</div>
+        </div>
+      </div>
+
+      <!-- Shift & Payday Details -->
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;font-size:10.5px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--t2)">Shift Schedule:</span>
+          <span style="font-weight:700;color:var(--t1)">${shiftStr} (${workProfile.shiftHours || 8}h/day)</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--t2)">Payday:</span>
+          <span style="font-weight:700;color:var(--pend)">${paydayBadgeText}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--t2)">Overtime Policy:</span>
+          <span style="font-weight:700;color:var(--t1)">${otTypeStr} · Max ${workProfile.otMaxDailyHours || 4}h/day</span>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;font-size:9.5px;color:var(--t3);display:flex;justify-content:space-between;align-items:center">
+        <span>💡 Performance/Rating slabs chahiye? Worker ID me switch karein.</span>
+        <button type="button" onclick="openWorkProfileModal(3)" style="background:none;border:none;color:var(--acc);font-size:9.5px;font-weight:700;cursor:pointer;text-decoration:underline">Upgrade to Rating</button>
+      </div>
+    `;
+  }
 }
 
 function renderAttendanceDonutChart(summary) {
@@ -17780,6 +18890,7 @@ function renderAll(){
   renderSummary(); renderHeatmap(); renderManagedEntities(); renderRecentEntries();
   if (typeof renderHighlightedClients === 'function') renderHighlightedClients();
   if (typeof renderTodayAttendanceWidget === 'function') renderTodayAttendanceWidget();
+  if (typeof renderWorkerRatingSelector === 'function') renderWorkerRatingSelector();
   if (typeof renderMonthlyOfficeSnapshot === 'function') renderMonthlyOfficeSnapshot();
   if (typeof renderAttendanceCalendarGrid === 'function') renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
   if (typeof renderWorkProfileCard === 'function') renderWorkProfileCard();
