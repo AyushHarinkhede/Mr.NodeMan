@@ -19,18 +19,28 @@ public class NotificationScheduler {
     public static final String TYPE_ADVANCE_ROSTER = "advance_roster";
     public static final String TYPE_SALARY_DAY = "salary_day";
     public static final String TYPE_CLIENT_DUES = "client_dues";
+    public static final String TYPE_LUNCH_REMINDER = "lunch_reminder";
+    public static final String TYPE_SHIFT_END = "shift_end";
+    public static final String TYPE_BIO_WELLNESS_BREAK = "bio_wellness_break";
+    public static final String TYPE_ATTENDANCE_FOLLOWUP = "attendance_followup";
 
     public static final int REQ_MORNING_SHIFT = 1001;
     public static final int REQ_EVENING_PENDING = 1002;
     public static final int REQ_ADVANCE_ROSTER = 1003;
     public static final int REQ_SALARY_DAY = 1004;
     public static final int REQ_CLIENT_DUES = 1005;
+    public static final int REQ_LUNCH_REMINDER = 1006;
+    public static final int REQ_SHIFT_END = 1007;
+    public static final int REQ_BIO_WELLNESS_1 = 1008;
+    public static final int REQ_BIO_WELLNESS_2 = 1009;
+    public static final int REQ_ATTENDANCE_FOLLOWUP = 1010;
 
     public static void scheduleAllAlarms(Context context) {
         if (context == null) return;
         try {
             SharedPreferences prefs = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
             String settingsJsonStr = prefs.getString("_mnm_notification_settings", null);
+            String profileJsonStr = prefs.getString("_mnm_work_profile", null);
 
             boolean enabled = true;
             boolean morningShift = true;
@@ -38,6 +48,10 @@ public class NotificationScheduler {
             boolean advanceRoster = true;
             boolean salaryAlerts = true;
             boolean clientDues = true;
+            boolean lunchReminder = true;
+            boolean shiftEndGreeting = true;
+            boolean wellnessBreaks = true;
+            boolean attendanceFollowup = true;
 
             if (settingsJsonStr != null && !settingsJsonStr.isEmpty()) {
                 try {
@@ -48,6 +62,10 @@ public class NotificationScheduler {
                     if (obj.has("advanceRoster")) advanceRoster = obj.optBoolean("advanceRoster", true);
                     if (obj.has("salaryAlerts")) salaryAlerts = obj.optBoolean("salaryAlerts", true);
                     if (obj.has("clientDues")) clientDues = obj.optBoolean("clientDues", true);
+                    if (obj.has("lunchReminder")) lunchReminder = obj.optBoolean("lunchReminder", true);
+                    if (obj.has("shiftEndGreeting")) shiftEndGreeting = obj.optBoolean("shiftEndGreeting", true);
+                    if (obj.has("wellnessBreaks")) wellnessBreaks = obj.optBoolean("wellnessBreaks", true);
+                    if (obj.has("attendanceFollowup")) attendanceFollowup = obj.optBoolean("attendanceFollowup", true);
                 } catch (Exception ignored) {}
             }
 
@@ -56,35 +74,85 @@ public class NotificationScheduler {
                 return;
             }
 
-            // 1. Morning Shift Check-in (09:00 AM)
+            // 1. Morning Shift Check-in (09:00 AM) - 1-Tap Attendance Check-in
             if (morningShift) {
                 scheduleDailyAlarm(context, REQ_MORNING_SHIFT, 9, 0, TYPE_MORNING_SHIFT);
             } else {
                 cancelAlarm(context, REQ_MORNING_SHIFT);
             }
 
-            // 2. Evening Pending Attendance & Streak Savior (07:30 PM = 19:30)
+            // 2. Intelligent Attendance Follow-up (10:45 AM) - Only triggered ONCE if morning skipped
+            if (morningShift && attendanceFollowup) {
+                scheduleDailyAlarm(context, REQ_ATTENDANCE_FOLLOWUP, 10, 45, TYPE_ATTENDANCE_FOLLOWUP);
+            } else {
+                cancelAlarm(context, REQ_ATTENDANCE_FOLLOWUP);
+            }
+
+            // 3. Smart Self-Learning Lunch Reminder (Interactive Yes/No)
+            // Reads learned lunch hour/minute from user's response history
+            int learnedLunchHour = prefs.getInt("_mnm_learned_lunch_hour", 13);
+            int learnedLunchMinute = prefs.getInt("_mnm_learned_lunch_minute", 0);
+            if (learnedLunchHour < 11 || learnedLunchHour > 16) {
+                learnedLunchHour = 13;
+                learnedLunchMinute = 0;
+            }
+            if (lunchReminder) {
+                scheduleDailyAlarm(context, REQ_LUNCH_REMINDER, learnedLunchHour, learnedLunchMinute, TYPE_LUNCH_REMINDER);
+            } else {
+                cancelAlarm(context, REQ_LUNCH_REMINDER);
+            }
+
+            // 4. Bio Break, Posture & Hydration Wellness Reminders (11:15 AM & 03:45 PM)
+            if (wellnessBreaks) {
+                scheduleDailyAlarm(context, REQ_BIO_WELLNESS_1, 11, 15, TYPE_BIO_WELLNESS_BREAK);
+                scheduleDailyAlarm(context, REQ_BIO_WELLNESS_2, 15, 45, TYPE_BIO_WELLNESS_BREAK);
+            } else {
+                cancelAlarm(context, REQ_BIO_WELLNESS_1);
+                cancelAlarm(context, REQ_BIO_WELLNESS_2);
+            }
+
+            // 5. Shift End Wrap-Up & Daily Motivation Greeting
+            int shiftEndHour = 18;
+            int shiftEndMin = 0;
+            if (profileJsonStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileJsonStr);
+                    String se = wp.optString("shiftEnd", "18:00");
+                    if (se != null && se.contains(":")) {
+                        String[] parts = se.split(":");
+                        shiftEndHour = Integer.parseInt(parts[0].trim());
+                        shiftEndMin = Integer.parseInt(parts[1].trim());
+                    }
+                } catch (Exception ignored) {}
+            }
+            if (shiftEndGreeting) {
+                scheduleDailyAlarm(context, REQ_SHIFT_END, shiftEndHour, shiftEndMin, TYPE_SHIFT_END);
+            } else {
+                cancelAlarm(context, REQ_SHIFT_END);
+            }
+
+            // 6. Evening Pending Attendance & Streak Savior (07:30 PM = 19:30)
             if (eveningPending) {
                 scheduleDailyAlarm(context, REQ_EVENING_PENDING, 19, 30, TYPE_EVENING_PENDING);
             } else {
                 cancelAlarm(context, REQ_EVENING_PENDING);
             }
 
-            // 3. 1-Day Advance Roster & Leave Alerts (08:00 PM = 20:00)
+            // 7. 1-Day Advance Roster & Leave Alerts (08:00 PM = 20:00)
             if (advanceRoster) {
                 scheduleDailyAlarm(context, REQ_ADVANCE_ROSTER, 20, 0, TYPE_ADVANCE_ROSTER);
             } else {
                 cancelAlarm(context, REQ_ADVANCE_ROSTER);
             }
 
-            // 4. Monthly Salary Credit Day Alerts (09:30 AM)
+            // 8. Monthly Salary Credit Day Alerts (09:30 AM)
             if (salaryAlerts) {
                 scheduleDailyAlarm(context, REQ_SALARY_DAY, 9, 30, TYPE_SALARY_DAY);
             } else {
                 cancelAlarm(context, REQ_SALARY_DAY);
             }
 
-            // 5. Client Outstanding Receivables Reminder (11:00 AM)
+            // 9. Client Outstanding Receivables Reminder (11:00 AM)
             if (clientDues) {
                 scheduleDailyAlarm(context, REQ_CLIENT_DUES, 11, 0, TYPE_CLIENT_DUES);
             } else {
@@ -148,6 +216,36 @@ public class NotificationScheduler {
         }
     }
 
+    public static void scheduleOneShotAlarm(Context context, int requestCode, long delayMillis, String alarmType) {
+        if (context == null) return;
+        try {
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager == null) return;
+
+            Intent intent = new Intent(context, NotificationAlarmReceiver.class);
+            intent.setAction(ACTION_ALARM_TRIGGER);
+            intent.putExtra(EXTRA_ALARM_TYPE, alarmType);
+
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                flags |= PendingIntent.FLAG_IMMUTABLE;
+            }
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, flags);
+            long triggerAtMillis = System.currentTimeMillis() + delayMillis;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, triggerAtMillis, pendingIntent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void cancelAlarm(Context context, int requestCode) {
         if (context == null) return;
         try {
@@ -174,6 +272,11 @@ public class NotificationScheduler {
 
     public static void cancelAllAlarms(Context context) {
         cancelAlarm(context, REQ_MORNING_SHIFT);
+        cancelAlarm(context, REQ_ATTENDANCE_FOLLOWUP);
+        cancelAlarm(context, REQ_LUNCH_REMINDER);
+        cancelAlarm(context, REQ_BIO_WELLNESS_1);
+        cancelAlarm(context, REQ_BIO_WELLNESS_2);
+        cancelAlarm(context, REQ_SHIFT_END);
         cancelAlarm(context, REQ_EVENING_PENDING);
         cancelAlarm(context, REQ_ADVANCE_ROSTER);
         cancelAlarm(context, REQ_SALARY_DAY);

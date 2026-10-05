@@ -16022,13 +16022,17 @@ function openGoogleCloudSetupModal() {
 
 const DEFAULT_NOTIF_SETTINGS = {
   enabled: true,
-  morningShift: true,     // 09:00 AM daily check-in with 1-tap Present / Absent / Half Day
-  eveningPending: true,   // 07:30 PM pending attendance & streak savior with 1-tap actions
-  advanceRoster: true,    // 08:00 PM 1-day advance notification for Week Off, Holiday, and Leaves
-  sameDayRoster: true,    // Day-of Week Off / Holiday / Leave greetings
-  salaryAlerts: true,     // Monthly Salary Credit Date & 1-day advance reminder
-  streakMilestones: true, // Streak milestones (7, 14, 30+ days)
-  clientDues: true        // 11:00 AM pending client receivables & unpaid invoice reminders
+  morningShift: true,       // 09:00 AM daily check-in with 1-tap Present / Absent / Half Day
+  attendanceFollowup: true, // 10:45 AM intelligent 1x follow-up only if skipped in morning
+  lunchReminder: true,      // Interactive Yes/No lunch & break reminder with AI self-learning time
+  wellnessBreaks: true,     // Mid-shift posture, hydration, and 20-20-20 eye relaxation breaks
+  shiftEndGreeting: true,   // Cheerful congratulatory greeting & daily motivation on shift end
+  eveningPending: true,     // 07:30 PM streak savior (only if attendance still unlogged)
+  advanceRoster: true,      // 08:00 PM 1-day advance notification for Week Off, Holiday, and Leaves
+  sameDayRoster: true,      // Day-of Week Off / Holiday / Leave greetings
+  salaryAlerts: true,       // Monthly Salary Credit Date & 1-day advance reminder
+  streakMilestones: true,   // Streak milestones (7, 14, 30+ days)
+  clientDues: true          // 11:00 AM pending client receivables & unpaid invoice reminders
 };
 
 function loadNotificationSettings() {
@@ -16080,6 +16084,50 @@ window.onNativeAttendanceUpdated = function(dateStr, status) {
   if (typeof renderAttendanceCalendarGrid === 'function') renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
   if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
 };
+
+// Global hook: Real-time update when user confirms lunch in native notification
+window.onNativeLunchUpdated = function(hour, minute) {
+  const h = parseInt(hour, 10) || 13;
+  const m = parseInt(minute, 10) || 0;
+  localStorage.setItem('_mnm_learned_lunch_hour', h);
+  localStorage.setItem('_mnm_learned_lunch_minute', m);
+  const timeStr = `${h > 12 ? (h - 12) : h}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  showToast(`🍱 Lunch logged! App learned your lunch window (~${timeStr})`);
+  if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
+};
+
+function submitLunchResponse(isYes) {
+  const now = new Date();
+  if (isYes) {
+    let history = [];
+    try { history = JSON.parse(localStorage.getItem('_mnm_lunch_history') || '[]'); } catch(e) {}
+    history.push({ date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes() });
+    if (history.length > 10) history = history.slice(-10);
+    localStorage.setItem('_mnm_lunch_history', JSON.stringify(history));
+
+    let totalMinutes = history.reduce((sum, item) => sum + (item.hour * 60 + item.minute), 0);
+    let avgMin = Math.round(totalMinutes / history.length);
+    let learnedH = Math.floor(avgMin / 60);
+    let learnedM = avgMin % 60;
+    if (learnedH < 11) { learnedH = 11; learnedM = 30; }
+    if (learnedH > 15) { learnedH = 15; learnedM = 30; }
+    localStorage.setItem('_mnm_learned_lunch_hour', learnedH);
+    localStorage.setItem('_mnm_learned_lunch_minute', learnedM);
+
+    if (window.AndroidApp && typeof window.AndroidApp.saveData === 'function') {
+      window.AndroidApp.saveData('_mnm_learned_lunch_hour', String(learnedH));
+      window.AndroidApp.saveData('_mnm_learned_lunch_minute', String(learnedM));
+      window.AndroidApp.saveData('_mnm_lunch_history', JSON.stringify(history));
+    }
+    syncNotificationScheduleWithNative();
+    const timeStr = `${learnedH > 12 ? (learnedH - 12) : learnedH}:${String(learnedM).padStart(2, '0')} ${learnedH >= 12 ? 'PM' : 'AM'}`;
+    showToast(`🍱 Lunch recorded! App adapted your meal window (~${timeStr})`);
+    closeModal('lunch-reminder-modal');
+  } else {
+    showToast('🥪 Thik hai! Kaam ke chakkar me meal skip mat karna, thodi der me kha lena.');
+    closeModal('lunch-reminder-modal');
+  }
+}
 
 function isNotificationPermissionGranted() {
   if (window.AndroidApp && typeof window.AndroidApp.hasNotificationPermission === 'function') {
@@ -16182,24 +16230,87 @@ function toggleNotifSetting(key) {
   showToast(settings[key] || (key === 'enabled' && settings.enabled) ? 'Notification alert enabled' : 'Notification alert disabled');
 }
 
-function sendTestNotification() {
+function sendTestNotification(type) {
   if (!isNotificationPermissionGranted()) {
     requestDeviceNotificationPermission();
   }
-  const testItems = [
-    { title: 'Attendance Check-in Test', message: 'Good morning! Morning shift reminder active for ' + (workProfile?.company || 'Workplace') + '. Tap actions to mark present.', channel: 'attendance', id: 9001 },
-    { title: 'Salary Credit Alert Test', message: 'Monthly salary payout alert: ₹' + (workProfile?.monthlySalary || 50000).toLocaleString('en-IN') + ' is scheduled for credit!', channel: 'salary', id: 9002 },
-    { title: 'Work Streak Alert Test', message: 'Streak active: Keep logging work daily to maintain your momentum!', channel: 'reminder', id: 9003 },
-    { title: 'Client Receivables Test', message: 'You have outstanding receivables of ₹14,500 across 2 clients pending follow-up.', channel: 'payments', id: 9004 }
-  ];
-  const chosen = testItems[Math.floor(Math.random() * testItems.length)];
-  const ok = postAppNotification({
+  const company = workProfile?.company || 'Workplace';
+  const worker = workProfile?.workerName || 'Worker';
+  const now = new Date();
+  const daySeed = now.getDate() + now.getDay();
+
+  const testItems = {
+    attendance: { title: 'Shubh Prabhat! ☀️ Morning Check-in', message: `Good morning! Remember to mark your attendance for today at ${company}. Tap 1-tap actions.`, channel: 'attendance', id: 9001 },
+    lunch: { title: 'Lunch Break Time! 🍱', message: 'Dopahar ho gayi! Kaam thodi der roko, lunch kiya kya? Tap Haan ya Abhi Nahi.', channel: 'lunch', id: 9002 },
+    wellness: { title: 'Pani Piya Kya? 🚰 Hydration Check', message: 'Body dehydrate hone se tiredness aati hai. Abhi ek bada glass fresh pani pi lo to stay active!', channel: 'wellness', id: 9003 },
+    shift_end: { title: 'Shift Wrap-up! 🎉 Shandar Kaam', message: `Aaj ki shift successfully complete hui at ${company}! Great job ${worker}, have a peaceful evening! ☕`, channel: 'greeting', id: 9004 },
+    salary: { title: 'Salary Credit Alert 💰', message: `Monthly salary payout alert: ₹${(workProfile?.monthlySalary || 50000).toLocaleString('en-IN')} is scheduled for credit!`, channel: 'salary', id: 9005 }
+  };
+
+  const chosen = (type && testItems[type]) ? testItems[type] : Object.values(testItems)[Math.floor(Math.random() * Object.values(testItems).length)];
+  postAppNotification({
     title: chosen.title,
     message: chosen.message,
     channelType: chosen.channel,
     notificationId: chosen.id
   });
-  showToast('Test notification dispatched!');
+  showToast(`🔔 Dispatched: ${chosen.title}`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// DYNAMIC DAILY UNIQUE NOTIFICATION MESSAGE POOLS
+// ══════════════════════════════════════════════════════════════
+function getDailyMorningGreeting(seed, company) {
+  const pool = [
+    { title: 'Shubh Prabhat! ☀️ Morning Check-in', message: `Naya din, nayi energy! Remember to mark your attendance for today at ${company}.` },
+    { title: 'Good Morning Champion! 🚀', message: `Make today count! Ek tap me apni attendance mark karein at ${company}.` },
+    { title: 'Rise & Shine! ☕ Daily Check-in', message: `Success starts with showing up! Record your attendance for today at ${company}.` },
+    { title: 'Morning Hustle! 💼 Ready for Today?', message: `Another opportunity to build your future at ${company}. Tap below to log Present.` },
+    { title: 'Shandaar Shuruat! 🌟 Check-in Active', message: `Focus on your goals today! Don't forget to mark your daily attendance at ${company}.` }
+  ];
+  return pool[Math.abs(seed) % pool.length];
+}
+
+function getDailyLunchReminder(seed) {
+  const pool = [
+    { title: 'Lunch Break Time! 🍱', message: 'Dopahar ho gayi! Kaam thodi der roko, lunch kiya kya? Tap to record your lunch break.' },
+    { title: 'Energy Refuel Time! 🥪', message: 'Pet pooja pehle, kaam baad me! Did you have your lunch yet? Share your status below.' },
+    { title: 'Lunch Kiya Kya? 🍛', message: 'Working non-stop drains focus! Take a 20-minute relaxing lunch break. Kar liya kya?' },
+    { title: 'Healthy Meal Reminder 🥗', message: 'Nutrition keeps your energy high! Have you eaten your lunch today? Tap Haan ya Abhi Nahi.' },
+    { title: 'Bhookh Lagi Hogi! 🍲', message: 'Mid-day battery low? Ek healthy meal lo aur energize ho jao. Did you finish lunch?' }
+  ];
+  return pool[Math.abs(seed) % pool.length];
+}
+
+function getDailyWellnessTip(seed, isAfternoon) {
+  if (!isAfternoon) {
+    const morningPool = [
+      { title: 'Pani Piya Kya? 🚰 Hydration Check', message: 'Body dehydrate hone se tiredness aati hai. Abhi ek bada glass fresh pani pi lo to stay active!' },
+      { title: 'Posture Check! 🧘 Spine Straight', message: 'Seedhe baitho! Roll your shoulders back, stretch your spine, and relieve neck tension.' },
+      { title: 'Deep Breathing Reset! 🌬️', message: 'Take 3 slow, deep belly breaths. Exhale all stress. A calm mind works 2x better!' }
+    ];
+    return morningPool[Math.abs(seed) % morningPool.length];
+  } else {
+    const afternoonPool = [
+      { title: '20-20-20 Eye Relaxation! 👀', message: 'Screen ya machine se nazrein hatao: 20 feet door kisi cheez ko 20 seconds dekho. Eyes refresh ho jayengi!' },
+      { title: 'Movement & Walk Break! 🚶', message: 'Ek 2-minute stroll lo, deep breath lo. Blood circulation badhega aur focus sharp hoga!' },
+      { title: 'Healthy Snack & Stretch! 🍎', message: 'Quick break: Thoda stretch karo, aur chai ke sath healthy dry fruits ya water intake badhao.' }
+    ];
+    return afternoonPool[Math.abs(seed) % afternoonPool.length];
+  }
+}
+
+function getDailyShiftEndGreeting(seed, workerName, company) {
+  const pool = [
+    { title: 'Shift Wrap-up! 🎉 Shandar Kaam', message: `Aaj ki shift successfully complete hui at ${company}! Put your tools down, aapne khoob mehnat ki. Have a peaceful evening! ☕` },
+    { title: 'Work Done! 🌟 Take a Bow', message: `Great job today, ${workerName}! Mehnat ka fal hamesha meetha hota hai. Relax karo aur family ke sath achha time spend karo. 🏡` },
+    { title: 'Shift Completed! 🚀 Great Energy', message: `Today's workday at ${company} is done. Give yourself credit for showing up and giving your 100%. Rest well tonight!` },
+    { title: 'Mission Accomplished! 👏', message: `Duty khatam, chilling shuru! You crushed your shift targets today. Enjoy a delicious dinner and restful sleep.` },
+    { title: 'Shift Over! 🌙 Time to Unwind', message: `Aaj ka kaam pura hua! Work-life balance is key — switch off from work mode and recharge for tomorrow.` },
+    { title: 'Salute to Your Dedication! 💼', message: `Hard work builds the future! Aaj ka din productive raha at ${company}. Have a warm, relaxing evening!` },
+    { title: 'End of Shift! ☕ Time to Relax', message: `A great day of honest work at ${company}. Drop the stress, take a deep breath, and enjoy your evening!` }
+  ];
+  return pool[Math.abs(seed) % pool.length];
 }
 
 function checkAndDispatchDailyNotifications() {
@@ -16209,6 +16320,7 @@ function checkAndDispatchDailyNotifications() {
   const now = new Date();
   const todayISO = now.toISOString().slice(0, 10);
   const currentHour = now.getHours();
+  const daySeed = now.getDate() + now.getDay();
 
   let lastDispatched = {};
   try {
@@ -16229,30 +16341,35 @@ function checkAndDispatchDailyNotifications() {
   const tomorrowISO = tomorrow.toISOString().slice(0, 10);
   const tomorrowDayOfWeek = tomorrow.getDay(); // 0 = Sunday
 
-  const attRecords = (typeof attendanceData !== 'undefined' && attendanceData) ? attendanceData : {};
+  const attRecords = (typeof attendanceRecords !== 'undefined' && attendanceRecords) ? attendanceRecords : ((typeof attendanceData !== 'undefined' && attendanceData) ? attendanceData : {});
   const todayAtt = attRecords[todayISO];
   const tomorrowAtt = attRecords[tomorrowISO];
 
   const companyName = workProfile?.company || 'Work';
+  const workerName = workProfile?.workerName || 'Worker';
   const salaryPayDay = parseInt(workProfile?.salaryPayDay, 10) || 5;
+
+  // ══════════════════════════════════════════════════════════
+  // STRICT ANTI-SPAM ATTENDANCE CHECK:
+  // If user already marked attendance for today (P, HD, PL, SL, CL, WO, HL, A),
+  // NEVER send morning check-in, follow-up, or evening pending notifications!
+  // ══════════════════════════════════════════════════════════
+  const hasMarkedAttendanceToday = !!(todayAtt && todayAtt.status && todayAtt.status.trim() !== '');
 
   // 1. SALARY NOTIFICATIONS
   if (settings.salaryAlerts) {
-    // 1A. On Salary Credit Day (Trigger between 09:00 and 18:00)
     if (now.getDate() === salaryPayDay && lastDispatched['salary_day'] !== todayISO && currentHour >= 9) {
       postAppNotification({
-        title: 'Salary Day Today!',
+        title: 'Salary Day Today! 💰',
         message: `Today is your scheduled salary credit date from ${companyName}. Don't forget to review your payslip!`,
         channelType: 'salary',
         notificationId: 2001
       });
       markDispatched('salary_day');
     }
-
-    // 1B. 1-Day Advance Salary Reminder (Trigger in evening >= 18:00 if tomorrow is salary day)
     if (tomorrow.getDate() === salaryPayDay && lastDispatched['salary_advance'] !== todayISO && currentHour >= 18) {
       postAppNotification({
-        title: 'Salary Tomorrow!',
+        title: 'Salary Tomorrow! 🔔',
         message: `Reminder: Tomorrow is your monthly salary payout date (${salaryPayDay}th) from ${companyName}.`,
         channelType: 'salary',
         notificationId: 2002
@@ -16261,15 +16378,15 @@ function checkAndDispatchDailyNotifications() {
     }
   }
 
-  // 2. 1-DAY ADVANCE NOTIFICATIONS (Week Off, Holiday, PL/SL/CL) - Trigger in evening >= 19:00
+  // 2. 1-DAY ADVANCE ROSTER NOTIFICATIONS (Week Off, Holiday, PL/SL/CL)
   if (settings.advanceRoster && currentHour >= 19 && lastDispatched['advance_roster'] !== todayISO) {
-    const isTomorrowWeekOff = (Array.isArray(workProfile?.weekOffDays) && workProfile.weekOffDays.includes(tomorrowDayOfWeek)) || tomorrowAtt?.status === 'wo';
-    const isTomorrowHoliday = tomorrowAtt?.status === 'hl';
-    const isTomorrowLeave = ['pl', 'sl', 'cl', 'hd'].includes(tomorrowAtt?.status);
+    const isTomorrowWeekOff = (Array.isArray(workProfile?.weekOffDays) && workProfile.weekOffDays.includes(tomorrowDayOfWeek)) || tomorrowAtt?.status === 'wo' || tomorrowAtt?.status === 'WO';
+    const isTomorrowHoliday = tomorrowAtt?.status === 'hl' || tomorrowAtt?.status === 'HL';
+    const isTomorrowLeave = ['pl', 'sl', 'cl', 'hd', 'PL', 'SL', 'CL', 'HD'].includes(tomorrowAtt?.status);
 
     if (isTomorrowWeekOff) {
       postAppNotification({
-        title: 'Tomorrow is Week Off!',
+        title: 'Tomorrow is Week Off! 🌴',
         message: `Enjoy your scheduled Week Off tomorrow from ${companyName}. Have a restful evening!`,
         channelType: 'attendance',
         notificationId: 3001
@@ -16277,14 +16394,14 @@ function checkAndDispatchDailyNotifications() {
       markDispatched('advance_roster');
     } else if (isTomorrowHoliday) {
       postAppNotification({
-        title: 'Tomorrow is Holiday!',
+        title: 'Tomorrow is Holiday! 🎉',
         message: `Tomorrow is scheduled as a Holiday (${tomorrowAtt.note || 'Official Holiday'}). Enjoy your break!`,
         channelType: 'attendance',
         notificationId: 3002
       });
       markDispatched('advance_roster');
     } else if (isTomorrowLeave) {
-      const leaveLabels = { pl: 'Paid Leave (PL)', sl: 'Sick Leave (SL)', cl: 'Casual Leave (CL)', hd: 'Half Day (HD)' };
+      const leaveLabels = { pl: 'Paid Leave (PL)', sl: 'Sick Leave (SL)', cl: 'Casual Leave (CL)', hd: 'Half Day (HD)', PL: 'Paid Leave', SL: 'Sick Leave', CL: 'Casual Leave', HD: 'Half Day' };
       const lName = leaveLabels[tomorrowAtt.status] || 'Planned Leave';
       postAppNotification({
         title: `Advance Leave: ${lName}`,
@@ -16296,49 +16413,55 @@ function checkAndDispatchDailyNotifications() {
     }
   }
 
-  // 3. DAY-OF ROSTER & MORNING CHECK-IN (Between 08:30 AM and 11:30 AM)
-  if (currentHour >= 8 && currentHour < 12 && lastDispatched['morning_shift'] !== todayISO) {
+  // 3. MORNING CHECK-IN & ANTI-SPAM (Between 08:30 AM and 11:30 AM)
+  if (!hasMarkedAttendanceToday) {
     const todayDayOfWeek = now.getDay();
-    const isTodayWeekOff = (Array.isArray(workProfile?.weekOffDays) && workProfile.weekOffDays.includes(todayDayOfWeek)) || todayAtt?.status === 'wo';
-    const isTodayHoliday = todayAtt?.status === 'hl';
+    const isTodayWeekOff = (Array.isArray(workProfile?.weekOffDays) && workProfile.weekOffDays.includes(todayDayOfWeek)) || todayAtt?.status === 'wo' || todayAtt?.status === 'WO';
+    const isTodayHoliday = todayAtt?.status === 'hl' || todayAtt?.status === 'HL';
 
-    if (isTodayWeekOff && settings.sameDayRoster) {
+    if (isTodayWeekOff && settings.sameDayRoster && lastDispatched['morning_shift'] !== todayISO) {
       postAppNotification({
-        title: 'Today is your Week Off!',
+        title: 'Today is your Week Off! 🌴',
         message: `Good morning! Relax and recharge on your scheduled Week Off today.`,
         channelType: 'attendance',
         notificationId: 4001
       });
       markDispatched('morning_shift');
-    } else if (isTodayHoliday && settings.sameDayRoster) {
+    } else if (isTodayHoliday && settings.sameDayRoster && lastDispatched['morning_shift'] !== todayISO) {
       postAppNotification({
-        title: 'Happy Holiday!',
+        title: 'Happy Holiday! 🎉',
         message: `Today is an official holiday (${todayAtt?.note || 'Holiday'}). Enjoy your day!`,
         channelType: 'attendance',
         notificationId: 4002
       });
       markDispatched('morning_shift');
-    } else if (settings.morningShift && !todayAtt) {
-      // Working day, check if attendance is marked
+    } else if (settings.morningShift && currentHour >= 8 && currentHour < 12 && lastDispatched['morning_shift'] !== todayISO) {
+      const g = getDailyMorningGreeting(daySeed, companyName);
       postAppNotification({
-        title: 'Morning Shift Check-in',
-        message: `Good morning! Remember to check in or mark your attendance for today at ${companyName}.`,
+        title: g.title,
+        message: g.message,
         channelType: 'attendance',
         notificationId: 4003
       });
       markDispatched('morning_shift');
     }
-  }
 
-  // 4. EVENING PENDING ATTENDANCE & STREAK SAVIOR (Between 19:30 and 22:30)
-  if (settings.eveningPending && currentHour >= 19 && currentHour <= 22 && lastDispatched['evening_pending'] !== todayISO) {
-    const todayEntries = (typeof entries !== 'undefined' && Array.isArray(entries)) ? entries.filter(e => e.date === todayISO) : [];
-    const hasLog = (todayAtt && todayAtt.status) || todayEntries.length > 0;
-
-    if (!hasLog) {
+    // 4. INTELLIGENT ATTENDANCE FOLLOW-UP (Only 1x between 10:45 AM and 12:00 PM if morning was skipped)
+    if (settings.attendanceFollowup && currentHour >= 10 && currentHour < 12 && lastDispatched['morning_shift'] === todayISO && lastDispatched['att_followup'] !== todayISO) {
       postAppNotification({
-        title: 'Attendance Pending for Today',
-        message: `You haven't logged your attendance or work entry for today yet. Mark it now to save your streak!`,
+        title: 'Attendance Reminder (Follow-up) ⏰',
+        message: `Gentle reminder: You haven't checked in for today at ${companyName} yet. Tap Present to record your day!`,
+        channelType: 'attendance',
+        notificationId: 4004
+      });
+      markDispatched('att_followup');
+    }
+
+    // 5. EVENING STREAK SAVIOR (Only if STILL unmarked between 19:30 and 22:30)
+    if (settings.eveningPending && currentHour >= 19 && currentHour <= 22 && lastDispatched['evening_pending'] !== todayISO) {
+      postAppNotification({
+        title: 'Attendance Pending for Today ⚠️',
+        message: `You haven't logged your attendance for today yet. Mark it now to save your streak!`,
         channelType: 'reminder',
         notificationId: 5001
       });
@@ -16346,7 +16469,63 @@ function checkAndDispatchDailyNotifications() {
     }
   }
 
-  // 5. STREAK MILESTONES (Dispatched once per milestone when active)
+  // 6. SMART SELF-LEARNING LUNCH & BREAK REMINDER
+  if (settings.lunchReminder) {
+    const learnedHour = parseInt(localStorage.getItem('_mnm_learned_lunch_hour'), 10) || 13;
+    if (currentHour >= learnedHour && currentHour <= 15 && lastDispatched['lunch_reminder'] !== todayISO) {
+      const l = getDailyLunchReminder(daySeed);
+      postAppNotification({
+        title: l.title,
+        message: l.message,
+        channelType: 'lunch',
+        notificationId: 6001
+      });
+      markDispatched('lunch_reminder');
+    }
+  }
+
+  // 7. BIO BREAK & HEALTH WELLNESS NUDGES (11:15 AM & 03:45 PM)
+  if (settings.wellnessBreaks) {
+    if (currentHour === 11 && lastDispatched['wellness_11'] !== todayISO) {
+      const w = getDailyWellnessTip(daySeed, false);
+      postAppNotification({
+        title: w.title,
+        message: w.message,
+        channelType: 'wellness',
+        notificationId: 6101
+      });
+      markDispatched('wellness_11');
+    } else if (currentHour === 15 && lastDispatched['wellness_15'] !== todayISO) {
+      const w = getDailyWellnessTip(daySeed, true);
+      postAppNotification({
+        title: w.title,
+        message: w.message,
+        channelType: 'wellness',
+        notificationId: 6102
+      });
+      markDispatched('wellness_15');
+    }
+  }
+
+  // 8. SHIFT END MOTIVATION & DAILY WRAP-UP
+  if (settings.shiftEndGreeting) {
+    let shiftEndHour = 18;
+    if (workProfile && workProfile.shiftEnd && workProfile.shiftEnd.includes(':')) {
+      shiftEndHour = parseInt(workProfile.shiftEnd.split(':')[0], 10) || 18;
+    }
+    if (currentHour >= shiftEndHour && currentHour <= 22 && lastDispatched['shift_end'] !== todayISO) {
+      const e = getDailyShiftEndGreeting(daySeed, workerName, companyName);
+      postAppNotification({
+        title: e.title,
+        message: e.message,
+        channelType: 'greeting',
+        notificationId: 6201
+      });
+      markDispatched('shift_end');
+    }
+  }
+
+  // 9. STREAK MILESTONES
   if (settings.streakMilestones && lastDispatched['streak_milestone_' + todayISO] !== 'done') {
     try {
       let streakVal = 0;
@@ -16357,7 +16536,7 @@ function checkAndDispatchDailyNotifications() {
       const milestones = [7, 14, 21, 30, 50, 75, 100, 150, 200, 365];
       if (milestones.includes(streakVal) && lastDispatched['streak_hit_' + streakVal] !== todayISO) {
         postAppNotification({
-          title: `${streakVal}-Day Streak Milestone!`,
+          title: `${streakVal}-Day Streak Milestone! 🏆`,
           message: `Incredible dedication! You have maintained an active work streak for ${streakVal} consecutive days. Keep going!`,
           channelType: 'reminder',
           notificationId: 6000 + streakVal
@@ -16377,6 +16556,10 @@ function updateNotificationSettingsUI() {
   const isGranted = isNotificationPermissionGranted();
   const salaryPayDay = parseInt(workProfile?.salaryPayDay, 10) || 5;
 
+  const learnedH = parseInt(localStorage.getItem('_mnm_learned_lunch_hour'), 10) || 13;
+  const learnedM = parseInt(localStorage.getItem('_mnm_learned_lunch_minute'), 10) || 0;
+  const learnedTimeStr = `${learnedH > 12 ? (learnedH - 12) : learnedH}:${String(learnedM).padStart(2, '0')} ${learnedH >= 12 ? 'PM' : 'AM'}`;
+
   container.innerHTML = `
     <!-- Notification Header Card -->
     <div class="settings-card-item" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:12px 14px">
@@ -16388,8 +16571,8 @@ function updateNotificationSettingsUI() {
           </svg>
         </div>
         <div>
-          <div style="font-size:13px;font-weight:800;color:var(--t1)">Smart Device Notifications</div>
-          <div style="font-size:10.5px;color:var(--t3)">Offline background alarms &amp; 1-tap lockscreen actions</div>
+          <div style="font-size:13px;font-weight:800;color:var(--t1)">Smart Device Notifications Suite</div>
+          <div style="font-size:10.5px;color:var(--t3)">Anti-Spam Attendance, AI Lunch Learner, Bio Breaks &amp; Motivation</div>
         </div>
       </div>
       <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:${isGranted ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)'};color:${isGranted ? '#10B981' : '#EF4444'};border:1px solid ${isGranted ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}">
@@ -16402,7 +16585,7 @@ function updateNotificationSettingsUI() {
       <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
         <div>
           <div class="settings-label">Enable Device Notifications</div>
-          <div class="settings-desc">Schedule background alarms &amp; lockscreen action buttons</div>
+          <div class="settings-desc">Schedule background alarms &amp; lockscreen interactive actions</div>
         </div>
         <label class="mnm-switch">
           <input type="checkbox" ${settings.enabled ? 'checked' : ''} onchange="toggleNotifSetting('enabled')"/>
@@ -16413,19 +16596,17 @@ function updateNotificationSettingsUI() {
 
     <!-- Category Toggles Grid -->
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;opacity:${settings.enabled ? '1' : '0.45'};pointer-events:${settings.enabled ? 'auto' : 'none'}">
-      <!-- 1. Morning Shift & Check-in with 1-Tap Actions -->
+      
+      <!-- 1. Morning Shift & Anti-Spam Check-in -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
             <div style="width:30px;height:30px;border-radius:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);display:flex;align-items:center;justify-content:center;color:#F59E0B;flex-shrink:0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="4"/>
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
-              </svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Morning Shift Check-in (09:00 AM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">Daily prompt with 1-Tap Present / Absent / Half Day notification buttons</div>
+              <div style="font-size:9.5px;color:var(--t3)">1-Tap Present / Absent / Half Day actions. Anti-spam: Silenced once marked!</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -16435,19 +16616,97 @@ function updateNotificationSettingsUI() {
         </div>
       </div>
 
-      <!-- 2. Evening Pending Attendance & Streak Savior with 1-Tap Actions -->
+      <!-- 2. Follow-up Reminder (Only if skipped, max 1x) -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;color:#3B82F6;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Anti-Spam Smart Follow-up (10:45 AM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Only reminds ONCE if morning alert was skipped; never spams repeatedly</div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.attendanceFollowup ? 'checked' : ''} onchange="toggleNotifSetting('attendanceFollowup')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. Smart Lunch Reminder with AI Learning -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px;background:linear-gradient(135deg, rgba(245,158,11,.08), rgba(16,185,129,.05));border-color:rgba(245,158,11,.3)">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.35);display:flex;align-items:center;justify-content:center;color:#F59E0B;flex-shrink:0;font-size:14px">
+              🍱
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px">
+                <span>Lunch Reminder (Interactive Yes / No)</span>
+                <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:#F59E0B;color:#000">AI Self-Learning</span>
+              </div>
+              <div style="font-size:9.5px;color:var(--t2);margin-top:2px">
+                Reminds daily. Learned Lunch Window: <strong class="mono" style="color:var(--paid)">~${learnedTimeStr}</strong> (Adapts automatically!)
+              </div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.lunchReminder ? 'checked' : ''} onchange="toggleNotifSetting('lunchReminder')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 4. Bio Break, Posture & Hydration Wellness -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(6,182,212,0.12);border:1px solid rgba(6,182,212,0.25);display:flex;align-items:center;justify-content:center;color:#06B6D4;flex-shrink:0;font-size:14px">
+              💧
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Bio Breaks, Hydration &amp; Health Tips</div>
+              <div style="font-size:9.5px;color:var(--t3)">Mid-shift water reminders, spine posture &amp; 20-20-20 eye relaxation (11:15 AM &amp; 3:45 PM)</div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.wellnessBreaks ? 'checked' : ''} onchange="toggleNotifSetting('wellnessBreaks')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 5. Shift End Wrap-Up & Daily Motivation -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(124,111,237,0.12);border:1px solid rgba(124,111,237,0.25);display:flex;align-items:center;justify-content:center;color:#7C6FED;flex-shrink:0;font-size:14px">
+              🌟
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Shift End Wrap-Up &amp; Motivation</div>
+              <div style="font-size:9.5px;color:var(--t3)">Congratulatory greetings &amp; inspiring daily thoughts right when shift ends</div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.shiftEndGreeting ? 'checked' : ''} onchange="toggleNotifSetting('shiftEndGreeting')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 6. Evening Pending Streak Savior -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
             <div style="width:30px;height:30px;border-radius:8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;color:#EF4444;flex-shrink:0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Evening Pending Alert (07:30 PM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">Alerts if attendance is unlogged with 1-tap quick actions to protect streak</div>
+              <div style="font-size:9.5px;color:var(--t3)">Only rings if attendance still unlogged; protects your daily streak</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -16457,45 +16716,16 @@ function updateNotificationSettingsUI() {
         </div>
       </div>
 
-      <!-- 3. 1-Day Advance Roster & Leave Alerts -->
-      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
-        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
-          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
-            <div style="width:30px;height:30px;border-radius:8px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;color:#3B82F6;flex-shrink:0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-                <path d="m9 16 2 2 4-4"/>
-              </svg>
-            </div>
-            <div>
-              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">1-Day Advance Roster &amp; Leaves (08:00 PM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">Night-before alert for scheduled Week Off, Holiday or Leaves</div>
-            </div>
-          </div>
-          <label class="mnm-switch">
-            <input type="checkbox" ${settings.advanceRoster ? 'checked' : ''} onchange="toggleNotifSetting('advanceRoster')"/>
-            <span class="mnm-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 4. Monthly Salary Credit Day Alerts -->
+      <!-- 7. Monthly Salary Credit Day Alerts -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
             <div style="width:30px;height:30px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;color:#10B981;flex-shrink:0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                <line x1="2" y1="10" x2="22" y2="10"/>
-                <circle cx="12" cy="15" r="2"/>
-              </svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="15" r="2"/></svg>
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Salary Credit Day (${salaryPayDay}th of month)</div>
-              <div style="font-size:9.5px;color:var(--t3)">On-the-day (09:30 AM) &amp; advance monthly salary reminder</div>
+              <div style="font-size:9.5px;color:var(--t3)">Day-of (09:30 AM) &amp; advance monthly salary payout reminder</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -16505,21 +16735,16 @@ function updateNotificationSettingsUI() {
         </div>
       </div>
 
-      <!-- 5. Client Receivables & Unpaid Invoices -->
+      <!-- 8. Client Receivables Reminder -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
             <div style="width:30px;height:30px;border-radius:8px;background:rgba(124,111,237,0.12);border:1px solid rgba(124,111,237,0.25);display:flex;align-items:center;justify-content:center;color:#7C6FED;flex-shrink:0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="5" width="20" height="14" rx="2"/>
-                <line x1="2" y1="10" x2="22" y2="10"/>
-                <line x1="7" y1="15" x2="7.01" y2="15"/>
-                <line x1="11" y1="15" x2="13" y2="15"/>
-              </svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
             </div>
             <div>
               <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Client Receivables Reminder (11:00 AM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">Alerts for outstanding balance &amp; unpaid client invoices</div>
+              <div style="font-size:9.5px;color:var(--t3)">Outstanding dues &amp; unpaid client invoice collection alert</div>
             </div>
           </div>
           <label class="mnm-switch">
@@ -16528,46 +16753,17 @@ function updateNotificationSettingsUI() {
           </label>
         </div>
       </div>
-
-      <!-- 6. Streak Milestones & Motivations -->
-      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
-        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
-          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
-            <div style="width:30px;height:30px;border-radius:8px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.25);display:flex;align-items:center;justify-content:center;color:#F97316;flex-shrink:0">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
-              </svg>
-            </div>
-            <div>
-              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Work Streak Milestones</div>
-              <div style="font-size:9.5px;color:var(--t3)">7, 14, 30-day streak achievement alerts</div>
-            </div>
-          </div>
-          <label class="mnm-switch">
-            <input type="checkbox" ${settings.streakMilestones ? 'checked' : ''} onchange="toggleNotifSetting('streakMilestones')"/>
-            <span class="mnm-slider"></span>
-          </label>
-        </div>
-      </div>
     </div>
 
-    <!-- Action Buttons: Request Permission & Test Notification -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-      ${!isGranted ? `
-        <button type="button" class="ss-btn" onclick="requestDeviceNotificationPermission()" style="padding:10px;border-radius:10px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#EF4444;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          Grant Permission
-        </button>
-      ` : `
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:10.5px;color:var(--paid);font-weight:700;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:8px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Channels Ready
-        </div>
-      `}
-      <button type="button" class="ss-btn" onclick="sendTestNotification()" style="padding:10px;border-radius:10px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        Send Test Alert
-      </button>
+    <!-- Interactive Test Notification Quick Buttons -->
+    <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:6px;text-transform:uppercase">TEST NOTIFICATION SUITE:</div>
+      <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:6px">
+        <button type="button" class="ss-btn" onclick="sendTestNotification('attendance')" style="padding:7px;font-size:10.5px;border-radius:8px">🌅 Test Check-in</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('lunch')" style="padding:7px;font-size:10.5px;border-radius:8px">🍱 Test Lunch (Yes/No)</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('wellness')" style="padding:7px;font-size:10.5px;border-radius:8px">💧 Test Health Tip</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('shift_end')" style="padding:7px;font-size:10.5px;border-radius:8px">🌟 Test Shift Wrap-up</button>
+      </div>
     </div>
   `;
 }

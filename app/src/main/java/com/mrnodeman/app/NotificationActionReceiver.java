@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -27,6 +28,12 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
     public static final String ACTION_MARK_ATTENDANCE = "com.mrnodeman.app.ACTION_MARK_ATTENDANCE";
     public static final String ACTION_ATTENDANCE_BROADCAST = "com.mrnodeman.app.ATTENDANCE_UPDATED";
+
+    public static final String ACTION_LUNCH_RESPONSE = "com.mrnodeman.app.ACTION_LUNCH_RESPONSE";
+    public static final String ACTION_LUNCH_BROADCAST = "com.mrnodeman.app.LUNCH_UPDATED";
+    public static final String EXTRA_LUNCH_STATUS = "extra_lunch_status";
+
+    public static final String ACTION_WELLNESS_ACK = "com.mrnodeman.app.ACTION_WELLNESS_ACK";
 
     public static final String EXTRA_STATUS = "extra_status";
     public static final String EXTRA_DATE = "extra_date";
@@ -36,8 +43,13 @@ public class NotificationActionReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (context == null || intent == null) return;
+        final String action = intent.getAction();
+        if (action == null) return;
 
-        if (ACTION_MARK_ATTENDANCE.equals(intent.getAction())) {
+        // ══════════════════════════════════════════════════════
+        // 1. ATTENDANCE 1-TAP CHECK-IN ACTION
+        // ══════════════════════════════════════════════════════
+        if (ACTION_MARK_ATTENDANCE.equals(action)) {
             final String status = intent.getStringExtra(EXTRA_STATUS);
             final String dateISO = intent.getStringExtra(EXTRA_DATE);
             final String company = intent.getStringExtra(EXTRA_COMPANY);
@@ -100,7 +112,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 statusColor = Color.parseColor("#F59E0B");
             }
 
-            // 3. Update the notification to show confirmation and remove action buttons
+            // 3. Update the notification to show confirmation and cancel any other attendance alarms
             try {
                 Intent mainIntent = new Intent(context, MainActivity.class);
                 mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -110,7 +122,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 NotificationCompat.Builder confirmBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
                     .setSmallIcon(R.drawable.ic_stat_attendance)
                     .setContentTitle("Attendance Marked: " + statusLabel)
-                    .setContentText("Successfully recorded for " + targetDate + " at " + compName + ".")
+                    .setContentText("Recorded for " + targetDate + " at " + compName + ".")
                     .setStyle(new NotificationCompat.BigTextStyle().bigText("Attendance for " + targetDate + " recorded as " + statusLabel + " at " + compName + ". Tap to view roster & earnings."))
                     .setColor(statusColor)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -126,12 +138,14 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     manager.notify(notifId, confirmBuilder.build());
                 }
 
-                // Auto-dismiss confirmation after 10 seconds to keep notification shade clean
+                // Auto-dismiss confirmation after 8 seconds
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     try {
                         manager.cancel(notifId);
+                        manager.cancel(NotificationAlarmReceiver.NOTIF_ID_ATTENDANCE_FOLLOWUP);
+                        manager.cancel(NotificationAlarmReceiver.NOTIF_ID_EVENING);
                     } catch (Exception ignored) {}
-                }, 10000);
+                }, 8000);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -153,6 +167,154 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 bIntent.setPackage(context.getPackageName());
                 context.sendBroadcast(bIntent);
             } catch (Exception ignored) {}
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 2. INTERACTIVE LUNCH / BREAK RESPONSE & LEARNING ENGINE
+        // ══════════════════════════════════════════════════════
+        else if (ACTION_LUNCH_RESPONSE.equals(action)) {
+            final String status = intent.getStringExtra(EXTRA_LUNCH_STATUS);
+            final int notifId = intent.getIntExtra(EXTRA_NOTIF_ID, NotificationAlarmReceiver.NOTIF_ID_LUNCH);
+            final boolean isYes = "YES".equalsIgnoreCase(status);
+
+            SharedPreferences prefs = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+            Calendar now = Calendar.getInstance();
+            int curHour = now.get(Calendar.HOUR_OF_DAY);
+            int curMin = now.get(Calendar.MINUTE);
+
+            if (isYes) {
+                // USER CONFIRMED LUNCH: LEARN TIME PATTERN
+                try {
+                    String historyStr = prefs.getString("_mnm_lunch_history", "[]");
+                    org.json.JSONArray history;
+                    try {
+                        history = new org.json.JSONArray(historyStr);
+                    } catch (Exception e) {
+                        history = new org.json.JSONArray();
+                    }
+
+                    JSONObject entry = new JSONObject();
+                    entry.put("date", new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(now.getTime()));
+                    entry.put("hour", curHour);
+                    entry.put("minute", curMin);
+                    history.put(entry);
+
+                    // Keep only last 10 records for recency
+                    while (history.length() > 10) {
+                        history.remove(0);
+                    }
+
+                    // Compute moving average of preferred lunch time
+                    int totalMinutes = 0;
+                    for (int i = 0; i < history.length(); i++) {
+                        JSONObject item = history.getJSONObject(i);
+                        totalMinutes += (item.getInt("hour") * 60 + item.getInt("minute"));
+                    }
+                    int avgMinOfDay = totalMinutes / history.length();
+                    int learnedHour = avgMinOfDay / 60;
+                    int learnedMin = avgMinOfDay % 60;
+
+                    // Bound between 11:30 AM and 03:30 PM (reasonable workday lunch window)
+                    if (learnedHour < 11) { learnedHour = 11; learnedMin = 30; }
+                    if (learnedHour > 15) { learnedHour = 15; learnedMin = 30; }
+
+                    prefs.edit()
+                        .putString("_mnm_lunch_history", history.toString())
+                        .putInt("_mnm_learned_lunch_hour", learnedHour)
+                        .putInt("_mnm_learned_lunch_minute", learnedMin)
+                        .commit();
+
+                    // Re-schedule tomorrow's alarm to the newly learned time!
+                    NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_LUNCH_REMINDER, learnedHour, learnedMin, NotificationScheduler.TYPE_LUNCH_REMINDER);
+
+                    // Broadcast learned lunch time to MainActivity & Web UI
+                    Intent bIntent = new Intent(ACTION_LUNCH_BROADCAST);
+                    bIntent.putExtra("learned_hour", learnedHour);
+                    bIntent.putExtra("learned_min", learnedMin);
+                    bIntent.setPackage(context.getPackageName());
+                    context.sendBroadcast(bIntent);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                // Update notification in shade to confirmation
+                try {
+                    NotificationCompat.Builder confirmBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
+                        .setSmallIcon(R.drawable.ic_stat_attendance)
+                        .setContentTitle("Lunch Recorded! 🍱")
+                        .setContentText("Bahut badhiya! Energy full, keep rocking your shift.")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Bahut badhiya! Lunch recorded. Energy full, stay productive and hydrated for the rest of your shift. ⚡"))
+                        .setColor(Color.parseColor("#10B981"))
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true);
+
+                    NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+                    manager.notify(notifId, confirmBuilder.build());
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        try { manager.cancel(notifId); } catch (Exception ignored) {}
+                    }, 8000);
+                } catch (Exception ignored) {}
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "🍱 Lunch recorded! App learned your lunch time.", Toast.LENGTH_SHORT).show();
+                });
+
+            } else {
+                // USER REPLIED "ABHI NAHI" (NO): GENTLE FOLLOW-UP IN 35 MINS
+                try {
+                    NotificationCompat.Builder laterBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
+                        .setSmallIcon(R.drawable.ic_stat_notification)
+                        .setContentTitle("Thik hai! 🥪 Meal Skip Mat Karna")
+                        .setContentText("Kaam ke chakkar me meal skip mat karna, thodi der me zaroor kha lena.")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Koi baat nahi! Kaam ke chakkar me meal skip mat karna, health sabse pehle hai. 35 mins me dobara remind karunga."))
+                        .setColor(Color.parseColor("#F59E0B"))
+                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                        .setAutoCancel(true);
+
+                    NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+                    manager.notify(notifId, laterBuilder.build());
+
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        try { manager.cancel(notifId); } catch (Exception ignored) {}
+                    }, 8000);
+
+                    // Schedule single follow-up reminder in 35 minutes
+                    NotificationScheduler.scheduleOneShotAlarm(context, NotificationScheduler.REQ_LUNCH_REMINDER, 35 * 60 * 1000L, NotificationScheduler.TYPE_LUNCH_REMINDER);
+
+                } catch (Exception ignored) {}
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "🥗 Take care! Will remind you in 35 mins.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 3. BIO BREAK & HEALTH WELLNESS ACKNOWLEDGEMENT
+        // ══════════════════════════════════════════════════════
+        else if (ACTION_WELLNESS_ACK.equals(action)) {
+            final int notifId = intent.getIntExtra(EXTRA_NOTIF_ID, NotificationAlarmReceiver.NOTIF_ID_WELLNESS);
+            try {
+                NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+                NotificationCompat.Builder ackBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
+                    .setSmallIcon(R.drawable.ic_stat_attendance)
+                    .setContentTitle("Wellness Done! 🌿")
+                    .setContentText("Great job staying active and hydrated!")
+                    .setColor(Color.parseColor("#06B6D4"))
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setAutoCancel(true);
+                manager.notify(notifId, ackBuilder.build());
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    try { manager.cancel(notifId); } catch (Exception ignored) {}
+                }, 5000);
+            } catch (Exception ignored) {}
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Toast.makeText(context, "💧 Hydrated & refreshed! Stay active.", Toast.LENGTH_SHORT).show();
+            });
         }
     }
 }

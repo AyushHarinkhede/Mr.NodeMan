@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String CHANNEL_SALARY = "channel_salary_payouts";
     public static final String CHANNEL_REMINDERS = "channel_reminders_streaks";
     public static final String CHANNEL_PAYMENTS = "channel_client_payments";
+    public static final String CHANNEL_WELLNESS = "channel_wellness_breaks";
+    public static final String CHANNEL_SHIFT_GREETINGS = "channel_shift_greetings";
 
     private WebView webView;
     private ValueCallback<Uri[]> uploadMessage;
@@ -681,6 +683,14 @@ public class MainActivity extends AppCompatActivity {
                                 targetChannel = CHANNEL_PAYMENTS;
                                 iconRes = R.drawable.ic_stat_salary;
                                 color = Color.parseColor("#F59E0B");
+                            } else if ("wellness".equalsIgnoreCase(channelType) || "lunch".equalsIgnoreCase(channelType) || "break".equalsIgnoreCase(channelType)) {
+                                targetChannel = CHANNEL_WELLNESS;
+                                iconRes = R.drawable.ic_stat_notification;
+                                color = Color.parseColor("#06B6D4");
+                            } else if ("greeting".equalsIgnoreCase(channelType) || "shift_end".equalsIgnoreCase(channelType) || "motivation".equalsIgnoreCase(channelType)) {
+                                targetChannel = CHANNEL_SHIFT_GREETINGS;
+                                iconRes = R.drawable.ic_stat_notification;
+                                color = Color.parseColor("#7C6FED");
                             }
 
                             Intent intent = new Intent(MainActivity.this, MainActivity.class);
@@ -781,6 +791,24 @@ public class MainActivity extends AppCompatActivity {
                     );
                     payChannel.setDescription("Outstanding balance and unpaid invoice reminders");
                     manager.createNotificationChannel(payChannel);
+
+                    NotificationChannel welChannel = new NotificationChannel(
+                        CHANNEL_WELLNESS,
+                        "Lunch, Breaks & Wellness",
+                        NotificationManager.IMPORTANCE_HIGH
+                    );
+                    welChannel.setDescription("Lunch reminders with interactive Yes/No buttons, bio breaks, and hydration tips");
+                    welChannel.enableVibration(true);
+                    manager.createNotificationChannel(welChannel);
+
+                    NotificationChannel endChannel = new NotificationChannel(
+                        CHANNEL_SHIFT_GREETINGS,
+                        "Shift Wrap-up & Motivation",
+                        NotificationManager.IMPORTANCE_HIGH
+                    );
+                    endChannel.setDescription("Warm greetings, congratulations, and motivational thoughts upon shift completion");
+                    endChannel.enableVibration(true);
+                    manager.createNotificationChannel(endChannel);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -908,10 +936,28 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                         }
+                    } else if (NotificationActionReceiver.ACTION_LUNCH_BROADCAST.equals(intent.getAction())) {
+                        final int learnedHour = intent.getIntExtra("learned_hour", 13);
+                        final int learnedMin = intent.getIntExtra("learned_min", 0);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (webView != null) {
+                                    String script = "if(typeof window.onNativeLunchUpdated==='function'){window.onNativeLunchUpdated(" + learnedHour + "," + learnedMin + ");}";
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                        webView.evaluateJavascript(script, null);
+                                    } else {
+                                        webView.loadUrl("javascript:" + script);
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
             };
-            IntentFilter filter = new IntentFilter(NotificationActionReceiver.ACTION_ATTENDANCE_BROADCAST);
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(NotificationActionReceiver.ACTION_ATTENDANCE_BROADCAST);
+            filter.addAction(NotificationActionReceiver.ACTION_LUNCH_BROADCAST);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ContextCompat.registerReceiver(this, attendanceActionReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
             } else {
