@@ -5,11 +5,14 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -23,12 +26,16 @@ import java.util.Locale;
 
 public class NotificationAlarmReceiver extends BroadcastReceiver {
 
-    public static final String CHANNEL_ATTENDANCE = "channel_attendance_shifts";
-    public static final String CHANNEL_SALARY = "channel_salary_payouts";
-    public static final String CHANNEL_REMINDERS = "channel_reminders_streaks";
-    public static final String CHANNEL_PAYMENTS = "channel_client_payments";
-    public static final String CHANNEL_WELLNESS = "channel_wellness_breaks";
-    public static final String CHANNEL_SHIFT_GREETINGS = "channel_shift_greetings";
+    public static final String CHANNEL_ATTENDANCE = "channel_attendance_shifts_v2";
+    public static final String CHANNEL_SALARY = "channel_salary_payouts_v2";
+    public static final String CHANNEL_REMINDERS = "channel_reminders_streaks_v2";
+    public static final String CHANNEL_PAYMENTS = "channel_client_payments_v2";
+    public static final String CHANNEL_WELLNESS = "channel_wellness_breaks_v2";
+    public static final String CHANNEL_SHIFT_GREETINGS = "channel_shift_greetings_v2";
+
+    public static Uri getCustomSoundUri(Context context) {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + R.raw.nodeman_notification);
+    }
 
     public static final int NOTIF_ID_MORNING = 1001;
     public static final int NOTIF_ID_EVENING = 1002;
@@ -39,6 +46,9 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
     public static final int NOTIF_ID_SHIFT_END = 1007;
     public static final int NOTIF_ID_WELLNESS = 1008;
     public static final int NOTIF_ID_ATTENDANCE_FOLLOWUP = 1009;
+    public static final int NOTIF_ID_BIRTHDAY = 1010;
+    public static final int NOTIF_ID_ANNIVERSARY = 1011;
+    public static final int NOTIF_ID_SICK_CARE = 1012;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -308,6 +318,121 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 } catch (Exception ignored) {}
             }
         }
+
+        // ══════════════════════════════════════════════════════
+        // 10. BIRTHDAY & ADVANCE BIRTHDAY WISHES (08:30 AM)
+        // ══════════════════════════════════════════════════════
+        else if (NotificationScheduler.TYPE_BIRTHDAY_GREETING.equals(alarmType)) {
+            String dobStr = null;
+            if (profileStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileStr);
+                    dobStr = wp.optString("dob", null);
+                } catch (Exception ignored) {}
+            }
+            if (dobStr == null || dobStr.isEmpty()) {
+                String userStr = prefs.getString("_mnm_current_user", null);
+                if (userStr != null) {
+                    try {
+                        JSONObject u = new JSONObject(userStr);
+                        dobStr = u.optString("dob", null);
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            if (dobStr != null && dobStr.contains("-")) {
+                try {
+                    String[] parts = dobStr.split("-");
+                    int bMonth = Integer.parseInt(parts[1].trim()); // 1-indexed
+                    int bDay = Integer.parseInt(parts[2].trim());
+
+                    int nowMonth = nowCal.get(Calendar.MONTH) + 1; // 1-indexed
+                    int nowDay = nowCal.get(Calendar.DAY_OF_MONTH);
+
+                    int tomMonth = tomCal.get(Calendar.MONTH) + 1;
+                    int tomDay = tomCal.get(Calendar.DAY_OF_MONTH);
+
+                    String displayName = (workerName != null && !workerName.equalsIgnoreCase("Worker")) ? workerName : "Champion";
+
+                    // Birthday TODAY
+                    if (nowMonth == bMonth && nowDay == bDay) {
+                        showSimpleNotification(context, CHANNEL_REMINDERS, NOTIF_ID_BIRTHDAY,
+                            "Happy Birthday, " + displayName + "! 🎂🎉",
+                            "Wishing you a very Happy Birthday! May your day be filled with happiness, good health, and immense success. Keep shining!",
+                            R.drawable.ic_stat_notification, Color.parseColor("#EC4899"));
+                    }
+                    // Birthday TOMORROW (Advance Birthday Wish)
+                    else if (tomMonth == bMonth && tomDay == bDay) {
+                        showSimpleNotification(context, CHANNEL_REMINDERS, NOTIF_ID_BIRTHDAY,
+                            "Advance Birthday Wishes! 🎈✨",
+                            "Kal aapka birthday hai, " + displayName + "! Mr.NodeMan team ki taraf se advance me bohot saari shubhkamnayein! Have a fantastic day ahead!",
+                            R.drawable.ic_stat_notification, Color.parseColor("#8B5CF6"));
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 11. WORK TENURE & ANNIVERSARY GREETINGS (09:15 AM)
+        // Checks joining date (DOJ): notifies on complete years and on 1st of every month
+        // ══════════════════════════════════════════════════════
+        else if (NotificationScheduler.TYPE_WORK_ANNIVERSARY.equals(alarmType)) {
+            String dojStr = null;
+            if (profileStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileStr);
+                    dojStr = wp.optString("doj", null);
+                } catch (Exception ignored) {}
+            }
+
+            if (dojStr != null && dojStr.contains("-")) {
+                try {
+                    String[] parts = dojStr.split("-");
+                    int jYear = Integer.parseInt(parts[0].trim());
+                    int jMonth = Integer.parseInt(parts[1].trim()); // 1-indexed
+                    int jDay = Integer.parseInt(parts[2].trim());
+
+                    int curYear = nowCal.get(Calendar.YEAR);
+                    int curMonth = nowCal.get(Calendar.MONTH) + 1; // 1-indexed
+                    int curDay = nowCal.get(Calendar.DAY_OF_MONTH);
+
+                    // Compute total full months elapsed
+                    int totalMonths = (curYear - jYear) * 12 + (curMonth - jMonth);
+                    if (curDay < jDay) {
+                        totalMonths--;
+                    }
+
+                    if (totalMonths >= 1) {
+                        int fullYears = totalMonths / 12;
+                        int remMonths = totalMonths % 12;
+
+                        String tenureStr = "";
+                        if (fullYears > 0 && remMonths > 0) {
+                            tenureStr = fullYears + " year" + (fullYears > 1 ? "s" : "") + " " + remMonths + " month" + (remMonths > 1 ? "s" : "");
+                        } else if (fullYears > 0) {
+                            tenureStr = fullYears + " year" + (fullYears > 1 ? "s" : "");
+                        } else {
+                            tenureStr = remMonths + " month" + (remMonths > 1 ? "s" : "");
+                        }
+
+                        // Case A: Work Anniversary (Completed Exact Year(s) Today)
+                        if (curMonth == jMonth && curDay == jDay && fullYears >= 1) {
+                            showSimpleNotification(context, CHANNEL_SHIFT_GREETINGS, NOTIF_ID_ANNIVERSARY,
+                                "Happy Work Anniversary! 🏆🎊",
+                                "Congratulations! Aaj aapko " + companyName + " me kaam karte hue pure " + fullYears + " saal ho gaye hain (" + fullYears + " Year" + (fullYears > 1 ? "s" : "") + " completed). Aapki mehnat aur dedication ko salute!",
+                                R.drawable.ic_stat_notification, Color.parseColor("#10B981"));
+                        }
+                        // Case B: 1st Day of Month Milestone Update
+                        else if (curDay == 1) {
+                            showSimpleNotification(context, CHANNEL_SHIFT_GREETINGS, NOTIF_ID_ANNIVERSARY,
+                                "Monthly Work Journey Milestone 💼✨",
+                                "Naye mahine ki shubh shuruat! Aapko " + companyName + " me kaam karte hue kul " + tenureStr + " ho chuke hain. Keep achieving new milestones!",
+                                R.drawable.ic_stat_notification, Color.parseColor("#7C6FED"));
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     // ══════════════════════════════════════════════════════════
@@ -388,23 +513,24 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             presentIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent presentPi = PendingIntent.getBroadcast(context, notifId * 10 + 1, presentIntent, pFlags);
 
-            // Action 2: Mark Absent
+            // Action 2: Absent (Launches interactive reason question: SL, PL, Absent)
             Intent absentIntent = new Intent(context, NotificationActionReceiver.class);
-            absentIntent.setAction(NotificationActionReceiver.ACTION_MARK_ATTENDANCE);
-            absentIntent.putExtra(NotificationActionReceiver.EXTRA_STATUS, "A");
+            absentIntent.setAction(NotificationActionReceiver.ACTION_PROMPT_ABSENT);
             absentIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, dateISO);
             absentIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, company);
             absentIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent absentPi = PendingIntent.getBroadcast(context, notifId * 10 + 2, absentIntent, pFlags);
 
-            // Action 3: Mark Half Day
-            Intent hdIntent = new Intent(context, NotificationActionReceiver.class);
-            hdIntent.setAction(NotificationActionReceiver.ACTION_MARK_ATTENDANCE);
-            hdIntent.putExtra(NotificationActionReceiver.EXTRA_STATUS, "HD");
-            hdIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, dateISO);
-            hdIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, company);
-            hdIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
-            PendingIntent hdPi = PendingIntent.getBroadcast(context, notifId * 10 + 3, hdIntent, pFlags);
+            // Action 3: Mark Week Off (WO)
+            Intent woIntent = new Intent(context, NotificationActionReceiver.class);
+            woIntent.setAction(NotificationActionReceiver.ACTION_MARK_ATTENDANCE);
+            woIntent.putExtra(NotificationActionReceiver.EXTRA_STATUS, "WO");
+            woIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, dateISO);
+            woIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, company);
+            woIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
+            PendingIntent woPi = PendingIntent.getBroadcast(context, notifId * 10 + 3, woIntent, pFlags);
+
+            Uri soundUri = getCustomSoundUri(context);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ATTENDANCE)
                 .setSmallIcon(R.drawable.ic_stat_attendance)
@@ -415,10 +541,11 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
+                .setSound(soundUri)
                 .setVibrate(new long[]{0, 200, 100, 200})
-                .addAction(R.drawable.ic_action_present, "Mark Present", presentPi)
-                .addAction(R.drawable.ic_action_absent, "Mark Absent", absentPi)
-                .addAction(R.drawable.ic_action_halfday, "Half Day", hdPi);
+                .addAction(R.drawable.ic_action_present, "Present 🎉", presentPi)
+                .addAction(R.drawable.ic_action_absent, "Absent ❌", absentPi)
+                .addAction(R.drawable.ic_action_halfday, "Week Off 🌴", woPi);
 
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -455,6 +582,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             noIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent noPi = PendingIntent.getBroadcast(context, notifId * 10 + 2, noIntent, pFlags);
 
+            Uri soundUri = getCustomSoundUri(context);
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_WELLNESS)
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setContentTitle(title)
@@ -464,6 +593,7 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
+                .setSound(soundUri)
                 .setVibrate(new long[]{0, 180, 80, 180})
                 .addAction(R.drawable.ic_action_present, "Haan, Kar Liya 🍱", yesPi)
                 .addAction(R.drawable.ic_action_absent, "Abhi Nahi ⏳", noPi);
@@ -494,15 +624,19 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             ackIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent ackPi = PendingIntent.getBroadcast(context, notifId * 10 + 1, ackIntent, pFlags);
 
+            Uri soundUri = getCustomSoundUri(context);
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_WELLNESS)
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setColor(Color.parseColor("#06B6D4"))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
+                .setSound(soundUri)
+                .setVibrate(new long[]{0, 150, 100, 150})
                 .addAction(R.drawable.ic_action_present, "Done! 💧", ackPi);
 
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
@@ -526,6 +660,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
             PendingIntent contentIntent = PendingIntent.getActivity(context, notifId, mainIntent, pFlags);
 
+            Uri soundUri = getCustomSoundUri(context);
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(iconRes)
                 .setContentTitle(title)
@@ -535,6 +671,7 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
+                .setSound(soundUri)
                 .setVibrate(new long[]{0, 150, 100, 150});
 
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
@@ -600,6 +737,10 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_SALARY_DAY, 9, 30, alarmType);
         } else if (NotificationScheduler.TYPE_CLIENT_DUES.equals(alarmType)) {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_CLIENT_DUES, 11, 0, alarmType);
+        } else if (NotificationScheduler.TYPE_BIRTHDAY_GREETING.equals(alarmType)) {
+            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_BIRTHDAY_GREETING, 8, 30, alarmType);
+        } else if (NotificationScheduler.TYPE_WORK_ANNIVERSARY.equals(alarmType)) {
+            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_WORK_ANNIVERSARY, 9, 15, alarmType);
         }
     }
 
@@ -608,38 +749,62 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             try {
                 NotificationManager manager = context.getSystemService(NotificationManager.class);
                 if (manager != null) {
+                    // Clean up legacy channels to force system to adopt new custom sound
+                    try {
+                        manager.deleteNotificationChannel("channel_attendance_shifts");
+                        manager.deleteNotificationChannel("channel_salary_payouts");
+                        manager.deleteNotificationChannel("channel_reminders_streaks");
+                        manager.deleteNotificationChannel("channel_client_payments");
+                        manager.deleteNotificationChannel("channel_wellness_breaks");
+                        manager.deleteNotificationChannel("channel_shift_greetings");
+                    } catch (Exception ignored) {}
+
+                    Uri soundUri = getCustomSoundUri(context);
+                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .build();
+
                     NotificationChannel attChannel = new NotificationChannel(
                         CHANNEL_ATTENDANCE, "Attendance & Shifts", NotificationManager.IMPORTANCE_HIGH);
                     attChannel.setDescription("Shift reminders, 1-tap check-in buttons, and roster alerts");
                     attChannel.enableVibration(true);
+                    attChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(attChannel);
 
                     NotificationChannel salChannel = new NotificationChannel(
                         CHANNEL_SALARY, "Salary & Payouts", NotificationManager.IMPORTANCE_HIGH);
                     salChannel.setDescription("Monthly salary credit day alerts and payslip notifications");
                     salChannel.enableVibration(true);
+                    salChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(salChannel);
 
                     NotificationChannel remChannel = new NotificationChannel(
-                        CHANNEL_REMINDERS, "Reminders & Streaks", NotificationManager.IMPORTANCE_DEFAULT);
+                        CHANNEL_REMINDERS, "Reminders & Streaks", NotificationManager.IMPORTANCE_HIGH);
                     remChannel.setDescription("Streak milestones and general activity reminders");
+                    remChannel.enableVibration(true);
+                    remChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(remChannel);
 
                     NotificationChannel payChannel = new NotificationChannel(
-                        CHANNEL_PAYMENTS, "Client Invoices & Receivables", NotificationManager.IMPORTANCE_DEFAULT);
+                        CHANNEL_PAYMENTS, "Client Invoices & Receivables", NotificationManager.IMPORTANCE_HIGH);
                     payChannel.setDescription("Outstanding balance and unpaid invoice reminders");
+                    payChannel.enableVibration(true);
+                    payChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(payChannel);
 
                     NotificationChannel welChannel = new NotificationChannel(
                         CHANNEL_WELLNESS, "Lunch, Breaks & Wellness", NotificationManager.IMPORTANCE_HIGH);
                     welChannel.setDescription("Lunch reminders with interactive Yes/No buttons, bio breaks, and hydration tips");
                     welChannel.enableVibration(true);
+                    welChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(welChannel);
 
                     NotificationChannel endChannel = new NotificationChannel(
                         CHANNEL_SHIFT_GREETINGS, "Shift Wrap-up & Motivation", NotificationManager.IMPORTANCE_HIGH);
                     endChannel.setDescription("Warm greetings, congratulations, and motivational thoughts upon shift completion");
                     endChannel.enableVibration(true);
+                    endChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(endChannel);
                 }
             } catch (Exception ignored) {}

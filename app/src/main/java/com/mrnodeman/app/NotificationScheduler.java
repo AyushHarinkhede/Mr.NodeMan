@@ -23,6 +23,8 @@ public class NotificationScheduler {
     public static final String TYPE_SHIFT_END = "shift_end";
     public static final String TYPE_BIO_WELLNESS_BREAK = "bio_wellness_break";
     public static final String TYPE_ATTENDANCE_FOLLOWUP = "attendance_followup";
+    public static final String TYPE_BIRTHDAY_GREETING = "birthday_greeting";
+    public static final String TYPE_WORK_ANNIVERSARY = "work_anniversary";
 
     public static final int REQ_MORNING_SHIFT = 1001;
     public static final int REQ_EVENING_PENDING = 1002;
@@ -34,6 +36,8 @@ public class NotificationScheduler {
     public static final int REQ_BIO_WELLNESS_1 = 1008;
     public static final int REQ_BIO_WELLNESS_2 = 1009;
     public static final int REQ_ATTENDANCE_FOLLOWUP = 1010;
+    public static final int REQ_BIRTHDAY_GREETING = 1011;
+    public static final int REQ_WORK_ANNIVERSARY = 1012;
 
     public static void scheduleAllAlarms(Context context) {
         if (context == null) return;
@@ -159,6 +163,12 @@ public class NotificationScheduler {
                 cancelAlarm(context, REQ_CLIENT_DUES);
             }
 
+            // 10. Birthday & Advance Birthday Wish Alarm (08:30 AM)
+            scheduleDailyAlarm(context, REQ_BIRTHDAY_GREETING, 8, 30, TYPE_BIRTHDAY_GREETING);
+
+            // 11. Work Tenure & Anniversary Greetings (09:15 AM - 1st of month & joining anniversary)
+            scheduleDailyAlarm(context, REQ_WORK_ANNIVERSARY, 9, 15, TYPE_WORK_ANNIVERSARY);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -281,5 +291,7 @@ public class NotificationScheduler {
         cancelAlarm(context, REQ_ADVANCE_ROSTER);
         cancelAlarm(context, REQ_SALARY_DAY);
         cancelAlarm(context, REQ_CLIENT_DUES);
+        cancelAlarm(context, REQ_BIRTHDAY_GREETING);
+        cancelAlarm(context, REQ_WORK_ANNIVERSARY);
     }
 }

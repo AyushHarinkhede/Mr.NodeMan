@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,6 +28,7 @@ import java.util.Locale;
 public class NotificationActionReceiver extends BroadcastReceiver {
 
     public static final String ACTION_MARK_ATTENDANCE = "com.mrnodeman.app.ACTION_MARK_ATTENDANCE";
+    public static final String ACTION_PROMPT_ABSENT = "com.mrnodeman.app.ACTION_PROMPT_ABSENT";
     public static final String ACTION_ATTENDANCE_BROADCAST = "com.mrnodeman.app.ATTENDANCE_UPDATED";
 
     public static final String ACTION_LUNCH_RESPONSE = "com.mrnodeman.app.ACTION_LUNCH_RESPONSE";
@@ -47,7 +49,89 @@ public class NotificationActionReceiver extends BroadcastReceiver {
         if (action == null) return;
 
         // ══════════════════════════════════════════════════════
-        // 1. ATTENDANCE 1-TAP CHECK-IN ACTION
+        // 1. INTERACTIVE ABSENT SUB-FLOW PROMPT
+        // When user taps "Absent", ask reason: SL, PL, or Direct Absent
+        // ══════════════════════════════════════════════════════
+        if (ACTION_PROMPT_ABSENT.equals(action)) {
+            final String dateISO = intent.getStringExtra(EXTRA_DATE);
+            final String company = intent.getStringExtra(EXTRA_COMPANY);
+            final int notifId = intent.getIntExtra(EXTRA_NOTIF_ID, NotificationAlarmReceiver.NOTIF_ID_MORNING);
+
+            if (dateISO == null) return;
+            final String targetDate = dateISO.trim();
+            final String compName = (company != null && !company.trim().isEmpty()) ? company : "Workplace";
+
+            try {
+                Intent mainIntent = new Intent(context, MainActivity.class);
+                mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
+                PendingIntent contentIntent = PendingIntent.getActivity(context, notifId, mainIntent, pFlags);
+
+                // Option 1: Sick Leave (SL)
+                Intent slIntent = new Intent(context, NotificationActionReceiver.class);
+                slIntent.setAction(ACTION_MARK_ATTENDANCE);
+                slIntent.putExtra(EXTRA_STATUS, "SL");
+                slIntent.putExtra(EXTRA_DATE, targetDate);
+                slIntent.putExtra(EXTRA_COMPANY, compName);
+                slIntent.putExtra(EXTRA_NOTIF_ID, notifId);
+                PendingIntent slPi = PendingIntent.getBroadcast(context, notifId * 10 + 4, slIntent, pFlags);
+
+                // Option 2: Paid Leave (PL)
+                Intent plIntent = new Intent(context, NotificationActionReceiver.class);
+                plIntent.setAction(ACTION_MARK_ATTENDANCE);
+                plIntent.putExtra(EXTRA_STATUS, "PL");
+                plIntent.putExtra(EXTRA_DATE, targetDate);
+                plIntent.putExtra(EXTRA_COMPANY, compName);
+                plIntent.putExtra(EXTRA_NOTIF_ID, notifId);
+                PendingIntent plPi = PendingIntent.getBroadcast(context, notifId * 10 + 5, plIntent, pFlags);
+
+                // Option 3: Direct Absent (A)
+                Intent aIntent = new Intent(context, NotificationActionReceiver.class);
+                aIntent.setAction(ACTION_MARK_ATTENDANCE);
+                aIntent.putExtra(EXTRA_STATUS, "A");
+                aIntent.putExtra(EXTRA_DATE, targetDate);
+                aIntent.putExtra(EXTRA_COMPANY, compName);
+                aIntent.putExtra(EXTRA_NOTIF_ID, notifId);
+                PendingIntent aPi = PendingIntent.getBroadcast(context, notifId * 10 + 6, aIntent, pFlags);
+
+                NotificationCompat.Builder promptBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
+                    .setSmallIcon(R.drawable.ic_stat_attendance)
+                    .setContentTitle("Reason for Absence? 📋")
+                    .setContentText("Select leave type: Sick Leave (SL), Paid Leave (PL), or Absent.")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Aaj chhutti ka reason choose karein: Sick Leave (SL), Paid Leave (PL), ya Normal Absent (A)? Quick select:"))
+                    .setColor(Color.parseColor("#F59E0B"))
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentIntent(contentIntent)
+                    .setAutoCancel(true)
+                    .setVibrate(new long[]{0, 150, 100, 150})
+                    .addAction(R.drawable.ic_action_halfday, "Sick Leave (SL) 💊", slPi)
+                    .addAction(R.drawable.ic_action_halfday, "Paid Leave (PL) 🏖️", plPi)
+                    .addAction(R.drawable.ic_action_absent, "Absent (A) ❌", aPi);
+
+                NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                        manager.notify(notifId, promptBuilder.build());
+                    }
+                } else {
+                    manager.notify(notifId, promptBuilder.build());
+                }
+
+                // Show quick guidance toast
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    try {
+                        Toast.makeText(context, "Select Leave Type: SL, PL, or Absent", Toast.LENGTH_SHORT).show();
+                    } catch (Exception ignored) {}
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 2. ATTENDANCE 1-TAP CHECK-IN ACTION
         // ══════════════════════════════════════════════════════
         if (ACTION_MARK_ATTENDANCE.equals(action)) {
             final String status = intent.getStringExtra(EXTRA_STATUS);
@@ -101,14 +185,42 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 e.printStackTrace();
             }
 
-            // 2. Determine user-friendly status title & color
+            // 2. Determine user-friendly status title, cheerful greeting & color
             String statusLabel = "Present";
+            String confirmTitle = "Yeepee! 🎉 Present Marked!";
+            String confirmBody = "Shaandar shuruat! Have an amazing productive day ahead at " + compName + ". ⚡";
+            String toastText = "Yeepee! 🎉 Present Marked!";
             int statusColor = Color.parseColor("#10B981");
+
             if ("A".equals(targetStatus)) {
                 statusLabel = "Absent";
+                confirmTitle = "Attendance: Absent Logged ❌";
+                confirmBody = "Today recorded as Absent at " + compName + ". Take care and see you tomorrow!";
+                toastText = "Absent (A) marked for today.";
                 statusColor = Color.parseColor("#EF4444");
+            } else if ("SL".equals(targetStatus)) {
+                statusLabel = "Sick Leave";
+                confirmTitle = "Sick Leave (SL) Logged 💊";
+                confirmBody = "Sick leave marked for " + targetDate + ". Get well soon and take full rest!";
+                toastText = "Sick Leave (SL) marked! 💊 Get well soon.";
+                statusColor = Color.parseColor("#EC4899");
+            } else if ("PL".equals(targetStatus)) {
+                statusLabel = "Paid Leave";
+                confirmTitle = "Paid Leave (PL) Logged 🏖️";
+                confirmBody = "Paid leave marked for " + targetDate + ". Enjoy your well-deserved paid leave!";
+                toastText = "Paid Leave (PL) marked! 🏖️ Enjoy your leave.";
+                statusColor = Color.parseColor("#3B82F6");
+            } else if ("WO".equals(targetStatus)) {
+                statusLabel = "Week Off";
+                confirmTitle = "Week Off (WO) Logged 🌴";
+                confirmBody = "Today recorded as scheduled Week Off. Enjoy your relaxing break & recharge!";
+                toastText = "Week Off (WO) marked! 🌴 Enjoy your rest.";
+                statusColor = Color.parseColor("#6366F1");
             } else if ("HD".equals(targetStatus)) {
                 statusLabel = "Half Day";
+                confirmTitle = "Attendance: Half Day Logged 🌓";
+                confirmBody = "Half Day recorded for " + targetDate + " at " + compName + ".";
+                toastText = "Half Day (HD) marked for today.";
                 statusColor = Color.parseColor("#F59E0B");
             }
 
@@ -121,9 +233,9 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
                 NotificationCompat.Builder confirmBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
                     .setSmallIcon(R.drawable.ic_stat_attendance)
-                    .setContentTitle("Attendance Marked: " + statusLabel)
-                    .setContentText("Recorded for " + targetDate + " at " + compName + ".")
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Attendance for " + targetDate + " recorded as " + statusLabel + " at " + compName + ". Tap to view roster & earnings."))
+                    .setContentTitle(confirmTitle)
+                    .setContentText(confirmBody)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(confirmBody))
                     .setColor(statusColor)
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setContentIntent(contentIntent)
@@ -152,10 +264,10 @@ public class NotificationActionReceiver extends BroadcastReceiver {
             }
 
             // 4. Show confirmation Toast
-            final String toastText = "Attendance Marked: " + statusLabel;
+            final String finalToastText = toastText;
             new Handler(Looper.getMainLooper()).post(() -> {
                 try {
-                    Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, finalToastText, Toast.LENGTH_SHORT).show();
                 } catch (Exception ignored) {}
             });
 
@@ -167,6 +279,15 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 bIntent.setPackage(context.getPackageName());
                 context.sendBroadcast(bIntent);
             } catch (Exception ignored) {}
+
+            // 6. If Sick Leave (SL) was marked, send dedicated personalized Health Care Notification
+            if ("SL".equals(targetStatus)) {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    try {
+                        sendSickLeaveCareNotification(context, targetDate);
+                    } catch (Exception ignored) {}
+                }, 1500);
+            }
         }
 
         // ══════════════════════════════════════════════════════
@@ -315,6 +436,104 @@ public class NotificationActionReceiver extends BroadcastReceiver {
             new Handler(Looper.getMainLooper()).post(() -> {
                 Toast.makeText(context, "💧 Hydrated & refreshed! Stay active.", Toast.LENGTH_SHORT).show();
             });
+        }
+    }
+
+    // Helper: Sends unique, caring, highly empathetic recovery notification with user's name
+    public static void sendSickLeaveCareNotification(Context context, String targetDate) {
+        if (context == null) return;
+        try {
+            SharedPreferences prefs = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+            String profileStr = prefs.getString("_mnm_work_profile", null);
+            String workerName = "Champion";
+            if (profileStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileStr);
+                    String name = wp.optString("workerName", "");
+                    if (name.trim().isEmpty()) name = wp.optString("name", "");
+                    if (!name.trim().isEmpty()) {
+                        workerName = name.trim();
+                    }
+                } catch (Exception ignored) {}
+            }
+            if ("Champion".equals(workerName)) {
+                try {
+                    String masterDb = prefs.getString("_mnm_master_db_backup", null);
+                    if (masterDb != null) {
+                        JSONObject db = new JSONObject(masterDb);
+                        JSONObject user = db.optJSONObject("user");
+                        if (user != null && !user.optString("name").trim().isEmpty()) {
+                            workerName = user.optString("name").trim();
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Read rotational care counter so each notification is unique
+            int careCount = prefs.getInt("_mnm_sick_care_count", 0);
+            prefs.edit().putInt("_mnm_sick_care_count", careCount + 1).commit();
+
+            String[][] careMessages = new String[][] {
+                {
+                    "Take Full Rest, " + workerName + "! 🩺💖",
+                    "Aapki health sabse pehle hai! Aaj kaam ki bilkul tension mat lo. Khoob sara aaram karo, gunguna pani piyo aur jaldi theek ho jao. We are wishing you a speedy recovery! 🌸"
+                },
+                {
+                    "Health First, Dear " + workerName + "! 💊✨",
+                    "Kaam to hamesha chalta rahega, par aapki tabiyat sabse anmol hai. Please time par medicines lena, proper rest karna aur phone thoda side me rakhna. Get well soon! 🍵"
+                },
+                {
+                    "Sending Warm Care & Healing, " + workerName + "! 🌿❤️",
+                    "Rest is not a waste of time, it's how your body recharges! Aaj pura din relaxation aur recovery ke liye hai. Stay hydrated, eat light and wholesome food. We care for you!"
+                },
+                {
+                    "Apna Khayal Rakhna, " + workerName + "! 🍵🛌",
+                    "Tabiyat theek nahi lag rahi to kisi bhi cheez ki jaldi mat karna. Take deep breaths, peaceful sleep aur warm fluids. We hope you feel energetic and strong very soon!"
+                },
+                {
+                    "Wishing You a Speedy Recovery, " + workerName + "! 🌸❤️",
+                    "Dear " + workerName + ", aap ek hard worker ho, par aaj aapko sirf aur sirf aaram ki zaroorat hai. Stress free rahiye, body ko time dijiye heal hone ka. Get well soon!"
+                },
+                {
+                    "Rest Well & Recharge, " + workerName + "! 🧸🍵",
+                    "Health is your real wealth! Aaj saare deadlines bhool jao. Aaram se soyein, nourishing diet lijiye aur apne health ka dhyan rakhein. Take utmost care of yourself!"
+                }
+            };
+
+            int idx = Math.abs(careCount) % careMessages.length;
+            String title = careMessages[idx][0];
+            String body = careMessages[idx][1];
+
+            Intent mainIntent = new Intent(context, MainActivity.class);
+            mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
+            PendingIntent contentIntent = PendingIntent.getActivity(context, NotificationAlarmReceiver.NOTIF_ID_SICK_CARE, mainIntent, pFlags);
+
+            Uri soundUri = NotificationAlarmReceiver.getCustomSoundUri(context);
+
+            NotificationCompat.Builder careBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
+                .setSmallIcon(R.drawable.ic_stat_notification)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                .setColor(Color.parseColor("#EC4899"))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setSound(soundUri)
+                .setVibrate(new long[]{0, 200, 100, 200});
+
+            NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                    manager.notify(NotificationAlarmReceiver.NOTIF_ID_SICK_CARE, careBuilder.build());
+                }
+            } else {
+                manager.notify(NotificationAlarmReceiver.NOTIF_ID_SICK_CARE, careBuilder.build());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

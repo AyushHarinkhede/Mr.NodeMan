@@ -3609,6 +3609,131 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
   font-size: 10.5px;
   color: var(--acc);
 }
+
+/* Quick Tools Bar on Home Screen */
+.home-tool-bar-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--s1);
+  border: 1px solid var(--b2);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.home-tool-bar-btn:hover {
+  background: var(--s3);
+  border-color: var(--acc);
+  transform: translateY(-1px);
+}
+.home-tool-bar-btn:active {
+  transform: scale(0.97);
+}
+.home-tool-bar-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Calendar Month / Year Quick Direct Selectors */
+.cal-title-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--s2);
+  border: 1px solid var(--b);
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--t1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.cal-title-pill:hover, .cal-title-pill:focus {
+  background: var(--s3);
+  border-color: var(--acc);
+  color: var(--acc);
+}
+.cal-picker-popover {
+  position: absolute;
+  top: 48px;
+  left: 10px;
+  z-index: 100;
+  background: var(--s1);
+  border: 1px solid var(--b2);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  padding: 12px;
+  width: 250px;
+  backdrop-filter: blur(16px);
+}
+.cal-picker-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--t2);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+.cal-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.cal-picker-cell {
+  padding: 8px 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 8px;
+  background: var(--s2);
+  border: 1px solid var(--b);
+  color: var(--t1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cal-picker-cell:hover {
+  background: var(--s3);
+  border-color: var(--acc);
+  color: var(--acc);
+}
+.cal-picker-cell.active {
+  background: var(--acc);
+  color: #fff;
+  border-color: var(--acc);
+  box-shadow: 0 2px 8px rgba(124,111,237,0.4);
+}
+.cal-picker-nav-btn {
+  background: var(--s2);
+  border: 1px solid var(--b);
+  color: var(--t1);
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+.cal-picker-nav-btn:hover {
+  background: var(--s3);
+  border-color: var(--acc);
+  color: var(--acc);
+}
+
 .att-cal-grid-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -4338,71 +4463,38 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
 
       <!-- Quick Action Navigation -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-        <button type="button" class="ss-btn" onclick="openAttendanceCalendar()" style="padding:9px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Full Calendar Roster
-        </button>
-        <button type="button" class="ss-btn" onclick="openWorkProfileModal()" style="padding:9px;border-radius:9px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+      <div style="margin-top:10px">
+        <button type="button" class="ss-btn" onclick="openWorkProfileModal()" style="width:100%;padding:9px;border-radius:9px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
           Edit Work ID
         </button>
       </div>
     </div>
 
-    <!-- ══════════════ DASHBOARD INTERACTIVE ATTENDANCE CALENDAR CARD ══════════════ -->
-    <div class="card anim office-sec no-section-swipe" id="dashboard-attendance-card" data-no-swipe="true" style="border-color:rgba(124,111,237,.25)">
-      <div class="att-cal-header-bar">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:34px;height:34px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <!-- ══════════════ QUICK TOOLS BAR CONTAINER (CALENDAR & CALCULATOR) ══════════════ -->
+    <div class="card anim office-sec" id="home-quick-tools-bar" style="margin-bottom:14px;padding:10px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <!-- 1. Calendar Quick Action -->
+        <button type="button" class="home-tool-bar-btn" onclick="openAttendanceCalendar()" title="Open Calendar Roster">
+          <div class="home-tool-bar-icon" style="background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
-          <div>
-            <div style="font-size:14.5px;font-weight:800;color:var(--t1)" id="dash-cal-month-title">September 2026</div>
-            <div style="font-size:10px;color:var(--t2)">Monthly Attendance &amp; Shift Grid</div>
+          <div style="text-align:left;min-width:0">
+            <div style="font-size:12.5px;font-weight:800;color:var(--t1)">Calendar</div>
+            <div style="font-size:9.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Attendance &amp; Roster</div>
           </div>
-        </div>
-        
-        <!-- Clean Month Navigation & Modal Button -->
-        <div class="att-cal-month-nav">
-          <button type="button" class="att-cal-nav-btn" onclick="stepAttendanceCalendarMonth(-1)" title="Previous Month">‹</button>
-          <button type="button" class="att-cal-nav-btn att-cal-today-btn" onclick="jumpAttendanceCalendarToToday()" title="Current Month">Today</button>
-          <button type="button" class="att-cal-nav-btn" onclick="stepAttendanceCalendarMonth(1)" title="Next Month">›</button>
-          <button type="button" class="att-cal-nav-btn" onclick="openAttendanceCalendar()" title="Expand Full Roster" style="color:var(--acc)">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-          </button>
-        </div>
-      </div>
+        </button>
 
-      <!-- Structured Monthly Overview Metrics Bar -->
-      <div class="att-cal-metrics-bar" id="dash-cal-metrics-bar">
-        <!-- Rendered dynamically -->
-      </div>
-
-      <!-- 7-Day Headers -->
-      <div class="att-cal-grid-header">
-        <div class="att-cal-weekday weekend">Sun</div>
-        <div class="att-cal-weekday">Mon</div>
-        <div class="att-cal-weekday">Tue</div>
-        <div class="att-cal-weekday">Wed</div>
-        <div class="att-cal-weekday">Thu</div>
-        <div class="att-cal-weekday">Fri</div>
-        <div class="att-cal-weekday weekend">Sat</div>
-      </div>
-
-      <!-- Dashboard Interactive Calendar Grid -->
-      <div class="att-cal-grid" id="dash-attendance-grid">
-        <!-- Generated dynamically by renderAttendanceCalendarGrid() -->
-      </div>
-
-      <!-- Minimal Clean Dot Legend -->
-      <div class="att-cal-legend-bar">
-        <span class="att-legend-item"><span class="att-legend-dot" style="background:#10B981"></span> Present</span>
-        <span class="att-legend-item"><span class="att-legend-dot" style="background:#F59E0B"></span> Half Day</span>
-        <span class="att-legend-item"><span class="att-legend-dot" style="background:#0EA5E9"></span> Leave</span>
-        <span class="att-legend-item"><span class="att-legend-dot" style="background:#64748B"></span> Off</span>
-        <span class="att-legend-item"><span class="att-legend-dot" style="background:#EF4444"></span> Absent</span>
-        <span class="att-legend-item"><span class="att-legend-dot" style="background:#FFB930"></span> Overtime</span>
+        <!-- 2. Calculator Quick Action -->
+        <button type="button" class="home-tool-bar-btn" onclick="openScientificCalculator()" title="Open Calculator">
+          <div class="home-tool-bar-icon" style="background:rgba(124,111,237,0.15);color:#7C6FED;border:1px solid rgba(124,111,237,0.3)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path></svg>
+          </div>
+          <div style="text-align:left;min-width:0">
+            <div style="font-size:12.5px;font-weight:800;color:var(--t1)">Calculator</div>
+            <div style="font-size:9.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Math &amp; Tools</div>
+          </div>
+        </button>
       </div>
     </div>
 
@@ -4596,8 +4688,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <div class="mono" id="current-streak" style="font-size:28px;font-weight:700;color:var(--acc);margin-bottom:6px">0 days</div>
         <div id="current-streak-date" style="font-size:11px;color:var(--t2)">-</div>
 
-        <!-- Hybrid Breakdown Badges -->
-        <div style="display:flex;justify-content:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--b);font-size:10.5px">
+        <!-- Hybrid Breakdown Badges & Work Journey Tenure -->
+        <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--b);font-size:10.5px;flex-wrap:wrap">
           <span style="color:var(--paid);display:inline-flex;align-items:center;gap:4px">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
             Gig: <strong id="stats-streak-fl" class="mono">0 days</strong>
@@ -4605,6 +4697,9 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           <span style="color:var(--acc);display:inline-flex;align-items:center;gap:4px">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
             Shift: <strong id="stats-streak-off" class="mono">0 days</strong>
+          </span>
+          <span id="stats-tenure-pill" style="display:none;color:#F59E0B;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);padding:2px 8px;border-radius:6px;font-size:9.5px;font-weight:700;align-items:center;gap:4px">
+            💼 Tenure: <span id="stats-tenure-val" class="mono">0m</span>
           </span>
         </div>
       </div>
@@ -4984,54 +5079,95 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         </button>
       </div>
 
-      <!-- Quick Icon Tool Buttons Bar (6 chips in 3-col grid) -->
-      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px">
-        <button type="button" onclick="openScientificCalculator()" class="stats-tool-chip">
-          <div class="stats-tool-icon" style="background:rgba(124, 111, 237, 0.15);color:var(--acc)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path></svg>
+      <!-- Primary Main Focus Tools (Calculator & Calendar) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <!-- Main Focus: Calculator -->
+        <button type="button" class="home-tool-bar-btn" onclick="openScientificCalculator()" title="Open Calculator" style="background:var(--s2);border-color:rgba(124,111,237,0.3)">
+          <div class="home-tool-bar-icon" style="background:rgba(124,111,237,0.18);color:#7C6FED;border:1px solid rgba(124,111,237,0.35)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path></svg>
           </div>
-          <span class="stats-tool-lbl">Sci Calc</span>
+          <div style="text-align:left;min-width:0">
+            <div style="font-size:13px;font-weight:800;color:var(--t1)">Calculator</div>
+            <div style="font-size:9.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Math, OT &amp; Wages</div>
+          </div>
         </button>
 
-        <button type="button" onclick="openWageCalcModal()" class="stats-tool-chip">
+        <!-- Main Focus: Calendar -->
+        <button type="button" class="home-tool-bar-btn" onclick="openAttendanceCalendar()" title="Open Calendar" style="background:var(--s2);border-color:rgba(16,185,129,0.3)">
+          <div class="home-tool-bar-icon" style="background:rgba(16,185,129,0.18);color:#10B981;border:1px solid rgba(16,185,129,0.35)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div style="text-align:left;min-width:0">
+            <div style="font-size:13px;font-weight:800;color:var(--t1)">Calendar</div>
+            <div style="font-size:9.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Attendance &amp; Roster</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Secondary Tools Chips (Remaining 5 tools in clean 5-column grid) -->
+      <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:6px">
+        <button type="button" onclick="openWageCalcModal()" class="stats-tool-chip" title="Wages & Overtime">
           <div class="stats-tool-icon" style="background:rgba(45, 212, 168, 0.15);color:var(--paid)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
           </div>
-          <span class="stats-tool-lbl">Wages & OT</span>
+          <span class="stats-tool-lbl">Wages</span>
         </button>
 
-        <button type="button" onclick="openGstTool()" class="stats-tool-chip">
+        <button type="button" onclick="openGstTool()" class="stats-tool-chip" title="GST & Tax">
           <div class="stats-tool-icon" style="background:rgba(255, 185, 48, 0.15);color:var(--pend)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
           </div>
-          <span class="stats-tool-lbl">GST & Tax</span>
+          <span class="stats-tool-lbl">GST</span>
         </button>
 
-        <button type="button" onclick="openAreaTool()" class="stats-tool-chip">
+        <button type="button" onclick="openAreaTool()" class="stats-tool-chip" title="Area & Site Dimensions">
           <div class="stats-tool-icon" style="background:rgba(56, 189, 248, 0.15);color:#38bdf8">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18M9 21V9"></path></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M3 9h18M9 21V9"></path></svg>
           </div>
-          <span class="stats-tool-lbl">Area / SqFt</span>
+          <span class="stats-tool-lbl">Area</span>
         </button>
 
-        <button type="button" onclick="openTimeDurationTool()" class="stats-tool-chip">
+        <button type="button" onclick="openTimeDurationTool()" class="stats-tool-chip" title="Shift Timing">
           <div class="stats-tool-icon" style="background:rgba(168, 85, 247, 0.15);color:#a855f7">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
-          <span class="stats-tool-lbl">Shift Time</span>
+          <span class="stats-tool-lbl">Timing</span>
         </button>
 
-        <button type="button" onclick="openUnitAgeTool()" class="stats-tool-chip">
+        <button type="button" onclick="openUnitAgeTool()" class="stats-tool-chip" title="Units & Age">
           <div class="stats-tool-icon" style="background:rgba(248, 113, 113, 0.15);color:var(--danger)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
           </div>
-          <span class="stats-tool-lbl">Units & Age</span>
+          <span class="stats-tool-lbl">Units</span>
         </button>
       </div>
 
       <!-- Expandable Tools Drawer -->
       <div id="stats-tools-drawer" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--b2)">
         <div style="display:flex;flex-direction:column;gap:8px">
+          <!-- Primary Focus: Calculator -->
+          <div class="univ-result-card" onclick="openScientificCalculator()">
+            <div class="univ-result-icon" style="background:rgba(124,111,237,0.18);color:#7C6FED">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path></svg>
+            </div>
+            <div class="univ-result-content">
+              <div class="univ-result-title">Calculator</div>
+              <div class="univ-result-sub">Scientific calculations, unit conversions &amp; RAP/PRR tool</div>
+            </div>
+            <span style="font-size:11px;color:#7C6FED;font-weight:700">Open ↗</span>
+          </div>
+
+          <!-- Primary Focus: Calendar -->
+          <div class="univ-result-card" onclick="openAttendanceCalendar()">
+            <div class="univ-result-icon" style="background:rgba(16,185,129,0.18);color:#10B981">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <div class="univ-result-content">
+              <div class="univ-result-title">Calendar</div>
+              <div class="univ-result-sub">Monthly attendance, shifts, overtime hours &amp; holiday roster</div>
+            </div>
+            <span style="font-size:11px;color:#10B981;font-weight:700">Open ↗</span>
+          </div>
           <div class="univ-result-card" onclick="openWageCalcModal()">
             <div class="univ-result-icon" style="background:rgba(45,212,168,0.14);color:var(--paid)">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
@@ -5816,7 +5952,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path></svg>
         </div>
         <div>
-          <div style="font-size:14px;font-weight:800;color:var(--t1)">Calculator & Converters</div>
+          <div style="font-size:14px;font-weight:800;color:var(--t1)">Calculator</div>
           <div style="font-size:10px;color:var(--t2)">Math, Unit Converters & RAP/PRR Tool</div>
         </div>
       </div>
@@ -7136,18 +7272,22 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           </div>
           <div class="fg2">
             <div class="fgrp">
-              <label class="ss-label">Date of Joining (DOJ)</label>
-              <input class="ss-input" type="date" id="wp-in-doj"/>
+              <label class="ss-label">Date of Birth (DOB) 🎂</label>
+              <input class="ss-input" type="date" id="wp-in-dob" title="Date of Birth for birthday wishes"/>
             </div>
             <div class="fgrp">
-              <label class="ss-label">Employment Type</label>
-              <select class="ss-input" id="wp-in-emptype">
-                <option value="permanent">Full-time / Permanent</option>
-                <option value="contract">Contract / Theka Basis</option>
-                <option value="daily">Daily Wage / Casual Worker</option>
-                <option value="probation">Probation / Trainee</option>
-              </select>
+              <label class="ss-label">Date of Joining (DOJ) 💼</label>
+              <input class="ss-input" type="date" id="wp-in-doj" title="Date of Joining for tenure & anniversary tracking"/>
             </div>
+          </div>
+          <div class="fgrp">
+            <label class="ss-label">Employment Type</label>
+            <select class="ss-input" id="wp-in-emptype">
+              <option value="permanent">Full-time / Permanent</option>
+              <option value="contract">Contract / Theka Basis</option>
+              <option value="daily">Daily Wage / Casual Worker</option>
+              <option value="probation">Probation / Trainee</option>
+            </select>
           </div>
         </div>
         <button type="button" onclick="wpGoStep(2)" style="width:100%;margin-top:12px;padding:13px;border-radius:12px;background:var(--acc);color:#fff;font-size:13px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 14px rgba(124,111,237,0.35)">
@@ -7611,23 +7751,49 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 <div class="moverlay" id="attendance-calendar-modal" onclick="overlayClose(event,'attendance-calendar-modal')">
   <div class="msheet" style="max-width:520px;padding:16px">
     <div class="mhandle"></div>
-    <div class="att-cal-header-bar" style="margin-bottom:10px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div style="width:34px;height:34px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
+    <div class="att-cal-header-bar" style="margin-bottom:10px;position:relative">
+      <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
-        <div>
-          <div style="font-size:15px;font-weight:800;color:var(--t1)" id="cal-month-title">September 2026</div>
-          <div style="font-size:10px;color:var(--t2)">Tap any date to log or edit attendance</div>
+        <div style="min-width:0;flex:1">
+          <!-- Month & Year Strictly on One Single Line with Direct Selectors -->
+          <div style="display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden">
+            <button type="button" id="cal-month-btn" onclick="toggleCalendarMonthPicker(event)" class="cal-title-pill" title="Click to choose month">
+              <span id="cal-month-label">September</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button type="button" id="cal-year-btn" onclick="toggleCalendarYearPicker(event)" class="cal-title-pill" title="Click to choose year">
+              <span id="cal-year-label">2026</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <div style="font-size:10px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Tap any date to log or edit attendance</div>
         </div>
       </div>
       
-      <!-- Month Stepper -->
-      <div class="att-cal-month-nav">
+      <!-- Month Stepper & Close -->
+      <div class="att-cal-month-nav" style="flex-shrink:0">
         <button type="button" class="att-cal-nav-btn" onclick="stepAttendanceCalendarMonth(-1)" title="Previous Month">‹</button>
         <button type="button" class="att-cal-nav-btn" onclick="jumpAttendanceCalendarToToday()" style="font-size:10.5px;font-weight:700;width:auto;padding:0 8px" title="Today">Today</button>
         <button type="button" class="att-cal-nav-btn" onclick="stepAttendanceCalendarMonth(1)" title="Next Month">›</button>
         <button type="button" class="att-cal-nav-btn" onclick="closeModal('attendance-calendar-modal')" title="Close">✕</button>
+      </div>
+
+      <!-- Month Picker Hover/Popover Grid -->
+      <div id="cal-month-picker-popover" class="cal-picker-popover" style="display:none">
+        <div class="cal-picker-hdr">Select Month</div>
+        <div class="cal-picker-grid" id="cal-month-picker-grid"></div>
+      </div>
+
+      <!-- Year Picker Hover/Popover Grid -->
+      <div id="cal-year-picker-popover" class="cal-picker-popover" style="display:none">
+        <div class="cal-picker-hdr" style="display:flex;justify-content:space-between;align-items:center">
+          <button type="button" class="cal-picker-nav-btn" onclick="shiftCalendarPickerYear(-12)">‹</button>
+          <span id="cal-picker-year-range">Select Year</span>
+          <button type="button" class="cal-picker-nav-btn" onclick="shiftCalendarPickerYear(12)">›</button>
+        </div>
+        <div class="cal-picker-grid" id="cal-year-picker-grid"></div>
       </div>
     </div>
 
@@ -9112,6 +9278,10 @@ function markTodayAttendance(status) {
   const statusNames = { 'P': 'Present', 'HD': 'Half Day', 'PL': 'Paid Leave', 'SL': 'Sick Leave', 'WO': 'Week Off', 'A': 'Absent' };
   showToast(`✅ Today marked as ${statusNames[status] || status}`);
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'medium');
+
+  if (status === 'SL' && window.AndroidApp && typeof window.AndroidApp.triggerSickLeaveCareNotification === 'function') {
+    window.AndroidApp.triggerSickLeaveCareNotification(todayDs);
+  }
 }
 
 function logQuickOt(hours) {
@@ -9227,6 +9397,7 @@ function openWorkProfileModal(startStep = 1) {
   setVal('wp-in-empid', workProfile.employeeId || 'EMP-1024');
   setVal('wp-in-desig', workProfile.designation || 'Machine Operator');
   setVal('wp-in-dept', workProfile.department || 'Production');
+  setVal('wp-in-dob', workProfile.dob || (currentUser ? currentUser.dob : '') || '');
   setVal('wp-in-doj', workProfile.doj || '');
   setVal('wp-in-emptype', workProfile.empType || 'permanent');
 
@@ -9658,8 +9829,13 @@ function saveWorkProfileFromModal() {
   workProfile.employeeId = getVal('wp-in-empid') || 'EMP-1024';
   workProfile.designation = getVal('wp-in-desig') || 'Operator';
   workProfile.department = getVal('wp-in-dept') || 'General';
+  workProfile.dob = getVal('wp-in-dob') || (currentUser ? currentUser.dob : '') || '';
   workProfile.doj = getVal('wp-in-doj') || '';
   workProfile.empType = getVal('wp-in-emptype') || 'permanent';
+  if (currentUser && workProfile.dob && !currentUser.dob) {
+    currentUser.dob = workProfile.dob;
+    try { localStorage.setItem('currentUser', JSON.stringify(currentUser)); } catch(e) {}
+  }
 
   // Step 2: Shift Schedule
   workProfile.shiftType = workProfile.shiftType || 'fixed';
@@ -9825,12 +10001,14 @@ function openAttendanceCalendar(year, month) {
     calSelectedYear = year;
     calSelectedMonth = month;
   }
+  closeAllCalendarPickers();
   renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
   openModal('attendance-calendar-modal');
   setupCalendarSwipeEvents();
 }
 
 function stepAttendanceCalendarMonth(delta, animClass = '') {
+  closeAllCalendarPickers();
   calSelectedMonth += delta;
   if (calSelectedMonth < 0) {
     calSelectedMonth = 11;
@@ -9852,16 +10030,132 @@ function jumpAttendanceCalendarToToday() {
   const now = new Date();
   calSelectedYear = now.getFullYear();
   calSelectedMonth = now.getMonth();
+  closeAllCalendarPickers();
   renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'light');
 }
 
+let calPickerYearBase = null;
+
+function closeAllCalendarPickers() {
+  const mPop = document.getElementById('cal-month-picker-popover');
+  const yPop = document.getElementById('cal-year-picker-popover');
+  if (mPop) mPop.style.display = 'none';
+  if (yPop) yPop.style.display = 'none';
+}
+
+function toggleCalendarMonthPicker(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const mPop = document.getElementById('cal-month-picker-popover');
+  const yPop = document.getElementById('cal-year-picker-popover');
+  if (yPop) yPop.style.display = 'none';
+  if (!mPop) return;
+  const isOpening = mPop.style.display !== 'block';
+  mPop.style.display = isOpening ? 'block' : 'none';
+  if (isOpening) {
+    renderCalendarMonthPickerGrid();
+    if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'light');
+  }
+}
+
+function renderCalendarMonthPickerGrid() {
+  const grid = document.getElementById('cal-month-picker-grid');
+  if (!grid) return;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  let html = '';
+  months.forEach((m, idx) => {
+    const isSelected = (idx === calSelectedMonth);
+    html += `<button type="button" class="cal-picker-cell ${isSelected ? 'active' : ''}" onclick="selectCalendarMonth(${idx}, event)">${m}</button>`;
+  });
+  grid.innerHTML = html;
+}
+
+function selectCalendarMonth(monthIdx, e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  calSelectedMonth = monthIdx;
+  closeAllCalendarPickers();
+  renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth, 'fade-in');
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'medium');
+}
+
+function toggleCalendarYearPicker(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const yPop = document.getElementById('cal-year-picker-popover');
+  const mPop = document.getElementById('cal-month-picker-popover');
+  if (mPop) mPop.style.display = 'none';
+  if (!yPop) return;
+  const isOpening = yPop.style.display !== 'block';
+  yPop.style.display = isOpening ? 'block' : 'none';
+  if (isOpening) {
+    calPickerYearBase = calSelectedYear - (calSelectedYear % 12);
+    renderCalendarYearPickerGrid();
+    if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'light');
+  }
+}
+
+function shiftCalendarPickerYear(delta) {
+  if (calPickerYearBase === null) calPickerYearBase = calSelectedYear - (calSelectedYear % 12);
+  calPickerYearBase += delta;
+  renderCalendarYearPickerGrid();
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'light');
+}
+
+function renderCalendarYearPickerGrid() {
+  const grid = document.getElementById('cal-year-picker-grid');
+  const rangeLbl = document.getElementById('cal-picker-year-range');
+  if (!grid) return;
+  if (calPickerYearBase === null) calPickerYearBase = calSelectedYear - (calSelectedYear % 12);
+  const startY = calPickerYearBase;
+  const endY = startY + 11;
+  if (rangeLbl) rangeLbl.textContent = `${startY} – ${endY}`;
+  let html = '';
+  for (let yr = startY; yr <= endY; yr++) {
+    const isSelected = (yr === calSelectedYear);
+    html += `<button type="button" class="cal-picker-cell ${isSelected ? 'active' : ''}" onclick="selectCalendarYear(${yr}, event)">${yr}</button>`;
+  }
+  grid.innerHTML = html;
+}
+
+function selectCalendarYear(year, e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  calSelectedYear = year;
+  closeAllCalendarPickers();
+  renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth, 'fade-in');
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'medium');
+}
+
+document.addEventListener('click', function(e) {
+  const mPop = document.getElementById('cal-month-picker-popover');
+  const yPop = document.getElementById('cal-year-picker-popover');
+  const mBtn = document.getElementById('cal-month-btn');
+  const yBtn = document.getElementById('cal-year-btn');
+  if (mPop && mPop.style.display === 'block') {
+    if (!mPop.contains(e.target) && (!mBtn || !mBtn.contains(e.target))) {
+      mPop.style.display = 'none';
+    }
+  }
+  if (yPop && yPop.style.display === 'block') {
+    if (!yPop.contains(e.target) && (!yBtn || !yBtn.contains(e.target))) {
+      yPop.style.display = 'none';
+    }
+  }
+});
+
+
 function renderAttendanceCalendarGrid(year, month, animClass = '') {
   const d = new Date(year, month, 1);
   const monthNameStr = d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+  const monthOnlyStr = d.toLocaleDateString('en-IN', { month: 'long' });
+  const yearOnlyStr = String(year);
 
   const titleEl = document.getElementById('cal-month-title');
   if (titleEl) titleEl.textContent = monthNameStr;
+
+  const mLabel = document.getElementById('cal-month-label');
+  if (mLabel) mLabel.textContent = monthOnlyStr;
+
+  const yLabel = document.getElementById('cal-year-label');
+  if (yLabel) yLabel.textContent = yearOnlyStr;
 
   const dashTitleEl = document.getElementById('dash-cal-month-title');
   if (dashTitleEl) dashTitleEl.textContent = monthNameStr;
@@ -10127,6 +10421,10 @@ function saveAttendanceEntryFromModal() {
   renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
   showToast(`✅ Saved attendance for ${fmtShort(dateStr)}`);
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'light');
+
+  if (status === 'SL' && window.AndroidApp && typeof window.AndroidApp.triggerSickLeaveCareNotification === 'function') {
+    window.AndroidApp.triggerSickLeaveCareNotification(dateStr);
+  }
 }
 
 function deleteAttendanceEntryFromModal() {
@@ -10206,6 +10504,40 @@ function renderWorkerPerformanceStatsCard(summary, year, month) {
   const otRate = Math.round(getEffectiveOtRate(workProfile));
   const otTypeStr = (workProfile.otLogType === 'separate') ? 'Separate Day OT' : 'Same-Day Shift OT';
   const shiftStr = (workProfile.shiftType === 'rotating') ? '🔄 Rotating Shift' : `⏰ ${workProfile.shiftStart || '09:00'} - ${workProfile.shiftEnd || '18:00'}`;
+
+  // Work Tenure computation from DOJ
+  let tenureText = '';
+  const dojVal = workProfile?.doj;
+  if (dojVal && dojVal.includes('-')) {
+    try {
+      const jp = dojVal.split('-');
+      const jy = parseInt(jp[0], 10), jm = parseInt(jp[1], 10), jd = parseInt(jp[2], 10);
+      let tMon = (today.getFullYear() - jy) * 12 + ((today.getMonth() + 1) - jm);
+      if (today.getDate() < jd) tMon--;
+      if (tMon >= 0) {
+        const fy = Math.floor(tMon / 12), rm = tMon % 12;
+        if (fy > 0 && rm > 0) tenureText = `${fy} yr${fy > 1 ? 's' : ''} ${rm} mo${rm > 1 ? 's' : ''}`;
+        else if (fy > 0) tenureText = `${fy} year${fy > 1 ? 's' : ''}`;
+        else if (rm > 0) tenureText = `${rm} month${rm > 1 ? 's' : ''}`;
+        else tenureText = 'Just joined (< 1 mo)';
+      }
+    } catch(e) {}
+  }
+
+  // Birthday display
+  let birthdayText = '';
+  const dobVal = workProfile?.dob || currentUser?.dob;
+  if (dobVal && dobVal.includes('-')) {
+    try {
+      const dp = dobVal.split('-');
+      const bm = parseInt(dp[1], 10), bd = parseInt(dp[2], 10);
+      const bDate = new Date(today.getFullYear(), bm - 1, bd);
+      birthdayText = bDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+      if (today.getMonth() + 1 === bm && today.getDate() === bd) {
+        birthdayText += ' (Today! 🎂)';
+      }
+    } catch(e) {}
+  }
 
   if (workProfile.salaryType === 'performance') {
     const tiers = (Array.isArray(workProfile.perfSalaryTiers) && workProfile.perfSalaryTiers.length > 0)
@@ -10305,16 +10637,28 @@ function renderWorkerPerformanceStatsCard(summary, year, month) {
       </div>
 
       <!-- Payday & Notification Status Footer -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <span>💰</span>
-          <span style="font-weight:700;color:var(--t1)">${paydayBadgeText}</span>
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:7px 10px;font-size:10.5px;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span>💰</span>
+            <span style="font-weight:700;color:var(--t1)">${paydayBadgeText}</span>
+          </div>
+          <div style="color:var(--t2);display:flex;align-items:center;gap:4px">
+            <span>${workProfile.salaryNotif !== false ? '🔔 Reminder ON' : '🔕 Muted'}</span>
+            <span>•</span>
+            <span>${otTypeStr}</span>
+          </div>
         </div>
-        <div style="color:var(--t2);display:flex;align-items:center;gap:4px">
-          <span>${workProfile.salaryNotif !== false ? '🔔 Reminder ON' : '🔕 Muted'}</span>
-          <span>•</span>
-          <span>${otTypeStr}</span>
-        </div>
+        ${tenureText ? `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:4px;border-top:1px dashed var(--b)">
+          <span style="color:var(--t2)">Work Tenure (DOJ):</span>
+          <span style="font-weight:700;color:var(--paid)">💼 ${tenureText} (${dojVal})</span>
+        </div>` : ''}
+        ${birthdayText ? `
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--t2)">Date of Birth:</span>
+          <span style="font-weight:700;color:#EC4899">🎂 ${birthdayText}</span>
+        </div>` : ''}
       </div>
     `;
   } else {
@@ -10371,6 +10715,16 @@ function renderWorkerPerformanceStatsCard(summary, year, month) {
           <span style="color:var(--t2)">Overtime Policy:</span>
           <span style="font-weight:700;color:var(--t1)">${otTypeStr} · Max ${workProfile.otMaxDailyHours || 4}h/day</span>
         </div>
+        ${tenureText ? `
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--t2)">Work Tenure (DOJ):</span>
+          <span style="font-weight:700;color:var(--paid)">💼 ${tenureText} (${dojVal})</span>
+        </div>` : ''}
+        ${birthdayText ? `
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--t2)">Date of Birth:</span>
+          <span style="font-weight:700;color:#EC4899">🎂 ${birthdayText}</span>
+        </div>` : ''}
       </div>
 
       <div style="margin-top:8px;font-size:9.5px;color:var(--t3);display:flex;justify-content:space-between;align-items:center">
@@ -13178,6 +13532,49 @@ function renderStreaks(){
   if (flEl) flEl.textContent=`${freelanceStreak || 0} day${(freelanceStreak || 0)!==1?'s':''}`;
   const offEl = document.getElementById('stats-streak-off');
   if (offEl) offEl.textContent=`${officeStreak || 0} day${(officeStreak || 0)!==1?'s':''}`;
+
+  // Update Work Tenure Badge (Months & Years with Employer)
+  const tenurePill = document.getElementById('stats-tenure-pill');
+  const tenureValEl = document.getElementById('stats-tenure-val');
+  if (tenurePill && tenureValEl) {
+    const dojStr = workProfile?.doj;
+    if (dojStr && dojStr.includes('-')) {
+      const jParts = dojStr.split('-');
+      const jYear = parseInt(jParts[0], 10);
+      const jMonth = parseInt(jParts[1], 10);
+      const jDay = parseInt(jParts[2], 10);
+
+      const now = new Date();
+      const curYear = now.getFullYear();
+      const curMonth = now.getMonth() + 1;
+      const curDay = now.getDate();
+
+      let totalMonths = (curYear - jYear) * 12 + (curMonth - jMonth);
+      if (curDay < jDay) totalMonths--;
+
+      if (totalMonths >= 0) {
+        const fullYears = Math.floor(totalMonths / 12);
+        const remMonths = totalMonths % 12;
+        let tStr = '';
+        if (fullYears > 0 && remMonths > 0) {
+          tStr = `${fullYears}y ${remMonths}m`;
+        } else if (fullYears > 0) {
+          tStr = `${fullYears} year${fullYears > 1 ? 's' : ''}`;
+        } else if (remMonths > 0) {
+          tStr = `${remMonths} month${remMonths > 1 ? 's' : ''}`;
+        } else {
+          tStr = '< 1 month';
+        }
+        tenureValEl.textContent = tStr;
+        tenurePill.style.display = 'inline-flex';
+        tenurePill.title = `Joined: ${dojStr} (${tStr} completed)`;
+      } else {
+        tenurePill.style.display = 'none';
+      }
+    } else {
+      tenurePill.style.display = 'none';
+    }
+  }
   
   // Update dates
   const csdEl = document.getElementById('current-streak-date');
@@ -13256,11 +13653,6 @@ function renderMoreView(){
     <div class="more-row" onclick="openWorkProfileModal()" style="border-color:var(--acc-bd)">
       <div class="micon" style="background:var(--acc-bg);color:var(--acc)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="22" x2="9" y2="2"/><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01M8 18h.01M16 18h.01"/></svg></div>
       <div><div class="mico-label" style="color:var(--acc)">Work ID &amp; Salary Setup</div><div class="mico-sub">Company, salary, OT rate, PF &amp; leaves</div></div>
-      <div class="mchev">›</div>
-    </div>
-    <div class="more-row" onclick="openAttendanceCalendar()">
-      <div class="micon" style="background:rgba(16,185,129,.12);color:#10B981"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div><div class="mico-label">Attendance Calendar</div><div class="mico-sub">Monthly roster, half days &amp; OT log</div></div>
       <div class="mchev">›</div>
     </div>
     <div class="more-row" onclick="openSalarySlipModal()">
@@ -16070,7 +16462,7 @@ function saveNotificationSettings(settings) {
   }
 }
 
-// Global hook: Real-time update when user taps [Mark Present] / [Mark Absent] in native Android notification
+// Global hook: Real-time update when user taps [Mark Present] / [Absent: SL/PL/A] / [Week Off] in native Android notification
 window.onNativeAttendanceUpdated = function(dateStr, status) {
   if (!dateStr || !status) return;
   if (!attendanceRecords) attendanceRecords = {};
@@ -16083,6 +16475,25 @@ window.onNativeAttendanceUpdated = function(dateStr, status) {
   if (typeof renderMonthlyOfficeSnapshot === 'function') renderMonthlyOfficeSnapshot();
   if (typeof renderAttendanceCalendarGrid === 'function') renderAttendanceCalendarGrid(calSelectedYear, calSelectedMonth);
   if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
+
+  if (typeof showToast === 'function') {
+    if (status === 'P') {
+      showToast('Yeepee! 🎉 Present Marked! Shandar shuruat!');
+      if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'heavy');
+    } else if (status === 'WO') {
+      showToast('🌴 Week Off marked! Relax & recharge.');
+      if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
+    } else if (status === 'SL') {
+      showToast('💊 Sick Leave (SL) marked! Get well soon.');
+      if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
+    } else if (status === 'PL') {
+      showToast('🏖️ Paid Leave (PL) marked! Enjoy your leave.');
+      if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
+    } else if (status === 'A') {
+      showToast('❌ Absent marked for today.');
+      if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('warning', 'medium');
+    }
+  }
 };
 
 // Global hook: Real-time update when user confirms lunch in native notification
@@ -16170,6 +16581,75 @@ function requestDeviceNotificationPermission() {
   }
 }
 
+// ══════════════════════════════════════════════════════════════
+// MR.NODEMAN SIGNATURE NOTIFICATION SOUND (528Hz HARMONIC ENGINE)
+// ══════════════════════════════════════════════════════════════
+function playNodeManNotificationSound(showFeedback = false) {
+  let played = false;
+
+  // 1. If running in Android native app, play custom raw sound file
+  if (window.AndroidApp && typeof window.AndroidApp.playCustomNotificationSound === 'function') {
+    try {
+      window.AndroidApp.playCustomNotificationSound();
+      played = true;
+    } catch(e) {
+      console.warn('Native sound trigger error:', e);
+    }
+  }
+
+  // 2. High-Fidelity Web Audio API Synthesis fallback (Browser / PWA / Foreground)
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+
+      // Tuned Harmonic Cascade (Root 528Hz clarity frequency, 792Hz 5th, 1056Hz Octave, 1584Hz Shimmer)
+      const tones = [
+        { freq: 528, start: 0.00, dur: 0.55, gain: 0.28 },
+        { freq: 792, start: 0.09, dur: 0.50, gain: 0.32 },
+        { freq: 1056, start: 0.18, dur: 0.65, gain: 0.38 },
+        { freq: 1584, start: 0.22, dur: 0.40, gain: 0.18 }
+      ];
+
+      tones.forEach(t => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(t.freq, ctx.currentTime + t.start);
+
+        const startTime = ctx.currentTime + t.start;
+        g.gain.setValueAtTime(0.0001, startTime);
+        g.gain.linearRampToValueAtTime(t.gain, startTime + 0.006);
+        g.gain.exponentialRampToValueAtTime(0.0001, startTime + t.dur);
+
+        osc.connect(g);
+        g.connect(ctx.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + t.dur);
+      });
+
+      played = true;
+    }
+  } catch(e) {
+    console.warn('Web Audio synthesis error:', e);
+  }
+
+  // Haptic feedback
+  if (typeof playSoundAndHaptic === 'function') {
+    try { playSoundAndHaptic('tap', 'medium'); } catch(e) {}
+  }
+
+  if (showFeedback) {
+    showToast('🔔 Playing Mr.NodeMan Signature Sound (528Hz Harmonic Chime)');
+  }
+
+  return played;
+}
+
 function postAppNotification({ title, message, channelType = 'attendance', notificationId = 0 }) {
   const settings = loadNotificationSettings();
   if (!settings.enabled) return false;
@@ -16180,7 +16660,7 @@ function postAppNotification({ title, message, channelType = 'attendance', notif
 
   let sent = false;
 
-  // 1. Android Native Bridge
+  // 1. Android Native Bridge (Dispatches with custom notification sound)
   if (window.AndroidApp && typeof window.AndroidApp.postNativeNotification === 'function') {
     try {
       sent = window.AndroidApp.postNativeNotification(title, message, channelType, notificationId);
@@ -16204,12 +16684,10 @@ function postAppNotification({ title, message, channelType = 'attendance', notif
     }
   }
 
-  // 3. Audio & In-App Haptic feedback if in active window
-  if (typeof playSoundAndHaptic === 'function') {
-    try {
-      playSoundAndHaptic('success', 'medium');
-    } catch(e) {}
-  }
+  // 3. Play Signature Harmonic Chime Sound
+  try {
+    playNodeManNotificationSound(false);
+  } catch(e) {}
 
   return sent;
 }
@@ -16546,6 +17024,96 @@ function checkAndDispatchDailyNotifications() {
       }
     } catch(e) {}
   }
+
+  // 10. BIRTHDAY & ADVANCE BIRTHDAY WISHES (Between 08:00 AM and 22:00 PM)
+  const userDob = workProfile?.dob || currentUser?.dob;
+  if (userDob && userDob.includes('-')) {
+    try {
+      const parts = userDob.split('-');
+      const bMonth = parseInt(parts[1], 10);
+      const bDay = parseInt(parts[2], 10);
+
+      const nowMonth = now.getMonth() + 1;
+      const nowDay = now.getDate();
+      const tomMonth = tomorrow.getMonth() + 1;
+      const tomDay = tomorrow.getDate();
+      const displayName = (workerName && workerName !== 'Worker') ? workerName : (currentUser?.name || 'Champion');
+
+      // Birthday TODAY
+      if (nowMonth === bMonth && nowDay === bDay && lastDispatched['birthday_today'] !== todayISO && currentHour >= 8) {
+        postAppNotification({
+          title: `Happy Birthday, ${displayName}! 🎂🎉`,
+          message: `Wishing you a very Happy Birthday! May your year be filled with happiness, good health, and success. Keep shining!`,
+          channelType: 'reminder',
+          notificationId: 7001
+        });
+        markDispatched('birthday_today');
+      }
+      // Birthday TOMORROW (Advance Birthday Wish)
+      else if (tomMonth === bMonth && tomDay === bDay && lastDispatched['birthday_advance'] !== todayISO && currentHour >= 8) {
+        postAppNotification({
+          title: `Advance Birthday Wishes! 🎈✨`,
+          message: `Kal aapka birthday hai, ${displayName}! Mr.NodeMan team ki taraf se advance me bohot saari shubhkamnayein!`,
+          channelType: 'reminder',
+          notificationId: 7002
+        });
+        markDispatched('birthday_advance');
+      }
+    } catch(e) {}
+  }
+
+  // 11. WORK TENURE & ANNIVERSARY GREETINGS (Between 09:00 AM and 22:00 PM)
+  const userDoj = workProfile?.doj;
+  if (userDoj && userDoj.includes('-')) {
+    try {
+      const jParts = userDoj.split('-');
+      const jYear = parseInt(jParts[0], 10);
+      const jMonth = parseInt(jParts[1], 10);
+      const jDay = parseInt(jParts[2], 10);
+
+      const curYear = now.getFullYear();
+      const curMonth = now.getMonth() + 1;
+      const curDay = now.getDate();
+
+      let totalMonths = (curYear - jYear) * 12 + (curMonth - jMonth);
+      if (curDay < jDay) totalMonths--;
+
+      if (totalMonths >= 1 && currentHour >= 9) {
+        const fullYears = Math.floor(totalMonths / 12);
+        const remMonths = totalMonths % 12;
+
+        let tenureStr = '';
+        if (fullYears > 0 && remMonths > 0) {
+          tenureStr = `${fullYears} year${fullYears > 1 ? 's' : ''} ${remMonths} month${remMonths > 1 ? 's' : ''}`;
+        } else if (fullYears > 0) {
+          tenureStr = `${fullYears} year${fullYears > 1 ? 's' : ''}`;
+        } else {
+          tenureStr = `${remMonths} month${remMonths > 1 ? 's' : ''}`;
+        }
+
+        // Case A: Work Anniversary (Exact Years Completed Today)
+        if (curMonth === jMonth && curDay === jDay && fullYears >= 1 && lastDispatched['work_anniversary_' + todayISO] !== 'done') {
+          postAppNotification({
+            title: `Happy Work Anniversary! 🏆🎊`,
+            message: `Congratulations! Aaj aapko ${companyName} me kaam karte hue pure ${fullYears} saal (${fullYears} Year${fullYears > 1 ? 's' : ''}) complete ho gaye hain! Aapki dedication ko salute!`,
+            channelType: 'greeting',
+            notificationId: 7003
+          });
+          markDispatched('work_anniversary_' + todayISO);
+        }
+        // Case B: 1st of Month Tenure Milestone
+        else if (curDay === 1 && lastDispatched['work_monthly_milestone_' + todayISO] !== 'done') {
+          postAppNotification({
+            title: `Monthly Work Journey Milestone 💼✨`,
+            message: `Naye mahine ki shubh shuruat! Aapko ${companyName} me kaam karte hue kul ${tenureStr} ho chuke hain. Keep achieving new heights!`,
+            channelType: 'greeting',
+            notificationId: 7004
+          });
+          markDispatched('work_monthly_milestone_' + todayISO);
+        }
+      }
+    } catch(e) {}
+  }
 }
 
 function updateNotificationSettingsUI() {
@@ -16591,6 +17159,27 @@ function updateNotificationSettingsUI() {
           <input type="checkbox" ${settings.enabled ? 'checked' : ''} onchange="toggleNotifSetting('enabled')"/>
           <span class="mnm-slider"></span>
         </label>
+      </div>
+    </div>
+
+    <!-- NodeMan Unique Signature Sound Card -->
+    <div class="settings-card-item" style="margin-bottom:12px;background:linear-gradient(135deg, rgba(124,111,237,0.09), rgba(54,223,175,0.06));border:1px solid rgba(124,111,237,0.3)">
+      <div class="settings-row" style="margin-top:0;padding-top:0;border:none;align-items:center">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+          <div style="width:34px;height:34px;border-radius:10px;background:rgba(124,111,237,0.18);border:1px solid rgba(124,111,237,0.35);display:flex;align-items:center;justify-content:center;color:#7C6FED;flex-shrink:0;font-size:16px">
+            🔔
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="font-size:12px;font-weight:700;color:var(--t1)">NodeMan Custom Sound</span>
+              <span style="font-size:8.5px;padding:2px 6px;border-radius:4px;background:rgba(54,223,175,0.15);color:#36DFAF;border:1px solid rgba(54,223,175,0.3);font-weight:800;letter-spacing:0.5px">528Hz HARMONIC</span>
+            </div>
+            <div style="font-size:9.5px;color:var(--t3)">Crisp crystal frequency chime crafted specifically for all NodeMan alerts</div>
+          </div>
+        </div>
+        <button type="button" class="ss-btn" onclick="playNodeManNotificationSound(true)" style="padding:6px 12px;font-size:10.5px;border-radius:8px;background:linear-gradient(135deg, #7C6FED, #36DFAF);color:#fff;border:none;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;flex-shrink:0">
+          🔊 Preview
+        </button>
       </div>
     </div>
 
@@ -18242,9 +18831,18 @@ async function saveProfileChanges() {
     currentUser.gender = gender;
     currentUser.updatedAt = new Date().toISOString();
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+    if (workProfile && dob) {
+      workProfile.dob = dob;
+      if (!workProfile.workerName || workProfile.workerName === 'Authorized Worker') {
+        workProfile.workerName = name;
+      }
+      saveLS();
+    }
     
     // 3. Save Custom Profile Data (using unified sync function)
     await saveUserData();
+    syncNotificationScheduleWithNative();
 
     // 4. Update UI
     updateAuthUI();

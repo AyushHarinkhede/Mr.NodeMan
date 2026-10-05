@@ -3,6 +3,8 @@ package com.mrnodeman.app;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -60,12 +62,16 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String CHANNEL_ATTENDANCE = "channel_attendance_shifts";
-    public static final String CHANNEL_SALARY = "channel_salary_payouts";
-    public static final String CHANNEL_REMINDERS = "channel_reminders_streaks";
-    public static final String CHANNEL_PAYMENTS = "channel_client_payments";
-    public static final String CHANNEL_WELLNESS = "channel_wellness_breaks";
-    public static final String CHANNEL_SHIFT_GREETINGS = "channel_shift_greetings";
+    public static final String CHANNEL_ATTENDANCE = "channel_attendance_shifts_v2";
+    public static final String CHANNEL_SALARY = "channel_salary_payouts_v2";
+    public static final String CHANNEL_REMINDERS = "channel_reminders_streaks_v2";
+    public static final String CHANNEL_PAYMENTS = "channel_client_payments_v2";
+    public static final String CHANNEL_WELLNESS = "channel_wellness_breaks_v2";
+    public static final String CHANNEL_SHIFT_GREETINGS = "channel_shift_greetings_v2";
+
+    public static Uri getCustomSoundUri(Context context) {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + R.raw.nodeman_notification);
+    }
 
     private WebView webView;
     private ValueCallback<Uri[]> uploadMessage;
@@ -702,6 +708,8 @@ public class MainActivity extends AppCompatActivity {
                                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT
                             );
 
+                            Uri soundUri = getCustomSoundUri(MainActivity.this);
+
                             NotificationCompat.Builder builder = new NotificationCompat.Builder(MainActivity.this, targetChannel)
                                 .setSmallIcon(iconRes)
                                 .setContentTitle(title)
@@ -711,6 +719,7 @@ public class MainActivity extends AppCompatActivity {
                                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                                 .setContentIntent(pendingIntent)
                                 .setAutoCancel(true)
+                                .setSound(soundUri)
                                 .setVibrate(new long[]{0, 200, 100, 200});
 
                             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.this);
@@ -734,6 +743,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
+        public void triggerSickLeaveCareNotification(final String dateStr) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        NotificationActionReceiver.sendSickLeaveCareNotification(MainActivity.this, dateStr);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void playCustomNotificationSound() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        MediaPlayer mp = MediaPlayer.create(MainActivity.this, R.raw.nodeman_notification);
+                        if (mp != null) {
+                            mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                @Override
+                                public void onCompletion(MediaPlayer mediaPlayer) {
+                                    try {
+                                        mediaPlayer.release();
+                                    } catch (Exception ignored) {}
+                                }
+                            });
+                            mp.start();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+
+        @JavascriptInterface
         public boolean hasNotificationPermission() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 return ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
@@ -752,12 +800,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Creates high-priority notification channels on Android 8.0+
+    // Creates high-priority notification channels on Android 8.0+ with custom signature sound
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 NotificationManager manager = getSystemService(NotificationManager.class);
                 if (manager != null) {
+                    // Clean up legacy channels to ensure new custom frequency sound is adopted
+                    try {
+                        manager.deleteNotificationChannel("channel_attendance_shifts");
+                        manager.deleteNotificationChannel("channel_salary_payouts");
+                        manager.deleteNotificationChannel("channel_reminders_streaks");
+                        manager.deleteNotificationChannel("channel_client_payments");
+                        manager.deleteNotificationChannel("channel_wellness_breaks");
+                        manager.deleteNotificationChannel("channel_shift_greetings");
+                    } catch (Exception ignored) {}
+
+                    Uri soundUri = getCustomSoundUri(this);
+                    AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .build();
+
                     NotificationChannel attChannel = new NotificationChannel(
                         CHANNEL_ATTENDANCE,
                         "Attendance & Shifts",
@@ -765,6 +829,7 @@ public class MainActivity extends AppCompatActivity {
                     );
                     attChannel.setDescription("Daily shift reminders, 1-tap check-in buttons, and leave alerts");
                     attChannel.enableVibration(true);
+                    attChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(attChannel);
 
                     NotificationChannel salChannel = new NotificationChannel(
@@ -774,22 +839,27 @@ public class MainActivity extends AppCompatActivity {
                     );
                     salChannel.setDescription("Monthly salary credit day alerts and payslip notifications");
                     salChannel.enableVibration(true);
+                    salChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(salChannel);
 
                     NotificationChannel remChannel = new NotificationChannel(
                         CHANNEL_REMINDERS,
                         "Reminders & Streaks",
-                        NotificationManager.IMPORTANCE_DEFAULT
+                        NotificationManager.IMPORTANCE_HIGH
                     );
                     remChannel.setDescription("Work streaks and general task reminders");
+                    remChannel.enableVibration(true);
+                    remChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(remChannel);
 
                     NotificationChannel payChannel = new NotificationChannel(
                         CHANNEL_PAYMENTS,
                         "Client Invoices & Receivables",
-                        NotificationManager.IMPORTANCE_DEFAULT
+                        NotificationManager.IMPORTANCE_HIGH
                     );
                     payChannel.setDescription("Outstanding balance and unpaid invoice reminders");
+                    payChannel.enableVibration(true);
+                    payChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(payChannel);
 
                     NotificationChannel welChannel = new NotificationChannel(
@@ -799,6 +869,7 @@ public class MainActivity extends AppCompatActivity {
                     );
                     welChannel.setDescription("Lunch reminders with interactive Yes/No buttons, bio breaks, and hydration tips");
                     welChannel.enableVibration(true);
+                    welChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(welChannel);
 
                     NotificationChannel endChannel = new NotificationChannel(
@@ -808,6 +879,7 @@ public class MainActivity extends AppCompatActivity {
                     );
                     endChannel.setDescription("Warm greetings, congratulations, and motivational thoughts upon shift completion");
                     endChannel.enableVibration(true);
+                    endChannel.setSound(soundUri, audioAttributes);
                     manager.createNotificationChannel(endChannel);
                 }
             } catch (Exception e) {
