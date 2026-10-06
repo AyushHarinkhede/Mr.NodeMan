@@ -5818,11 +5818,11 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           Salary Slip
         </button>
       </div>
-    </div>
-    
-    <!-- ══════════════ GOOGLE CLOUD & DRIVE SYNC SUITE ══════════════ -->
-    <div class="card anim" id="google-cloud-sync-card" style="background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:14px;margin-bottom:14px">
-      <!-- Populated dynamically by updateGoogleCloudUI() -->
+
+      <!-- Google Cloud Drive Vault Integration inside Worker Card -->
+      <div id="wp-cloud-sync-box" style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--b2)">
+        <!-- Populated dynamically by updateGoogleCloudUI() -->
+      </div>
     </div>
 
         <!-- Workspace ID -->
@@ -15920,7 +15920,7 @@ function loadGoogleGISSDK() {
 
 // 1-Tap / Popup Google Login & Sign Up
 async function loginWithGoogle() {
-  showToast('🔐 Initializing Google Sign-In...');
+  showToast('Initializing Google Sign-In...');
   
   // 1. Try Firebase Google Auth if Firebase is configured
   if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
@@ -15944,11 +15944,11 @@ async function loginWithGoogle() {
       localStorage.setItem('rememberUser', 'true');
       
       updateAuthUI();
-      showToast('⚙️ Syncing account with Google Cloud...');
+      showToast('Syncing account with Google Cloud...');
       await loadUserData();
       if (typeof updateGoogleCloudUI === 'function') updateGoogleCloudUI();
       
-      showToast('✅ Welcome, ' + (currentUser.name || currentUser.email) + '!');
+      showToast('Welcome, ' + (currentUser.name || currentUser.email));
       closeModal('confirm-modal');
       return true;
     } catch (fbErr) {
@@ -15972,7 +15972,7 @@ async function loginWithGoogle() {
             localStorage.setItem('_mnm_google_access_token', _googleAccessToken);
             localStorage.setItem('_mnm_google_token_exp', _googleTokenExpiresAt.toString());
 
-            showToast('🔄 Fetching Google Profile...');
+            showToast('Fetching Google Profile...');
             try {
               const uRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: { 'Authorization': `Bearer ${_googleAccessToken}` }
@@ -15995,7 +15995,7 @@ async function loginWithGoogle() {
               
               updateAuthUI();
               closeModal('confirm-modal');
-              showToast('☁️ Connecting to your Google Drive Cloud Storage...');
+              showToast('Connecting to Google Drive Cloud Storage...');
 
               // Check and restore or initialize Google Drive vault
               const restored = await restoreFromGoogleDrive(_googleAccessToken, true);
@@ -16005,7 +16005,7 @@ async function loginWithGoogle() {
               }
               
               if (typeof updateGoogleCloudUI === 'function') updateGoogleCloudUI();
-              showToast('✅ Google Account & Cloud Vault connected: ' + currentUser.email);
+              showToast('Connected with Google Account: ' + currentUser.email);
               playSoundAndHaptic('success', 'double');
             } catch (uErr) {
               console.error('Google userinfo error:', uErr);
@@ -16068,8 +16068,9 @@ function showAuthDirectConnectModal() {
           <input type="text" id="direct-google-name" placeholder="Ayush Harinkhede" value="" autocomplete="name" style="width:100%;padding:11px 12px;border:1px solid var(--b2);border-radius:8px;background:var(--s2);color:var(--t1);font-size:13px">
         </div>
 
-        <div style="background:var(--acc-bg);border:1px solid var(--acc-bd);border-radius:8px;padding:10px;font-size:10.5px;color:var(--acc);line-height:1.45;text-align:left">
-          🔒 <strong>100% Private Cloud Storage:</strong> Your data is stored directly in your account and synced across your devices.
+        <div style="background:var(--acc-bg);border:1px solid var(--acc-bd);border-radius:8px;padding:10px;font-size:10.5px;color:var(--acc);line-height:1.45;text-align:left;display:flex;align-items:center;gap:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span><strong>Private Cloud Storage:</strong> Stored securely in your private Google Drive vault.</span>
         </div>
       </div>
     `,
@@ -16082,11 +16083,11 @@ function showAuthDirectConnectModal() {
       const name = nameInput ? nameInput.value.trim() : '';
 
       if (!email || !email.includes('@') || !email.includes('.')) {
-        showToast('⚠ Please enter a valid Google email address');
+        showToast('Please enter a valid Google email address');
         return false;
       }
 
-      showToast('🔐 Connecting Google Account: ' + email);
+      showToast('Connecting Google Account: ' + email);
       const gUser = {
         id: 'google_' + email.replace(/[^a-zA-Z0-9]/g, '_'),
         email: email,
@@ -16101,12 +16102,12 @@ function showAuthDirectConnectModal() {
       localStorage.setItem('rememberUser', 'true');
 
       updateAuthUI();
-      showToast('⚙️ Loading user workspace...');
+      showToast('Loading user workspace...');
       await loadUserData();
       if (typeof updateGoogleCloudUI === 'function') updateGoogleCloudUI();
 
       setTimeout(() => {
-        showToast('✅ Connected with Google Account: ' + currentUser.email);
+        showToast('Connected with Google Account: ' + currentUser.email);
         playSoundAndHaptic('success', 'double');
       }, 500);
       return true;
@@ -16119,12 +16120,12 @@ function showAuthDirectConnectModal() {
 async function uploadToGoogleDrive(tokenArg, isSilent = false) {
   const token = tokenArg || _googleAccessToken;
   if (!token) {
-    if (!isSilent) showToast('⚠ Google access token missing. Please sign in with Google.');
+    if (!isSilent) showToast('Google access token missing. Please sign in with Google.');
     return false;
   }
 
   try {
-    if (!isSilent) showToast('☁️ Backing up data to Google Drive...');
+    if (!isSilent) showToast('Backing up data to Google Drive...');
     _googleIsSyncing = true;
     updateGoogleCloudSyncBadge('syncing');
 
@@ -16217,7 +16218,7 @@ async function uploadToGoogleDrive(tokenArg, isSilent = false) {
       localStorage.setItem('_mnm_gdrive_last_sync', Date.now().toString());
       _googleIsSyncing = false;
       updateGoogleCloudSyncBadge('synced');
-      if (!isSilent) showToast('✅ Cloud backup saved to Google Drive!');
+      if (!isSilent) showToast('Cloud backup saved to Google Drive');
       return true;
     } else {
       console.warn('Drive upload failed status:', uploadRes.status);
@@ -16229,7 +16230,7 @@ async function uploadToGoogleDrive(tokenArg, isSilent = false) {
     console.error('Google Drive Upload error:', e);
     _googleIsSyncing = false;
     updateGoogleCloudSyncBadge('error');
-    if (!isSilent) showToast('✗ Google Drive sync error: ' + e.message);
+    if (!isSilent) showToast('Google Drive sync error: ' + e.message);
     return false;
   }
 }
@@ -16237,12 +16238,12 @@ async function uploadToGoogleDrive(tokenArg, isSilent = false) {
 async function restoreFromGoogleDrive(tokenArg, isSilent = false) {
   const token = tokenArg || _googleAccessToken;
   if (!token) {
-    if (!isSilent) showToast('⚠ Please sign in with Google to restore from Drive.');
+    if (!isSilent) showToast('Please sign in with Google to restore from Drive.');
     return false;
   }
 
   try {
-    if (!isSilent) showToast('📥 Checking Google Drive for cloud backup...');
+    if (!isSilent) showToast('Checking Google Drive for cloud backup...');
     updateGoogleCloudSyncBadge('restoring');
 
     // 1. Search for mrnodeman_cloud_vault.json
@@ -16253,14 +16254,14 @@ async function restoreFromGoogleDrive(tokenArg, isSilent = false) {
 
     if (!searchRes.ok) {
       updateGoogleCloudSyncBadge('error');
-      if (!isSilent) showToast('✗ Could not connect to Google Drive (HTTP ' + searchRes.status + ')');
+      if (!isSilent) showToast('Could not connect to Google Drive (HTTP ' + searchRes.status + ')');
       return false;
     }
 
     const searchData = await searchRes.json();
     if (!searchData.files || searchData.files.length === 0) {
       updateGoogleCloudSyncBadge('idle');
-      if (!isSilent) showToast('ℹ No previous cloud vault found in your Google Drive.');
+      if (!isSilent) showToast('No previous cloud vault found in Google Drive');
       return false;
     }
 
@@ -16276,7 +16277,7 @@ async function restoreFromGoogleDrive(tokenArg, isSilent = false) {
 
     if (!downloadRes.ok) {
       updateGoogleCloudSyncBadge('error');
-      if (!isSilent) showToast('✗ Failed to download cloud backup file.');
+      if (!isSilent) showToast('Failed to download cloud backup file');
       return false;
     }
 
@@ -16332,13 +16333,13 @@ async function restoreFromGoogleDrive(tokenArg, isSilent = false) {
 
     const entryCount = (entries || []).length;
     const attCount = Object.keys(attendanceRecords || {}).length;
-    showToast(`✅ Restored ${entryCount} entries & ${attCount} attendance records from Google Drive!`);
+    showToast(`Restored ${entryCount} entries & ${attCount} attendance records from Google Drive`);
     playSoundAndHaptic('success', 'triple');
     return true;
   } catch (e) {
     console.error('Google Drive restore error:', e);
     updateGoogleCloudSyncBadge('error');
-    if (!isSilent) showToast('✗ Restore error: ' + e.message);
+    if (!isSilent) showToast('Restore error: ' + e.message);
     return false;
   }
 }
@@ -16358,72 +16359,57 @@ function scheduleGoogleDriveSync() {
 // ── Google Cloud UI in More View ──
 
 function updateGoogleCloudUI() {
-  const container = document.getElementById('google-cloud-sync-card');
+  const container = document.getElementById('wp-cloud-sync-box') || document.getElementById('google-cloud-sync-card');
   if (!container) return;
 
   const isGoogleConnected = currentUser && (currentUser.provider === 'google' || (currentUser.email && currentUser.email.includes('@gmail.com')));
-  const userEmail = currentUser ? currentUser.email : null;
-  const userName = currentUser ? (currentUser.name || currentUser.email.split('@')[0]) : null;
-  const userPhoto = currentUser ? (currentUser.photoURL || currentUser.avatar) : null;
   const lastSync = localStorage.getItem('_mnm_gdrive_last_sync');
   const lastSyncStr = lastSync ? new Date(parseInt(lastSync, 10)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Never';
 
   if (isGoogleConnected) {
     container.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:10px">
-          ${userPhoto ? `<img src="${userPhoto}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid var(--acc)" onerror="this.style.display='none'"/>` : `
-          <div style="width:34px;height:34px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-          </div>`}
-          <div>
-            <div style="font-size:13px;font-weight:800;color:var(--t1)">${userName}</div>
-            <div style="font-size:10.5px;color:var(--t2)">${userEmail}</div>
-          </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc)"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+          <span style="font-size:11px;font-weight:700;color:var(--t1)">Cloud Vault</span>
         </div>
-        <span class="att-badge att-badge-p" style="font-size:9.5px;padding:3px 8px;display:flex;align-items:center;gap:4px">
-          <span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block"></span> Google Linked
+        <span id="gdrive-sync-time-label" style="font-size:10px;font-weight:700;color:var(--paid);display:flex;align-items:center;gap:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Synced: ${lastSyncStr}
         </span>
       </div>
 
-      <div style="background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;font-size:11px">
-        <span style="color:var(--t2)">Google Drive Vault:</span>
-        <strong style="color:var(--acc)" id="gdrive-sync-time-label">Last synced: ${lastSyncStr}</strong>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <button class="ss-btn" onclick="uploadToGoogleDrive(null, false)" style="padding:10px 8px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/><polyline points="12 13 12 7 9 10"/><polyline points="12 7 15 10"/></svg>
-          Backup Now
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:6px">
+        <button type="button" class="ss-btn" onclick="uploadToGoogleDrive(null, false)" style="padding:7px 8px;border-radius:8px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="8 7 12 3 16 7"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Backup
         </button>
-        <button class="ss-btn" onclick="restoreFromGoogleDrive(null, false)" style="padding:10px 8px;border-radius:10px;background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-          Restore Data
+        <button type="button" class="ss-btn" onclick="restoreFromGoogleDrive(null, false)" style="padding:7px 8px;border-radius:8px;background:var(--paid-bg);border:1px solid var(--paid-bd);color:var(--paid);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"/><polyline points="8 13 12 17 16 13"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          Restore
+        </button>
+        <button type="button" class="ss-btn" onclick="openGoogleCloudSetupModal()" title="Cloud Settings" style="padding:7px 9px;border-radius:8px;background:var(--s2);border:1px solid var(--b2);color:var(--t2);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
       </div>
-
-      <button class="ss-btn" onclick="openGoogleCloudSetupModal()" style="width:100%;padding:8px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t2);font-size:11px;font-weight:600">
-        ⚙️ Google Cloud API &amp; Client ID Settings
-      </button>
     `;
   } else {
     container.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-          <div style="font-size:13px;font-weight:800;color:var(--t1)">Google Drive Cloud Sync</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--t2)"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+          <span style="font-size:11px;font-weight:700;color:var(--t1)">Cloud Vault</span>
         </div>
-        <span style="font-size:9.5px;color:var(--t3);background:var(--s3);border:1px solid var(--b2);padding:2px 7px;border-radius:6px">Not Connected</span>
+        <span style="font-size:9.5px;color:var(--t3);background:var(--s2);border:1px solid var(--b2);padding:2px 7px;border-radius:6px">Unlinked</span>
       </div>
-      <div style="font-size:11px;color:var(--t2);margin-bottom:12px;line-height:1.45">
-        Connect your Google Account to automatically save all your ledger entries, attendance, and work profiles to your private Google Drive cloud storage.
-      </div>
-      <button class="ss-btn" onclick="loginWithGoogle()" style="width:100%;padding:12px;border-radius:11px;background:#ffffff;border:1px solid #dadce0;color:#3c4043;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
-        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-        Sign in with Google →
-      </button>
-      <div style="text-align:center;margin-top:8px">
-        <span onclick="openGoogleCloudSetupModal()" style="font-size:10.5px;color:var(--acc);cursor:pointer;text-decoration:underline">⚙️ Use Custom Google Client ID / Firebase</span>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
+        <button type="button" class="ss-btn" onclick="loginWithGoogle()" style="padding:8px 10px;border-radius:8px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+          Connect Google
+        </button>
+        <button type="button" class="ss-btn" onclick="openGoogleCloudSetupModal()" title="Cloud Settings" style="padding:8px 10px;border-radius:8px;background:var(--s2);border:1px solid var(--b2);color:var(--t2);font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
       </div>
     `;
   }
@@ -16433,18 +16419,18 @@ function updateGoogleCloudSyncBadge(state) {
   const lbl = document.getElementById('gdrive-sync-time-label');
   if (!lbl) return;
   if (state === 'syncing') {
-    lbl.innerHTML = '⏳ Syncing to Google Drive...';
+    lbl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Syncing...';
     lbl.style.color = 'var(--pend)';
   } else if (state === 'restoring') {
-    lbl.innerHTML = '⏳ Restoring from Google Drive...';
+    lbl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Restoring...';
     lbl.style.color = 'var(--acc)';
   } else if (state === 'synced') {
     const lastSync = localStorage.getItem('_mnm_gdrive_last_sync');
     const lastSyncStr = lastSync ? new Date(parseInt(lastSync, 10)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
-    lbl.innerHTML = 'Last synced: ' + lastSyncStr;
+    lbl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Synced: ' + lastSyncStr;
     lbl.style.color = 'var(--paid)';
   } else if (state === 'error') {
-    lbl.innerHTML = '⚠️ Sync error (tap to retry)';
+    lbl.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Sync Error';
     lbl.style.color = 'var(--danger)';
   }
 }
@@ -16469,14 +16455,14 @@ function openGoogleCloudSetupModal() {
         </div>
 
         <div style="background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:12px;margin-bottom:14px">
-          <div style="font-weight:700;font-size:11px;color:var(--acc);margin-bottom:6px">📖 2-Minute Setup Guide for Your Own Google API:</div>
+          <div style="font-weight:700;font-size:11px;color:var(--acc);margin-bottom:6px">Setup Guide:</div>
           <ol style="margin:0;padding-left:18px;font-size:10.5px;color:var(--t2);line-height:1.5">
             <li>Visit <span onclick="window.open('https://console.cloud.google.com/apis/credentials', '_blank')" style="color:var(--acc);text-decoration:underline;cursor:pointer">Google Cloud Console (Credentials)</span>.</li>
-            <li>Click <strong>Create Credentials → OAuth client ID</strong>.</li>
+            <li>Click <strong>Create Credentials &rarr; OAuth client ID</strong>.</li>
             <li>Application type: <strong>Web application</strong>.</li>
             <li>Add Authorised JavaScript origins: <code style="color:var(--t1)">https://localhost</code> or your app domain.</li>
-            <li>Enable <strong>Google Drive API</strong> under APIs & Services.</li>
-            <li>Copy your <strong>Client ID</strong> and paste above!</li>
+            <li>Enable <strong>Google Drive API</strong> under APIs &amp; Services.</li>
+            <li>Copy your <strong>Client ID</strong> and paste above.</li>
           </ol>
         </div>
 
@@ -16494,7 +16480,7 @@ function openGoogleCloudSetupModal() {
 
       if (gId) {
         localStorage.setItem('_mnm_google_client_id', gId);
-        showToast('✅ Google Client ID saved!');
+        showToast('Google Client ID saved');
       } else {
         localStorage.removeItem('_mnm_google_client_id');
       }
@@ -16505,7 +16491,7 @@ function openGoogleCloudSetupModal() {
           localStorage.setItem('_mnm_fb_config', fbRaw);
           if (typeof connectFirebase === 'function') connectFirebase(cfg);
         } catch(e) {
-          showToast('⚠ Invalid Firebase JSON format');
+          showToast('Invalid Firebase JSON format');
           return false;
         }
       }
