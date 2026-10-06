@@ -115,10 +115,13 @@ public class MainActivity extends AppCompatActivity {
         webView.setSoundEffectsEnabled(false);
         webView.setHapticFeedbackEnabled(false);
 
-        // Enable Hardware Accelerated GPU rendering layer & disable overscroll shadow jitter
+        // Hardware Accelerated GPU rendering layer & disable overscroll shadow jitter
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         webView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        webView.setVerticalScrollBarEnabled(false);
+        webView.setHorizontalScrollBarEnabled(false);
+        webView.setNestedScrollingEnabled(true);
 
         // Optimized WebSettings for high FPS JS rendering & permanent data persistence
         WebSettings webSettings = webView.getSettings();
@@ -918,6 +921,8 @@ public class MainActivity extends AppCompatActivity {
     private void enableHighRefreshRate() {
         try {
             Window window = getWindow();
+            if (window == null) return;
+
             WindowManager.LayoutParams lp = window.getAttributes();
             android.view.Display display = null;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -928,22 +933,25 @@ public class MainActivity extends AppCompatActivity {
             }
             if (display != null) {
                 float maxRefreshRate = 60.0f;
+                int highestModeId = 0;
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     android.view.Display.Mode[] modes = display.getSupportedModes();
-                    android.view.Display.Mode highestMode = null;
                     if (modes != null) {
                         for (android.view.Display.Mode mode : modes) {
-                            if (mode.getRefreshRate() > maxRefreshRate) {
-                                maxRefreshRate = mode.getRefreshRate();
-                                highestMode = mode;
+                            float rate = mode.getRefreshRate();
+                            if (rate > maxRefreshRate) {
+                                maxRefreshRate = rate;
+                                highestModeId = mode.getModeId();
                             }
                         }
                     }
-                    if (highestMode != null) {
-                        lp.preferredDisplayModeId = highestMode.getModeId();
+                    if (highestModeId != 0) {
+                        lp.preferredDisplayModeId = highestModeId;
                     }
                     lp.preferredRefreshRate = maxRefreshRate;
                 }
+
                 // Set preferred min/max display refresh rates if supported by Android platform
                 try {
                     java.lang.reflect.Field minField = WindowManager.LayoutParams.class.getField("preferredMinDisplayRefreshRate");
@@ -956,6 +964,15 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Throwable ignored) {}
 
                 window.setAttributes(lp);
+
+                // For Android 11+ (API 30+), set frame rate directly on root view for continuous buttery smoothness
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && webView != null) {
+                    try {
+                        java.lang.reflect.Method setFrameRateMethod = View.class.getMethod("setFrameRate", float.class, int.class);
+                        // FRAME_RATE_COMPATIBILITY_DEFAULT = 0
+                        setFrameRateMethod.invoke(webView, maxRefreshRate, 0);
+                    } catch (Throwable ignored) {}
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
