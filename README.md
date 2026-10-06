@@ -1,145 +1,135 @@
-# <p align="center"><img src="./app_logo.png" alt="Mr.NodeMan Logo" width="96" height="96" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(54, 223, 175, 0.35);"/></p>
+<p align="center">
+  <br/>
+  <img src="./app_logo.png" alt="Mr.NodeMan Logo" width="160" height="160" style="border-radius: 36px; box-shadow: 0 16px 40px rgba(124, 111, 237, 0.35), 0 0 50px rgba(45, 212, 168, 0.25); border: 2px solid rgba(124, 111, 237, 0.4); display: block; margin: 0 auto;" />
+</p>
 
-<h1 align="center" style="color: #EEEEF5; font-weight: 800; letter-spacing: -0.03em;">
+<h1 align="center" style="font-size: 38px; font-weight: 900; letter-spacing: -0.04em; color: #EEEEF5; margin-top: 18px; margin-bottom: 8px;">
   Mr.NodeMan
 </h1>
 
-<p align="center" style="color: #74748A; font-size: 16px;">
-  <strong>Next-Gen Work Ledger & Freelance Financial Operating System</strong><br/>
-  Track Daily Attendance, Overtime, Salary Payouts, Client Billing & Smart Offline Automation
+<p align="center" style="font-size: 16px; line-height: 1.6; max-width: 680px; margin: 0 auto 20px auto; color: #A0A0B8;">
+  <strong>Financial Operating System & Work Ledger</strong><br/>
+  Seamlessly unified for <strong>Daily Shift Workers</strong>, <strong>Freelancers</strong>, and <strong>Enterprise Contractors</strong>.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Platform-Android%20%7C%20PWA-7C6FED?style=for-the-badge&logo=android&logoColor=white" alt="Platform" />
-  <img src="https://img.shields.io/badge/Theme-Dark%20OLED%20Glassmorphism-07070A?style=for-the-badge&logo=color-palette&logoColor=2DD4A8" alt="Theme" />
-  <img src="https://img.shields.io/badge/Engine-Offline--First%20Core-2DD4A8?style=for-the-badge" alt="Engine" />
-  <img src="https://img.shields.io/badge/Build-Passing-36DFAF?style=for-the-badge" alt="Build" />
+  <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20PWA-7C6FED?style=for-the-badge&logo=android&logoColor=white" alt="Platform" /></a>
+  <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Theme-Emerald%20%26%20Violet%20OLED-07070A?style=for-the-badge&logo=palette&logoColor=2DD4A8" alt="Theme" /></a>
+  <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Storage-100%25%20Offline%20Vault-2DD4A8?style=for-the-badge&logo=shield&logoColor=black" alt="Storage" /></a>
+  <a href="https://github.com/AyushHarinkhede/Mr.NodeMan/releases"><img src="https://img.shields.io/badge/Build-v3.0.0%20Passing-36DFAF?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build" /></a>
 </p>
 
+<br/>
+
 ---
 
-## 🎨 Design System & Visual Palette
+### 🎨 Dark OLED & Glassmorphism Design System
 
-Mr.NodeMan features a modern **OLED Obsidian Glass** aesthetic inspired by minimalist financial terminals and cyberpunk ergonomics:
+Mr.NodeMan is crafted around high-contrast OLED black aesthetics, precision financial telemetry, and subtle frosted accents:
 
-| Color Token | Hex Code | Visual Meaning |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  CORE DESIGN PALETTE                                                        │
+├──────────────────────┬─────────────┬────────────────────────────────────────┤
+│  Token               │  Hex Code   │  Role & Semantic Function              │
+├──────────────────────┼─────────────┼────────────────────────────────────────┤
+│  Deep OLED Canvas    │  #07070A    │  Zero-power black substrate            │
+│  Surface Elevated    │  #0E0E13    │  Glassmorphic card container           │
+│  Surface Hover       │  #16161E    │  Interactive controls & buttons        │
+│  Accent Emerald      │  #2DD4A8    │  Net Earnings, Payouts, Present (P)    │
+│  Electric Violet     │  #7C6FED    │  Primary branding, Sliders & Highlights│
+│  Amber Warmth        │  #FFB930    │  Overtime (OT), Pending Dues, Half-Day │
+│  Crimson / Coral     │  #F87171    │  Deductions, Sunday badges, Absent (A) │
+│  Pure Text Slate     │  #EEEEF5    │  Primary high-contrast legibility      │
+└──────────────────────┴─────────────┴────────────────────────────────────────┘
+```
+
+---
+
+### ⚡ Unified Workspace Tri-Mode Architecture
+
+Users can switch perspective dynamically across three distinct operational modes directly from the Home bar or More screen:
+
+| Mode | Target User | Key Capabilities Included |
 | :--- | :--- | :--- |
-| **Deep Space Canvas** | `#07070A` | True deep-black OLED battery-saving backdrop |
-| **Subtle Card Glass** | `#0E0E13` / `#131318` | High-definition elevated surfaces with soft ambient aura |
-| **Neon Mint (Accent)** | `#2DD4A8` / `#36DFAF` | Financial positive, Present attendance, Success metrics |
-| **Electric Violet** | `#7C6FED` | Core branding, primary actions, calendar highlights |
-| **Warm Amber** | `#FFB930` / `#F59E0B` | Pending milestones, overtime tags, half-day indicators |
-| **Soft Coral / Rose** | `#F87171` / `#EC4899` | Absentee alerts, Sick Leave empathy banners |
+| **Hybrid** | Dual Earners & Multi-income Pros | Combined ledger uniting client invoices, shift work, overtime payouts, and unified cash flow analysis. |
+| **Shift** | Daily Employees & Shift Workers | Punch-in/out roster, attendance calendar (P/HD/PL/SL/WO/HL/A), OT multipliers (1.5x/2.0x), PF calculations, and automatic salary slip slips. |
+| **Gig** | Freelancers & Contractors | Hourly billable time tracking, client management directory, GST invoicing, milestone badges, and pending payment tracking. |
 
 ---
 
-## ⚡ Key Highlights & Core Capabilities
+### 📅 Advanced Attendance Calendar & Roster Suite
 
-### 1. 🏢 Dual Architecture: Freelance + Workplace Roster
-* **Office & Shift Mode**: Complete worker ledger with check-in/out timestamps, automatic rate calculations, shift roster, half-day tracking, and overtime multipliers.
-* **Freelance Client Ledger**: Billable hourly & fixed-rate projects, client dues ledger, invoice generation, and pending milestone alerts.
-* **Dual Operation**: Seamlessly switch between or combine freelance billing and regular shift earnings in a single unified dashboard.
-
-### 2. 📅 Ultra-Clean Attendance Calendar & Tools
-* **Single-Line Header**: Dynamically formatted Month & Year inline display preventing uneven text drops.
-* **Interactive Year & Month Pickers**: Quick popover selectors to switch years or jump across months in one tap.
-* **Unified Tools Bar**: Quick access bar prioritizing **Calculator** and **Calendar** directly on home view.
-* **Granular Status Classification**:
-  * `P` — Present
-  * `HD` — Half Day (with custom duration)
-  * `PL` — Paid Leave
-  * `SL` — Sick Leave
-  * `WO` — Week Off
-  * `HL` — Official Holiday
-  * `A` — Unplanned Absent
+* **Smart Sunday Distinction**: Sundays are cleanly accented in red while Saturdays and weekdays remain in standard contrast.
+* **Instant Month / Year Pickers**: Tap directly on the header to jump to any year or month in 1 click.
+* **Streamlined Metric Cards**: Live tracking of **Present Days**, **Half-Days & Leaves**, **Overtime Hours**, and **Estimated Payout**.
+* **Swipe-Driven Navigation**: Smooth horizontal gestures for rapid month-by-month navigation.
+* **Granular Attendance Codes**:
+  * `P` — Present (Full Shift)
+  * `HD` — Half Day (Logged hours & rate)
+  * `PL` / `SL` / `CL` — Paid, Sick & Casual Leaves
+  * `WO` / `HL` — Week Off & Official Holidays
+  * `A` — Absent
 
 ---
 
-## 🔔 Intelligent Notification Suite & Native Integration
+### ☁️ Privacy-First Storage & Real Google Cloud Sync
 
-Mr.NodeMan features a zero-battery-drain, offline-first Android native notification suite (`AlarmManager` + `BroadcastReceiver`):
-
-### ☀️ Morning Shift Check-In (09:00 AM)
-* Interactive notification shade with **3 direct action buttons**:
-  * **`Present 🎉`**: Records Present with an energetic *"Yeepee! 🎉 Present Marked!"* celebration chime and crisp haptic feedback.
-  * **`Absent ❌`**: Triggers a smart sub-menu notification prompt asking the absence reason.
-  * **`Week Off 🌴`**: Immediately logs scheduled Week Off without opening the app.
-
-### 📋 Interactive Absent Sub-Menu Flow
-When selecting **Absent**, the notification updates in-place to offer specific leave reasons:
-1. **`Sick Leave (SL) 💊`**
-2. **`Paid Leave (PL) 🏖️`**
-3. **`Absent (A) ❌`**
-
-### 🩺 Personalized & Empathetic Sick Leave Health Care
-Whenever Sick Leave (`SL`) is marked (either via notification or in-app buttons):
-* Sends a **dedicated recovery notification** addressing the user by their **registered name** (*"Take Full Rest, [User Name]! 🩺💖"*).
-* Utilizes a rotating empathy engine with **6 unique compassionate messages** encouraging hydration, stress-free rest, and medical care.
-
-### 🎂 Milestones & Life Reminders
-* **Advance & Day-Of Birthday Wishes**: Timely birthday greetings honoring the worker's date of birth (DOB).
-* **Workplace Tenure Celebrations**: Exact 1-year work anniversary celebrations and 1st-of-the-month tenure milestones.
-* **Stats Screen Sync**: Continuous work streak badge and tenure details displayed directly in Worker Statistics.
-
-### 🍱 Machine Learning Lunch Break Sync
-* **Interactive Lunch Reminders**: *"Haan, Kar Liya 🍱"* vs *"Abhi Nahi ⏳"*.
-* **Time Learning Algorithm**: Automatically tracks habits and calculates a personalized moving average window for subsequent daily reminders.
+* **100% Offline by Default**: Financial entries, wages, and profiles reside in private local sandbox storage.
+* **Integrated Cloud Vault**: Directly accessible inside the Worker ID Profile card. Back up and restore anytime via real Google Identity Services (OAuth 2.0) & Google Drive v3 REST API.
+* **Selective JSON Backups**: Choose whether to export **Hybrid (Full Workspace)**, **Shift (Worker Only)**, or **Gig (Freelancer Only)** snapshots with custom filenames and timestamps.
+* **CSV & Formatted PDF Exports**: Export client statements or printable financial invoices on demand.
 
 ---
 
-## 🏗️ Project Architecture
+### 🛠️ Native Android Architecture
 
 ```
 Mr.NodeMan/
-├── app/                                # Native Android Shell
+├── app/                                       # Native Android Studio Application Shell
 │   ├── src/main/
 │   │   ├── java/com/mrnodeman/app/
-│   │   │   ├── MainActivity.java       # WebView bridge & High-refresh rate controller
-│   │   │   ├── NotificationAlarmReceiver.java   # Offline alarm triggers & greetings
-│   │   │   ├── NotificationActionReceiver.java  # 1-Tap interactive shade actions
-│   │   │   ├── NotificationScheduler.java      # AlarmManager exact scheduling
-│   │   │   └── BootReceiver.java       # Re-arm alarms upon device restart
+│   │   │   ├── MainActivity.java              # WebView acceleration, notch insets & bridges
+│   │   │   ├── NotificationAlarmReceiver.java # Offline exact alarm broadcaster
+│   │   │   ├── NotificationActionReceiver.java# Interactive shade tap handlers
+│   │   │   ├── NotificationScheduler.java     # Android AlarmManager exact scheduler
+│   │   │   └── BootReceiver.java              # Auto-rearms alarms upon device boot
 │   │   ├── res/
-│   │   │   ├── raw/nodeman_notification.wav     # Custom signature audio chime
-│   │   │   └── drawable/               # High-contrast action icons
-│   │   └── assets/index.html           # Bundled standalone offline app
-├── index.html                          # Core PWA application codebase
-├── app_logo.png                        # Official branding logo
-├── manifest.json                       # Progressive Web App configuration
-└── build.gradle                        # Android build scripts
+│   │   │   ├── raw/nodeman_notification.wav   # Signature 528Hz audio chime
+│   │   │   └── drawable/                      # Optimized vector resources
+│   │   └── assets/index.html                  # Bundled offline core application
+├── index.html                                 # Core PWA application engine
+├── app_logo.png                               # Official branding asset
+├── manifest.json                              # Progressive Web App manifest
+└── build.gradle                               # Gradle build configuration
 ```
 
 ---
 
-## 🚀 Building & Running
+### 🚀 Quick Start & Build Instructions
 
-### Requirements
-* **Android SDK** (API Level 24+ supported, targeted to Android 14 / API 34)
-* **Java Development Kit (JDK 17+)**
-* Modern Web Browser (for PWA mode)
+#### Prerequisites
+- Android Studio / Android SDK (API Level 24+ supported, targeting Android 14 / API 34)
+- Java Development Kit (JDK 17+)
+- Modern browser (for PWA mode)
 
-### Android Compilation
+#### Build APK
 ```powershell
 # Clone the repository
 git clone https://github.com/AyushHarinkhede/Mr.NodeMan.git
 
-# Enter workspace
+# Navigate to project root
 cd Mr.NodeMan
 
-# Build debug APK
-./gradlew.bat assembleDebug
+# Compile and package debug APK
+.\gradlew.bat assembleDebug
 ```
-The output APK is generated at:
-`app/build/outputs/apk/debug/app-debug.apk`
+The output APK is generated at `app/build/outputs/apk/debug/app-debug.apk` and mirrored to root `app-debug.apk`.
 
 ---
 
-## 🔒 Privacy & Offline Assurance
-* **100% Offline Capable**: Your financial earnings, client agreements, and attendance records stay encrypted in native local device storage.
-* **Incognito Support**: Built-in incognito mode prevents clipboard leakage, denies media queries, and leaves zero forensic trace.
-
----
-
-<p align="center" style="color: #74748A; font-size: 13px;">
-  Crafted with care by <strong>Ayush Harinkhede</strong> for modern workers, freelancers, and craftsmen everywhere. ⚡
+<p align="center">
+  <br/>
+  Designed &amp; Engineered with precision by <strong>Ayush Harinkhede</strong>.<br/>
+  <sub>Mr.NodeMan • Next-Gen Work Ledger &amp; Freelance Operating System</sub>
 </p>
