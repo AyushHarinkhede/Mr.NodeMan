@@ -4300,11 +4300,11 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
     </div>
 
-    <!-- Mode Switcher: Hybrid Mode / Shift / Gig (Directly Below Top Summary) -->
+    <!-- Mode Switcher: Hybrid / Shift / Gig (Directly Below Top Summary) -->
     <div class="mode-switch-wrapper anim" id="dash-mode-switch">
       <button type="button" class="mode-switch-btn active" id="mode-btn-all" onclick="setAppMode('all')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
-        Hybrid Mode
+        Hybrid
       </button>
       <button type="button" class="mode-switch-btn" id="mode-btn-office" onclick="setAppMode('office')">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
@@ -5721,44 +5721,20 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       </div>
     </div>
 
-    <!-- ══════════════ 3. PERSPECTIVE / MODE SWITCHER CARD ══════════════ -->
-    <div class="card anim" id="more-mode-switcher-card" style="margin-bottom:12px;background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <div style="width:34px;height:34px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);display:flex;align-items:center;justify-content:center;color:var(--acc)">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
-          </div>
-          <div>
-            <div style="font-size:14px;font-weight:800;color:var(--t1)">Workspace Mode</div>
-            <div style="font-size:10.5px;color:var(--t2)">Switch between Gig, Shift &amp; Hybrid Mode</div>
-          </div>
-        </div>
-        <span id="more-active-mode-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--acc-bg);color:var(--acc);border:1px solid var(--acc-bd)">Gig</span>
-      </div>
-
-      <!-- Segmented Switcher Controls -->
-      <div class="mode-switch-bar" style="margin:0 0 10px 0;width:100%;display:flex;gap:4px;background:var(--s2);padding:4px;border-radius:10px;border:1px solid var(--b)">
-        <button type="button" class="mode-pill active" id="more-mode-btn-freelance" onclick="setAppMode('freelance')" style="flex:1;padding:8px 4px;font-size:11px;font-weight:700;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
-          Gig
-        </button>
-        <button type="button" class="mode-pill" id="more-mode-btn-office" onclick="setAppMode('office')" style="flex:1;padding:8px 4px;font-size:11px;font-weight:700;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
-          Shift
-        </button>
-        <button type="button" class="mode-pill" id="more-mode-btn-all" onclick="setAppMode('all')" style="flex:1;padding:8px 4px;font-size:11px;font-weight:700;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all 0.2s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
-          Hybrid
-        </button>
-      </div>
-
-      <!-- Center Action Button Dynamic Explanation -->
-      <div id="more-mode-expl-box" style="font-size:11px;color:var(--t2);background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:9px 12px;display:flex;align-items:center;gap:8px">
-        <span id="more-mode-expl-icon" style="color:var(--acc);font-size:15px;display:flex;align-items:center">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
-        </span>
-        <span id="more-mode-expl-text" style="flex:1;line-height:1.4">Navbar Center Button: <strong>Log Gig Work Session</strong></span>
-      </div>
+    <!-- ══════════════ 3. MODE SWITCHER (EXACT MATCH WITH HOME PAGE) ══════════════ -->
+    <div class="mode-switch-wrapper anim" id="more-mode-switch" style="margin-bottom:12px">
+      <button type="button" class="mode-switch-btn active" id="more-mode-btn-all" onclick="setAppMode('all')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
+        Hybrid
+      </button>
+      <button type="button" class="mode-switch-btn" id="more-mode-btn-office" onclick="setAppMode('office')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
+        Shift
+      </button>
+      <button type="button" class="mode-switch-btn" id="more-mode-btn-freelance" onclick="setAppMode('freelance')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
+        Gig
+      </button>
     </div>
 
     <!-- ══════════════ 4. WORK PROFILE & EMPLOYEE ID CARD ══════════════ -->
@@ -9076,23 +9052,23 @@ function setAppMode(mode) {
       if (m === currentAppMode) {
         mBtn.classList.add('active');
         if (m === 'freelance') {
-          mBtn.style.background = 'rgba(45, 212, 168, 0.16)';
           mBtn.style.color = '#2DD4A8';
-          mBtn.style.border = '1px solid rgba(45, 212, 168, 0.35)';
+          mBtn.style.borderColor = 'rgba(45, 212, 168, 0.4)';
+          mBtn.style.background = 'rgba(45, 212, 168, 0.12)';
         } else if (m === 'office') {
-          mBtn.style.background = 'rgba(124, 111, 237, 0.16)';
           mBtn.style.color = '#A594FD';
-          mBtn.style.border = '1px solid rgba(124, 111, 237, 0.35)';
+          mBtn.style.borderColor = 'rgba(124, 111, 237, 0.4)';
+          mBtn.style.background = 'rgba(124, 111, 237, 0.12)';
         } else {
-          mBtn.style.background = 'rgba(255, 255, 255, 0.12)';
           mBtn.style.color = '#EEEEF5';
-          mBtn.style.border = '1px solid rgba(255, 255, 255, 0.25)';
+          mBtn.style.borderColor = 'rgba(255, 255, 255, 0.25)';
+          mBtn.style.background = 'rgba(255, 255, 255, 0.08)';
         }
       } else {
         mBtn.classList.remove('active');
-        mBtn.style.background = 'transparent';
-        mBtn.style.color = 'var(--t2)';
-        mBtn.style.border = '1px solid transparent';
+        mBtn.style.color = '';
+        mBtn.style.borderColor = '';
+        mBtn.style.background = '';
       }
     }
   });
@@ -9111,7 +9087,7 @@ function setAppMode(mode) {
       activeBadge.style.background = 'rgba(45, 212, 168, 0.14)';
       activeBadge.style.borderColor = 'rgba(45, 212, 168, 0.30)';
     } else {
-      activeBadge.textContent = 'Hybrid Mode';
+      activeBadge.textContent = 'Hybrid';
       activeBadge.style.color = '#EEEEF5';
       activeBadge.style.background = 'rgba(255, 255, 255, 0.10)';
       activeBadge.style.borderColor = 'rgba(255, 255, 255, 0.22)';
