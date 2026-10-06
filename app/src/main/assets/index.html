@@ -13749,12 +13749,6 @@ function renderMoreView(){
       <div class="micon" style="background:rgba(255,185,48,.12);color:#FFB930"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
       <div><div class="mico-label">Generate Salary Slip</div><div class="mico-sub">Official monthly payslip statement</div></div>
       <div class="mchev">›</div>
-    </div>
-    <div class="more-row" onclick="openSettingsModal('notifications')">
-      <div class="micon" style="background:rgba(239,68,68,.12);color:#EF4444"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
-      <div><div class="mico-label">Smart Device Notifications</div><div class="mico-sub">Shift check-in, attendance, salary &amp; roster alerts</div></div>
-      <div class="mchev">›</div>
-    </div>
     <div class="more-row" onclick="exportCSV()">
       <div class="micon" style="background:rgba(45,212,168,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
       <div><div class="mico-label">Export CSV</div><div class="mico-sub">Download all entries</div></div>
@@ -14743,25 +14737,106 @@ function exportCSV(){
   const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
   URL.revokeObjectURL(url); showToast('📥 CSV downloaded');
 }
-function exportJSON(){
+function exportJSON(targetMode = null){
+  if (!targetMode) {
+    showConfirm({
+      title: 'Export JSON Backup',
+      body: `
+        <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.45">
+          Select which workspace data mode you want to include in this JSON export file:
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
+          <div onclick="executeExportJSON('all')" style="padding:10px 12px;border-radius:10px;background:var(--s2);border:1px solid var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 12 12 17 22 12"></polyline><polyline points="2 17 12 22 22 17"></polyline></svg>
+                Hybrid (Full Workspace)
+              </div>
+              <div style="font-size:10.5px;color:var(--t2);margin-top:2px">All gig entries, shifts, attendance, clients &amp; work profiles</div>
+            </div>
+            <span style="font-size:12px;color:var(--acc);font-weight:700">Export &rarr;</span>
+          </div>
+
+          <div onclick="executeExportJSON('office')" style="padding:10px 12px;border-radius:10px;background:var(--s2);border:1px solid var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:12.5px;font-weight:700;color:#A594FD;display:flex;align-items:center;gap:6px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="7.5"></circle><polyline points="12 8.5 12 12 14.5 13.5"></polyline><path d="M12 2a10 10 0 0 1 9.5 7"></path><path d="M12 22a10 10 0 0 1-9.5-7"></path></svg>
+                Shift (Worker Mode)
+              </div>
+              <div style="font-size:10.5px;color:var(--t2);margin-top:2px">Only employee shifts, attendance records &amp; work profile</div>
+            </div>
+            <span style="font-size:12px;color:#A594FD;font-weight:700">Export &rarr;</span>
+          </div>
+
+          <div onclick="executeExportJSON('freelance')" style="padding:10px 12px;border-radius:10px;background:var(--s2);border:1px solid var(--b2);cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:12.5px;font-weight:700;color:#2DD4A8;display:flex;align-items:center;gap:6px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="12" rx="2"></rect><path d="M2 20h20"></path><path d="m13 7-3 4h3.5l-1.5 4"></path></svg>
+                Gig (Freelance Mode)
+              </div>
+              <div style="font-size:10.5px;color:var(--t2);margin-top:2px">Only freelance client ledger entries &amp; clients directory</div>
+            </div>
+            <span style="font-size:12px;color:#2DD4A8;font-weight:700">Export &rarr;</span>
+          </div>
+        </div>
+      `,
+      singleButton: true,
+      okText: 'Close',
+      onConfirm: () => true
+    });
+    return;
+  }
+  executeExportJSON(targetMode);
+}
+
+function executeExportJSON(mode = 'all'){
+  closeModal('confirm-modal');
+  let exportEntries = entries || [];
+  let exportClients = CLIENTS || [];
+  let exportWorkProfile = workProfile || {};
+  let exportAttendance = attendanceRecords || {};
+
+  if (mode === 'office') {
+    // Only worker shifts/entries and attendance
+    exportEntries = (entries || []).filter(e => e.workType === 'shift' || e.workType === 'office');
+    exportClients = [];
+  } else if (mode === 'freelance') {
+    // Only freelance client entries and clients, no office shifts or attendance
+    exportEntries = (entries || []).filter(e => e.workType !== 'shift' && e.workType !== 'office');
+    exportWorkProfile = {};
+    exportAttendance = {};
+  }
+
   const data = {
     workspace: WORKSPACE_ID,
     exportedAt: new Date().toISOString(),
-    entries,
-    clients: CLIENTS,
-    workProfile: workProfile || {},
-    attendance: attendanceRecords || {},
-    appMode: currentAppMode || 'all'
+    exportMode: mode,
+    entries: exportEntries,
+    clients: exportClients,
+    workProfile: exportWorkProfile,
+    attendance: exportAttendance,
+    appMode: mode
   };
-  const jsonStr = JSON.stringify(data,null,2);
-  const filename = 'mrnodeman-backup.json';
+
+  const jsonStr = JSON.stringify(data, null, 2);
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const modeSuffix = mode === 'all' ? 'hybrid' : mode;
+  const filename = `mrnodeman-backup-${modeSuffix}-${dateStr}.json`;
+
   if (checkAndExportFile(filename, jsonStr, 'application/json')) {
+    showToast(`JSON exported (${modeSuffix})`);
     return;
   }
-  const blob=new Blob([jsonStr],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
-  URL.revokeObjectURL(url); showToast('📤 JSON exported');
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`JSON exported (${modeSuffix})`);
 }
 
 function openPdfExportModal(opts={}){
@@ -18261,51 +18336,7 @@ function updateStorageDiagnostics() {
 }
 
 function exportJsonBackup() {
-  try {
-    const backupData = {
-      version: '2.0',
-      exportedAt: new Date().toISOString(),
-      workspaceId: localStorage.getItem('_mnm_wsid') || 'default',
-      brandName: localStorage.getItem('_mnm_brand_name') || 'Mr.NodeMan',
-      currency: localStorage.getItem('_mnm_currency_symbol') || '₹',
-      settings: {
-        theme: localStorage.getItem('_mnm_theme') || 'emerald',
-        appScale: localStorage.getItem('_mnm_app_scale') || '1.0',
-        stealthMode: localStorage.getItem('_mnm_stealth_mode') || 'false',
-        sound: localStorage.getItem('_mnm_sound_enabled') || 'true',
-        haptic: localStorage.getItem('_mnm_haptic_enabled') || 'true',
-        defaultRate: localStorage.getItem('_mnm_default_hourly_rate') || '0',
-        defaultDuration: localStorage.getItem('_mnm_default_duration') || '8',
-        defaultGstRate: localStorage.getItem('_mnm_default_gst_rate') || '18',
-        autofillToday: localStorage.getItem('_mnm_autofill_today') || 'false',
-        favoriteClients: localStorage.getItem('_mnm_favorite_clients') || '[]'
-      },
-      clients: CLIENTS || [],
-      teamMembers: typeof teamMembers !== 'undefined' ? teamMembers : [],
-      entries: entries || [],
-      workProfile: workProfile || {},
-      attendance: attendanceRecords || {},
-      appMode: currentAppMode || 'all'
-    };
-
-    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-    const dateStr = new Date().toISOString().slice(0, 10);
-    const fileName = `mr-nodeman-backup-${dateStr}.json`;
-    
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    playSoundAndHaptic('success', 'medium');
-    if (typeof showToast === 'function') showToast('Backup exported: ' + fileName);
-  } catch(e) {
-    alert('Failed to export backup: ' + e.message);
-  }
+  exportJSON();
 }
 
 function importJsonBackup(event) {
