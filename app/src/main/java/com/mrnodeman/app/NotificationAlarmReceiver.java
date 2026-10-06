@@ -167,14 +167,14 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
             if (isWeekOff) {
                 showSimpleNotification(context, CHANNEL_ATTENDANCE, NOTIF_ID_MORNING,
-                    "Today is your Week Off! 🌴",
-                    "Good morning! Relax and recharge on your scheduled Week Off today. Have a peaceful day!",
+                    "Today is your Week Off",
+                    "Good morning! You are scheduled for a Week Off today. Have a restful day.",
                     R.drawable.ic_stat_attendance, Color.parseColor("#10B981"));
             } else if (isHoliday) {
                 String holNote = todayRec.optString("note", "Official Holiday");
                 showSimpleNotification(context, CHANNEL_ATTENDANCE, NOTIF_ID_MORNING,
-                    "Happy Holiday! 🎉",
-                    "Today is scheduled as a Holiday (" + holNote + "). Enjoy your special break!",
+                    "Official Holiday",
+                    "Today is scheduled as a holiday (" + holNote + "). Enjoy your day.",
                     R.drawable.ic_stat_attendance, Color.parseColor("#3B82F6"));
             } else if (todayRec == null || todayRec.optString("status").isEmpty()) {
                 String[] msg = getMorningGreeting(daySeed, companyName);
@@ -192,8 +192,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 int promptCount = prefs.getInt("att_prompt_" + todayISO, 0);
                 if (promptCount == 1) {
                     showAttendanceActionNotification(context, NOTIF_ID_ATTENDANCE_FOLLOWUP,
-                        "Attendance Reminder (Follow-up) ⏰",
-                        "Gentle reminder: You haven't checked in for today at " + companyName + " yet. Quick tap below to log Present!",
+                        "Attendance Reminder",
+                        "Reminder: You have not checked in for today at " + companyName + " yet. Tap below to log your attendance.",
                         todayISO, companyName);
                     prefs.edit().putInt("att_prompt_" + todayISO, 2).commit();
                 }
@@ -210,33 +210,14 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         }
 
         // ══════════════════════════════════════════════════════
-        // 4. BIO BREAK, POSTURE & HYDRATION WELLNESS REMINDERS
-        // ══════════════════════════════════════════════════════
-        else if (NotificationScheduler.TYPE_BIO_WELLNESS_BREAK.equals(alarmType) && wellnessBreaks) {
-            boolean isAfternoon = nowCal.get(Calendar.HOUR_OF_DAY) >= 14;
-            String[] wellnessMsg = getWellnessBreak(daySeed, isAfternoon);
-            showWellnessNotification(context, NOTIF_ID_WELLNESS, wellnessMsg[0], wellnessMsg[1]);
-        }
-
-        // ══════════════════════════════════════════════════════
-        // 5. SHIFT END WRAP-UP & DAILY MOTIVATION GREETINGS
-        // Triggered at worker's shift end time (e.g. 06:00 PM)
-        // ══════════════════════════════════════════════════════
-        else if (NotificationScheduler.TYPE_SHIFT_END.equals(alarmType) && shiftEndGreeting) {
-            String[] endMsg = getShiftEndMotivation(daySeed, workerName, companyName);
-            showSimpleNotification(context, CHANNEL_SHIFT_GREETINGS, NOTIF_ID_SHIFT_END,
-                endMsg[0], endMsg[1], R.drawable.ic_stat_notification, Color.parseColor("#7C6FED"));
-        }
-
-        // ══════════════════════════════════════════════════════
         // 6. EVENING PENDING ATTENDANCE & STREAK SAVIOR (07:30 PM)
         // Only triggered if still unlogged in evening
         // ══════════════════════════════════════════════════════
         else if (NotificationScheduler.TYPE_EVENING_PENDING.equals(alarmType) && eveningPending) {
             if (!hasMarkedAttendance) {
                 showAttendanceActionNotification(context, NOTIF_ID_EVENING,
-                    "Attendance Pending for Today ⚠️",
-                    "Protect your daily streak! You have not logged your attendance for today at " + companyName + " yet.",
+                    "Attendance Pending for Today",
+                    "You have not logged your attendance for today at " + companyName + " yet. Tap below to mark your attendance.",
                     todayISO, companyName);
             }
         }
@@ -251,14 +232,14 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
             if (isTomWeekOff) {
                 showSimpleNotification(context, CHANNEL_ATTENDANCE, NOTIF_ID_ADVANCE,
-                    "Tomorrow is Week Off! 🌴",
-                    "Enjoy your scheduled Week Off tomorrow from " + companyName + ". Have a restful evening!",
+                    "Tomorrow is Week Off",
+                    "Reminder: You are scheduled for a Week Off tomorrow from " + companyName + ".",
                     R.drawable.ic_stat_attendance, Color.parseColor("#10B981"));
             } else if (isTomHoliday) {
                 String note = tomRec != null ? tomRec.optString("note", "Official Holiday") : "Official Holiday";
                 showSimpleNotification(context, CHANNEL_ATTENDANCE, NOTIF_ID_ADVANCE,
-                    "Tomorrow is Holiday! 🎉",
-                    "Tomorrow is scheduled as a Holiday (" + note + "). Enjoy your break!",
+                    "Tomorrow is a Holiday",
+                    "Reminder: Tomorrow is scheduled as a holiday (" + note + ") at " + companyName + ".",
                     R.drawable.ic_stat_attendance, Color.parseColor("#3B82F6"));
             } else if ("PL".equals(tomStatus) || "SL".equals(tomStatus) || "CL".equals(tomStatus) || "HD".equals(tomStatus)) {
                 String lName = "PL".equals(tomStatus) ? "Paid Leave (PL)" : "SL".equals(tomStatus) ? "Sick Leave (SL)" : "CL".equals(tomStatus) ? "Casual Leave (CL)" : "Half Day (HD)";
@@ -278,12 +259,12 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
             if (currentDayOfMonth == salaryPayDay) {
                 showSimpleNotification(context, CHANNEL_SALARY, NOTIF_ID_SALARY,
-                    "Salary Day Today! 💰",
-                    "Today is your scheduled monthly salary credit date from " + companyName + ". Don't forget to review your payslip!",
+                    "Salary Day Today",
+                    "Today is your scheduled monthly salary credit date from " + companyName + ". Please review your payslip.",
                     R.drawable.ic_stat_salary, Color.parseColor("#7C6FED"));
             } else if (tomorrowDayOfMonth == salaryPayDay) {
                 showSimpleNotification(context, CHANNEL_SALARY, NOTIF_ID_SALARY,
-                    "Salary Tomorrow! 🔔",
+                    "Salary Credit Tomorrow",
                     "Reminder: Tomorrow is your monthly salary payout date (" + salaryPayDay + "th) from " + companyName + ".",
                     R.drawable.ic_stat_salary, Color.parseColor("#7C6FED"));
             }
@@ -311,8 +292,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                     if (totalPending > 0 && pendingCount > 0) {
                         String amtFormatted = String.format(Locale.US, "%,.0f", totalPending);
                         showSimpleNotification(context, CHANNEL_PAYMENTS, NOTIF_ID_PAYMENTS,
-                            "Client Receivables Pending 💼",
-                            "You have ₹" + amtFormatted + " outstanding pending across " + pendingCount + " client sessions. Review your invoices to collect dues.",
+                            "Pending Client Receivables",
+                            "You have Rs " + amtFormatted + " outstanding pending across " + pendingCount + " client sessions. Please review your invoices.",
                             R.drawable.ic_stat_salary, Color.parseColor("#F59E0B"));
                     }
                 } catch (Exception ignored) {}
@@ -357,15 +338,15 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                     // Birthday TODAY
                     if (nowMonth == bMonth && nowDay == bDay) {
                         showSimpleNotification(context, CHANNEL_REMINDERS, NOTIF_ID_BIRTHDAY,
-                            "Happy Birthday, " + displayName + "! 🎂🎉",
-                            "Wishing you a very Happy Birthday! May your day be filled with happiness, good health, and immense success. Keep shining!",
+                            "Happy Birthday, " + displayName,
+                            "Wishing you a very Happy Birthday. May your year ahead be filled with happiness, good health, and success.",
                             R.drawable.ic_stat_notification, Color.parseColor("#EC4899"));
                     }
                     // Birthday TOMORROW (Advance Birthday Wish)
                     else if (tomMonth == bMonth && tomDay == bDay) {
                         showSimpleNotification(context, CHANNEL_REMINDERS, NOTIF_ID_BIRTHDAY,
-                            "Advance Birthday Wishes! 🎈✨",
-                            "Kal aapka birthday hai, " + displayName + "! Mr.NodeMan team ki taraf se advance me bohot saari shubhkamnayein! Have a fantastic day ahead!",
+                            "Advance Birthday Wishes, " + displayName,
+                            "Wishing you an advanced Happy Birthday from Mr.NodeMan. Have a wonderful day ahead.",
                             R.drawable.ic_stat_notification, Color.parseColor("#8B5CF6"));
                     }
                 } catch (Exception ignored) {}
@@ -374,7 +355,6 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
         // ══════════════════════════════════════════════════════
         // 11. WORK TENURE & ANNIVERSARY GREETINGS (09:15 AM)
-        // Checks joining date (DOJ): notifies on complete years and on 1st of every month
         // ══════════════════════════════════════════════════════
         else if (NotificationScheduler.TYPE_WORK_ANNIVERSARY.equals(alarmType)) {
             String dojStr = null;
@@ -396,7 +376,6 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                     int curMonth = nowCal.get(Calendar.MONTH) + 1; // 1-indexed
                     int curDay = nowCal.get(Calendar.DAY_OF_MONTH);
 
-                    // Compute total full months elapsed
                     int totalMonths = (curYear - jYear) * 12 + (curMonth - jMonth);
                     if (curDay < jDay) {
                         totalMonths--;
@@ -404,30 +383,13 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
                     if (totalMonths >= 1) {
                         int fullYears = totalMonths / 12;
-                        int remMonths = totalMonths % 12;
 
-                        String tenureStr = "";
-                        if (fullYears > 0 && remMonths > 0) {
-                            tenureStr = fullYears + " year" + (fullYears > 1 ? "s" : "") + " " + remMonths + " month" + (remMonths > 1 ? "s" : "");
-                        } else if (fullYears > 0) {
-                            tenureStr = fullYears + " year" + (fullYears > 1 ? "s" : "");
-                        } else {
-                            tenureStr = remMonths + " month" + (remMonths > 1 ? "s" : "");
-                        }
-
-                        // Case A: Work Anniversary (Completed Exact Year(s) Today)
+                        // Work Anniversary (Completed Exact Year(s) Today)
                         if (curMonth == jMonth && curDay == jDay && fullYears >= 1) {
                             showSimpleNotification(context, CHANNEL_SHIFT_GREETINGS, NOTIF_ID_ANNIVERSARY,
-                                "Happy Work Anniversary! 🏆🎊",
-                                "Congratulations! Aaj aapko " + companyName + " me kaam karte hue pure " + fullYears + " saal ho gaye hain (" + fullYears + " Year" + (fullYears > 1 ? "s" : "") + " completed). Aapki mehnat aur dedication ko salute!",
+                                "Happy Work Anniversary",
+                                "Congratulations! You have completed " + fullYears + " year" + (fullYears > 1 ? "s" : "") + " of service at " + companyName + ". Thank you for your dedication.",
                                 R.drawable.ic_stat_notification, Color.parseColor("#10B981"));
-                        }
-                        // Case B: 1st Day of Month Milestone Update
-                        else if (curDay == 1) {
-                            showSimpleNotification(context, CHANNEL_SHIFT_GREETINGS, NOTIF_ID_ANNIVERSARY,
-                                "Monthly Work Journey Milestone 💼✨",
-                                "Naye mahine ki shubh shuruat! Aapko " + companyName + " me kaam karte hue kul " + tenureStr + " ho chuke hain. Keep achieving new milestones!",
-                                R.drawable.ic_stat_notification, Color.parseColor("#7C6FED"));
                         }
                     }
                 } catch (Exception ignored) {}
@@ -441,53 +403,22 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
     private String[] getMorningGreeting(int seed, String company) {
         String[][] pool = new String[][] {
-            { "Shubh Prabhat! ☀️ Morning Check-in", "Naya din, nayi energy! Remember to mark your attendance for today at " + company + "." },
-            { "Good Morning Champion! 🚀", "Make today count! Ek tap me apni attendance mark karein at " + company + "." },
-            { "Rise & Shine! ☕ Daily Check-in", "Success starts with showing up! Record your attendance for today at " + company + "." },
-            { "Morning Hustle! 💼 Ready for Today?", "Another opportunity to build your future at " + company + ". Tap below to log Present." },
-            { "Shandaar Shuruat! 🌟 Check-in Active", "Focus on your goals today! Don't forget to mark your daily attendance at " + company + "." }
+            { "Morning Check-in", "Good morning! Please mark your attendance for today at " + company + "." },
+            { "Daily Check-in", "Start your day. Please log your attendance for today at " + company + "." },
+            { "Morning Shift Check-in", "Ready for your shift? Record your attendance for today at " + company + "." },
+            { "Attendance Check-in", "Please mark your attendance for today at " + company + "." },
+            { "Daily Work Check-in", "Don't forget to mark your daily attendance at " + company + "." }
         };
         return pool[Math.abs(seed) % pool.length];
     }
 
     private String[] getLunchReminder(int seed) {
         String[][] pool = new String[][] {
-            { "Lunch Break Time! 🍱", "Dopahar ho gayi! Kaam thodi der roko, lunch kiya kya? Tap below to record your lunch break." },
-            { "Energy Refuel Time! 🥪", "Pet pooja pehle, kaam baad me! Did you have your lunch yet? Share your status below." },
-            { "Lunch Kiya Kya? 🍛", "Working non-stop drains focus! Take a 20-minute relaxing lunch break. Kar liya kya?" },
-            { "Healthy Meal Reminder 🥗", "Nutrition keeps your energy high! Have you eaten your lunch today? Tap Haan ya Abhi Nahi." },
-            { "Bhookh Lagi Hogi! 🍲", "Mid-day battery low? Ek healthy meal lo aur energize ho jao. Did you finish lunch?" }
-        };
-        return pool[Math.abs(seed) % pool.length];
-    }
-
-    private String[] getWellnessBreak(int seed, boolean isAfternoon) {
-        if (!isAfternoon) {
-            String[][] morningPool = new String[][] {
-                { "Pani Piya Kya? 🚰 Hydration Check", "Body dehydrate hone se tiredness aati hai. Abhi ek bada glass fresh pani pi lo to stay active!" },
-                { "Posture Check! 🧘 Spine Straight", "Seedhe baitho! Roll your shoulders back, stretch your spine, and relieve neck tension." },
-                { "Deep Breathing Reset! 🌬️", "Take 3 slow, deep belly breaths. Exhale all stress. A calm mind works 2x better!" }
-            };
-            return morningPool[Math.abs(seed) % morningPool.length];
-        } else {
-            String[][] afternoonPool = new String[][] {
-                { "20-20-20 Eye Relaxation! 👀", "Screen ya machine se nazrein hatao: 20 feet door kisi cheez ko 20 seconds dekho. Eyes refresh ho jayengi!" },
-                { "Movement & Walk Break! 🚶", "Ek 2-minute stroll lo, deep breath lo. Blood circulation badhega aur focus sharp hoga!" },
-                { "Healthy Snack & Stretch! 🍎", "Quick break: Thoda stretch karo, aur chai ke sath healthy dry fruits ya water intake badhao." }
-            };
-            return afternoonPool[Math.abs(seed) % afternoonPool.length];
-        }
-    }
-
-    private String[] getShiftEndMotivation(int seed, String workerName, String company) {
-        String[][] pool = new String[][] {
-            { "Shift Wrap-up! 🎉 Shandar Kaam", "Aaj ki shift successfully complete hui at " + company + "! Put your tools down, aapne khoob mehnat ki. Have a peaceful evening! ☕" },
-            { "Work Done! 🌟 Take a Bow", "Great job today, " + workerName + "! Mehnat ka fal hamesha meetha hota hai. Relax karo aur family ke sath achha time spend karo. 🏡" },
-            { "Shift Completed! 🚀 Great Energy", "Today's workday at " + company + " is done. Give yourself credit for showing up and giving your 100%. Rest well tonight!" },
-            { "Mission Accomplished! 👏", "Duty khatam, chilling shuru! You crushed your shift targets today. Enjoy a delicious dinner and restful sleep." },
-            { "Shift Over! 🌙 Time to Unwind", "Aaj ka kaam pura hua! Work-life balance is key — switch off from work mode and recharge for tomorrow." },
-            { "Salute to Your Dedication! 💼", "Hard work builds the future! Aaj ka din productive raha at " + company + ". Have a warm, relaxing evening!" },
-            { "End of Shift! ☕ Time to Relax", "A great day of honest work at " + company + ". Drop the stress, take a deep breath, and enjoy your evening!" }
+            { "Lunch Break Reminder", "Have you taken your lunch break today? Tap below to record your status." },
+            { "Lunch Reminder", "Time for a meal break. Have you finished your lunch? Please record below." },
+            { "Midday Meal Reminder", "Did you have your lunch today? Tap below to log your break." },
+            { "Lunch Break Check", "Please confirm if you have completed your lunch break today." },
+            { "Meal Break Reminder", "Remember to take your scheduled lunch break. Have you eaten today?" }
         };
         return pool[Math.abs(seed) % pool.length];
     }
@@ -543,9 +474,9 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setSound(soundUri)
                 .setVibrate(new long[]{0, 200, 100, 200})
-                .addAction(R.drawable.ic_action_present, "Present 🎉", presentPi)
-                .addAction(R.drawable.ic_action_absent, "Absent ❌", absentPi)
-                .addAction(R.drawable.ic_action_halfday, "Week Off 🌴", woPi);
+                .addAction(R.drawable.ic_action_present, "Present", presentPi)
+                .addAction(R.drawable.ic_action_absent, "Absent", absentPi)
+                .addAction(R.drawable.ic_action_halfday, "Week Off", woPi);
 
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -560,7 +491,7 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         }
     }
 
-    // Helper: Build and post interactive lunch notification with [Haan, Kar Liya] and [Abhi Nahi]
+    // Helper: Build and post interactive lunch notification with [Yes, Completed] and [Not Yet]
     private void showLunchActionNotification(Context context, int notifId, String title, String message) {
         try {
             Intent mainIntent = new Intent(context, MainActivity.class);
@@ -568,14 +499,14 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
             PendingIntent contentIntent = PendingIntent.getActivity(context, notifId, mainIntent, pFlags);
 
-            // Action 1: Haan, Kar Liya (Yes)
+            // Action 1: Yes, Completed
             Intent yesIntent = new Intent(context, NotificationActionReceiver.class);
             yesIntent.setAction(NotificationActionReceiver.ACTION_LUNCH_RESPONSE);
             yesIntent.putExtra(NotificationActionReceiver.EXTRA_LUNCH_STATUS, "YES");
             yesIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent yesPi = PendingIntent.getBroadcast(context, notifId * 10 + 1, yesIntent, pFlags);
 
-            // Action 2: Abhi Nahi (No)
+            // Action 2: Not Yet
             Intent noIntent = new Intent(context, NotificationActionReceiver.class);
             noIntent.setAction(NotificationActionReceiver.ACTION_LUNCH_RESPONSE);
             noIntent.putExtra(NotificationActionReceiver.EXTRA_LUNCH_STATUS, "NO");
@@ -595,49 +526,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 .setAutoCancel(true)
                 .setSound(soundUri)
                 .setVibrate(new long[]{0, 180, 80, 180})
-                .addAction(R.drawable.ic_action_present, "Haan, Kar Liya 🍱", yesPi)
-                .addAction(R.drawable.ic_action_absent, "Abhi Nahi ⏳", noPi);
-
-            NotificationManagerCompat manager = NotificationManagerCompat.from(context);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-                    manager.notify(notifId, builder.build());
-                }
-            } else {
-                manager.notify(notifId, builder.build());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Helper: Build and post bio break / health wellness tip notification
-    private void showWellnessNotification(Context context, int notifId, String title, String message) {
-        try {
-            Intent mainIntent = new Intent(context, MainActivity.class);
-            mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
-            PendingIntent contentIntent = PendingIntent.getActivity(context, notifId, mainIntent, pFlags);
-
-            Intent ackIntent = new Intent(context, NotificationActionReceiver.class);
-            ackIntent.setAction(NotificationActionReceiver.ACTION_WELLNESS_ACK);
-            ackIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
-            PendingIntent ackPi = PendingIntent.getBroadcast(context, notifId * 10 + 1, ackIntent, pFlags);
-
-            Uri soundUri = getCustomSoundUri(context);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_WELLNESS)
-                .setSmallIcon(R.drawable.ic_stat_notification)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
-                .setColor(Color.parseColor("#06B6D4"))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(contentIntent)
-                .setAutoCancel(true)
-                .setSound(soundUri)
-                .setVibrate(new long[]{0, 150, 100, 150})
-                .addAction(R.drawable.ic_action_present, "Done! 💧", ackPi);
+                .addAction(R.drawable.ic_action_present, "Yes, Completed", yesPi)
+                .addAction(R.drawable.ic_action_absent, "Not Yet", noPi);
 
             NotificationManagerCompat manager = NotificationManagerCompat.from(context);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -715,20 +605,6 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             int lh = p.getInt("_mnm_learned_lunch_hour", 13);
             int lm = p.getInt("_mnm_learned_lunch_minute", 0);
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_LUNCH_REMINDER, lh, lm, alarmType);
-        } else if (NotificationScheduler.TYPE_SHIFT_END.equals(alarmType)) {
-            SharedPreferences p = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
-            String wpStr = p.getString("_mnm_work_profile", null);
-            int seh = 18, sem = 0;
-            if (wpStr != null) {
-                try {
-                    String se = new JSONObject(wpStr).optString("shiftEnd", "18:00");
-                    if (se != null && se.contains(":")) {
-                        seh = Integer.parseInt(se.split(":")[0].trim());
-                        sem = Integer.parseInt(se.split(":")[1].trim());
-                    }
-                } catch (Exception ignored) {}
-            }
-            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_SHIFT_END, seh, sem, alarmType);
         } else if (NotificationScheduler.TYPE_EVENING_PENDING.equals(alarmType)) {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_EVENING_PENDING, 19, 30, alarmType);
         } else if (NotificationScheduler.TYPE_ADVANCE_ROSTER.equals(alarmType)) {

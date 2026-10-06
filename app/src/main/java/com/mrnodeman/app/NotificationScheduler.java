@@ -106,34 +106,12 @@ public class NotificationScheduler {
                 cancelAlarm(context, REQ_LUNCH_REMINDER);
             }
 
-            // 4. Bio Break, Posture & Hydration Wellness Reminders (11:15 AM & 03:45 PM)
-            if (wellnessBreaks) {
-                scheduleDailyAlarm(context, REQ_BIO_WELLNESS_1, 11, 15, TYPE_BIO_WELLNESS_BREAK);
-                scheduleDailyAlarm(context, REQ_BIO_WELLNESS_2, 15, 45, TYPE_BIO_WELLNESS_BREAK);
-            } else {
-                cancelAlarm(context, REQ_BIO_WELLNESS_1);
-                cancelAlarm(context, REQ_BIO_WELLNESS_2);
-            }
+            // 4. Bio Break, Posture & Hydration Wellness Reminders (Removed: trivial recurring notifications)
+            cancelAlarm(context, REQ_BIO_WELLNESS_1);
+            cancelAlarm(context, REQ_BIO_WELLNESS_2);
 
-            // 5. Shift End Wrap-Up & Daily Motivation Greeting
-            int shiftEndHour = 18;
-            int shiftEndMin = 0;
-            if (profileJsonStr != null) {
-                try {
-                    JSONObject wp = new JSONObject(profileJsonStr);
-                    String se = wp.optString("shiftEnd", "18:00");
-                    if (se != null && se.contains(":")) {
-                        String[] parts = se.split(":");
-                        shiftEndHour = Integer.parseInt(parts[0].trim());
-                        shiftEndMin = Integer.parseInt(parts[1].trim());
-                    }
-                } catch (Exception ignored) {}
-            }
-            if (shiftEndGreeting) {
-                scheduleDailyAlarm(context, REQ_SHIFT_END, shiftEndHour, shiftEndMin, TYPE_SHIFT_END);
-            } else {
-                cancelAlarm(context, REQ_SHIFT_END);
-            }
+            // 5. Shift End Motivation Greeting (Removed: trivial non-interactive notifications)
+            cancelAlarm(context, REQ_SHIFT_END);
 
             // 6. Evening Pending Attendance & Streak Savior (07:30 PM = 19:30)
             if (eveningPending) {

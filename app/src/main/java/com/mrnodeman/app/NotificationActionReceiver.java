@@ -96,17 +96,17 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
                 NotificationCompat.Builder promptBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
                     .setSmallIcon(R.drawable.ic_stat_attendance)
-                    .setContentTitle("Reason for Absence? 📋")
+                    .setContentTitle("Reason for Absence")
                     .setContentText("Select leave type: Sick Leave (SL), Paid Leave (PL), or Absent.")
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Aaj chhutti ka reason choose karein: Sick Leave (SL), Paid Leave (PL), ya Normal Absent (A)? Quick select:"))
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Select leave reason: Sick Leave (SL), Paid Leave (PL), or Absent (A):"))
                     .setColor(Color.parseColor("#F59E0B"))
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
                     .setVibrate(new long[]{0, 150, 100, 150})
-                    .addAction(R.drawable.ic_action_halfday, "Sick Leave (SL) 💊", slPi)
-                    .addAction(R.drawable.ic_action_halfday, "Paid Leave (PL) 🏖️", plPi)
-                    .addAction(R.drawable.ic_action_absent, "Absent (A) ❌", aPi);
+                    .addAction(R.drawable.ic_action_halfday, "Sick Leave (SL)", slPi)
+                    .addAction(R.drawable.ic_action_halfday, "Paid Leave (PL)", plPi)
+                    .addAction(R.drawable.ic_action_absent, "Absent (A)", aPi);
 
                 NotificationManagerCompat manager = NotificationManagerCompat.from(context);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -120,7 +120,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 // Show quick guidance toast
                 new Handler(Looper.getMainLooper()).post(() -> {
                     try {
-                        Toast.makeText(context, "Select Leave Type: SL, PL, or Absent", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Select leave type: SL, PL, or Absent", Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored) {}
                 });
 
@@ -185,42 +185,42 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 e.printStackTrace();
             }
 
-            // 2. Determine user-friendly status title, cheerful greeting & color
+            // 2. Determine user-friendly status title, greeting & color
             String statusLabel = "Present";
-            String confirmTitle = "Yeepee! 🎉 Present Marked!";
-            String confirmBody = "Shaandar shuruat! Have an amazing productive day ahead at " + compName + ". ⚡";
-            String toastText = "Yeepee! 🎉 Present Marked!";
+            String confirmTitle = "Present Marked";
+            String confirmBody = "Attendance recorded as Present for today at " + compName + ".";
+            String toastText = "Present marked for today.";
             int statusColor = Color.parseColor("#10B981");
 
             if ("A".equals(targetStatus)) {
                 statusLabel = "Absent";
-                confirmTitle = "Attendance: Absent Logged ❌";
-                confirmBody = "Today recorded as Absent at " + compName + ". Take care and see you tomorrow!";
-                toastText = "Absent (A) marked for today.";
+                confirmTitle = "Absent Marked";
+                confirmBody = "Attendance recorded as Absent for today at " + compName + ".";
+                toastText = "Absent marked for today.";
                 statusColor = Color.parseColor("#EF4444");
             } else if ("SL".equals(targetStatus)) {
                 statusLabel = "Sick Leave";
-                confirmTitle = "Sick Leave (SL) Logged 💊";
-                confirmBody = "Sick leave marked for " + targetDate + ". Get well soon and take full rest!";
-                toastText = "Sick Leave (SL) marked! 💊 Get well soon.";
+                confirmTitle = "Sick Leave Logged";
+                confirmBody = "Sick leave recorded for " + targetDate + " at " + compName + ".";
+                toastText = "Sick Leave marked for today.";
                 statusColor = Color.parseColor("#EC4899");
             } else if ("PL".equals(targetStatus)) {
                 statusLabel = "Paid Leave";
-                confirmTitle = "Paid Leave (PL) Logged 🏖️";
-                confirmBody = "Paid leave marked for " + targetDate + ". Enjoy your well-deserved paid leave!";
-                toastText = "Paid Leave (PL) marked! 🏖️ Enjoy your leave.";
+                confirmTitle = "Paid Leave Logged";
+                confirmBody = "Paid leave recorded for " + targetDate + " at " + compName + ".";
+                toastText = "Paid Leave marked for today.";
                 statusColor = Color.parseColor("#3B82F6");
             } else if ("WO".equals(targetStatus)) {
                 statusLabel = "Week Off";
-                confirmTitle = "Week Off (WO) Logged 🌴";
-                confirmBody = "Today recorded as scheduled Week Off. Enjoy your relaxing break & recharge!";
-                toastText = "Week Off (WO) marked! 🌴 Enjoy your rest.";
+                confirmTitle = "Week Off Logged";
+                confirmBody = "Today recorded as scheduled Week Off.";
+                toastText = "Week Off marked for today.";
                 statusColor = Color.parseColor("#6366F1");
             } else if ("HD".equals(targetStatus)) {
                 statusLabel = "Half Day";
-                confirmTitle = "Attendance: Half Day Logged 🌓";
+                confirmTitle = "Half Day Logged";
                 confirmBody = "Half Day recorded for " + targetDate + " at " + compName + ".";
-                toastText = "Half Day (HD) marked for today.";
+                toastText = "Half Day marked for today.";
                 statusColor = Color.parseColor("#F59E0B");
             }
 
@@ -363,9 +363,9 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 try {
                     NotificationCompat.Builder confirmBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
                         .setSmallIcon(R.drawable.ic_stat_attendance)
-                        .setContentTitle("Lunch Recorded! 🍱")
-                        .setContentText("Bahut badhiya! Energy full, keep rocking your shift.")
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Bahut badhiya! Lunch recorded. Energy full, stay productive and hydrated for the rest of your shift. ⚡"))
+                        .setContentTitle("Lunch Recorded")
+                        .setContentText("Lunch break recorded successfully.")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Lunch break recorded successfully. Stay productive for the rest of your shift."))
                         .setColor(Color.parseColor("#10B981"))
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setAutoCancel(true);
@@ -379,17 +379,17 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 } catch (Exception ignored) {}
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(context, "🍱 Lunch recorded! App learned your lunch time.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Lunch recorded successfully.", Toast.LENGTH_SHORT).show();
                 });
 
             } else {
-                // USER REPLIED "ABHI NAHI" (NO): GENTLE FOLLOW-UP IN 35 MINS
+                // USER REPLIED "NOT YET" (NO): GENTLE FOLLOW-UP IN 35 MINS
                 try {
                     NotificationCompat.Builder laterBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
                         .setSmallIcon(R.drawable.ic_stat_notification)
-                        .setContentTitle("Thik hai! 🥪 Meal Skip Mat Karna")
-                        .setContentText("Kaam ke chakkar me meal skip mat karna, thodi der me zaroor kha lena.")
-                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Koi baat nahi! Kaam ke chakkar me meal skip mat karna, health sabse pehle hai. 35 mins me dobara remind karunga."))
+                        .setContentTitle("Lunch Reminder")
+                        .setContentText("Reminder scheduled in 35 minutes.")
+                        .setStyle(new NotificationCompat.BigTextStyle().bigText("Reminder scheduled in 35 minutes. Remember to take your meal break."))
                         .setColor(Color.parseColor("#F59E0B"))
                         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                         .setAutoCancel(true);
@@ -407,7 +407,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 } catch (Exception ignored) {}
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(context, "🥗 Take care! Will remind you in 35 mins.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Reminder postponed. Will remind you in 35 minutes.", Toast.LENGTH_SHORT).show();
                 });
             }
         }
@@ -421,8 +421,8 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 NotificationManagerCompat manager = NotificationManagerCompat.from(context);
                 NotificationCompat.Builder ackBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
                     .setSmallIcon(R.drawable.ic_stat_attendance)
-                    .setContentTitle("Wellness Done! 🌿")
-                    .setContentText("Great job staying active and hydrated!")
+                    .setContentTitle("Wellness Update")
+                    .setContentText("Status updated successfully.")
                     .setColor(Color.parseColor("#06B6D4"))
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setAutoCancel(true);
@@ -432,10 +432,6 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     try { manager.cancel(notifId); } catch (Exception ignored) {}
                 }, 5000);
             } catch (Exception ignored) {}
-
-            new Handler(Looper.getMainLooper()).post(() -> {
-                Toast.makeText(context, "💧 Hydrated & refreshed! Stay active.", Toast.LENGTH_SHORT).show();
-            });
         }
     }
 
@@ -475,28 +471,16 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
             String[][] careMessages = new String[][] {
                 {
-                    "Take Full Rest, " + workerName + "! 🩺💖",
-                    "Aapki health sabse pehle hai! Aaj kaam ki bilkul tension mat lo. Khoob sara aaram karo, gunguna pani piyo aur jaldi theek ho jao. We are wishing you a speedy recovery! 🌸"
+                    "Get Well Soon, " + workerName,
+                    "Your health comes first. Take complete rest today and recover well. Wishing you a speedy recovery."
                 },
                 {
-                    "Health First, Dear " + workerName + "! 💊✨",
-                    "Kaam to hamesha chalta rahega, par aapki tabiyat sabse anmol hai. Please time par medicines lena, proper rest karna aur phone thoda side me rakhna. Get well soon! 🍵"
+                    "Rest and Recovery, " + workerName,
+                    "Take care of your health today. Get adequate rest and stay hydrated. Get well soon."
                 },
                 {
-                    "Sending Warm Care & Healing, " + workerName + "! 🌿❤️",
-                    "Rest is not a waste of time, it's how your body recharges! Aaj pura din relaxation aur recovery ke liye hai. Stay hydrated, eat light and wholesome food. We care for you!"
-                },
-                {
-                    "Apna Khayal Rakhna, " + workerName + "! 🍵🛌",
-                    "Tabiyat theek nahi lag rahi to kisi bhi cheez ki jaldi mat karna. Take deep breaths, peaceful sleep aur warm fluids. We hope you feel energetic and strong very soon!"
-                },
-                {
-                    "Wishing You a Speedy Recovery, " + workerName + "! 🌸❤️",
-                    "Dear " + workerName + ", aap ek hard worker ho, par aaj aapko sirf aur sirf aaram ki zaroorat hai. Stress free rahiye, body ko time dijiye heal hone ka. Get well soon!"
-                },
-                {
-                    "Rest Well & Recharge, " + workerName + "! 🧸🍵",
-                    "Health is your real wealth! Aaj saare deadlines bhool jao. Aaram se soyein, nourishing diet lijiye aur apne health ka dhyan rakhein. Take utmost care of yourself!"
+                    "Wishing You a Speedy Recovery, " + workerName,
+                    "Take full rest and do not worry about work today. We hope you feel better soon."
                 }
             };
 
