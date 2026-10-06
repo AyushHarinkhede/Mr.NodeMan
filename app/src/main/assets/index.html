@@ -12153,10 +12153,6 @@ function renderVerticalHeatmap(dm, maxAmt, now){
       showMonthDetails(monthKey, monthData);
     });
     
-    row.addEventListener('mouseenter', () => {
-      playSoundAndHaptic('heatmap_hover', 'light');
-    });
-    
     container.appendChild(row);
   });
 }
@@ -12300,7 +12296,6 @@ function showEnhancedFSTooltip(ev, ds, dd){
     </div>
   `;
   infoEl.classList.add('show');
-  playSoundAndHaptic('tooltip_show', 'light');
 }
 
 function showEnhancedFSEmptyDayTT(ev, ds){
@@ -12323,7 +12318,6 @@ function showEnhancedFSEmptyDayTT(ev, ds){
     </div>
   `;
   infoEl.classList.add('show');
-  playSoundAndHaptic('tooltip_show', 'light');
 }
 
 function hideFSTooltip(){
@@ -12435,14 +12429,8 @@ function initializeFullscreenInteractions(){
         showDayDetails(e, ds, dayData);
         closeFullscreenHeatmap();
       });
-      
-      cell.addEventListener('mouseenter', () => {
-        playSoundAndHaptic('cell_hover', 'light');
-      });
     });
   }, 200);
-  
-  playSoundAndHaptic('fullscreen_ready', 'light');
 }
 
 // Initialize back gesture support for mobile
@@ -13259,8 +13247,7 @@ function renderTrendChart(range) {
     const r = c.amount > 0 ? (isMajor ? 4.5 : 2.5) : (isMajor ? 2.5 : 1.5);
     const color = c.amount > 0 ? '#7C6FED' : 'rgba(255,255,255,0.15)';
     return `<circle class="trend-data-node" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${r}" fill="${color}" stroke="#0A0A10" stroke-width="1.8"
-      onclick="showTrendNodeTooltip(event, '${c.sub}', '${fmtRs(c.amount)}', ${c.x}, ${c.y})"
-      onmouseover="showTrendNodeTooltip(event, '${c.sub}', '${fmtRs(c.amount)}', ${c.x}, ${c.y})"/>`;
+      onclick="showTrendNodeTooltip(event, '${c.sub}', '${fmtRs(c.amount)}', ${c.x}, ${c.y})"/>`;
   }).join('');
 
   // X-axis label markers
@@ -15216,7 +15203,7 @@ function initAuth() {
     try {
       currentUser = JSON.parse(savedUser);
       updateAuthUI();
-      loadUserData();
+      loadUserData(true);
     } catch(e) {
       console.error('Error parsing currentUser:', e);
     }
@@ -15274,7 +15261,7 @@ function setupFirebaseAuth() {
       
       if (isInitialAuthCheck) {
         console.log('🔐 Firebase auto-login on page load');
-        await loadUserData();
+        await loadUserData(true);
         setupDatabaseSync();
         isInitialAuthCheck = false;
       } else {
@@ -15443,17 +15430,17 @@ function calculateAge(dob) {
 }
 
 // Load user data from storage
-async function loadUserData() {
+async function loadUserData(isSilent = false) {
   if (!currentUser) return;
   
   console.log('🔄 Loading data for user:', currentUser.email);
-  showToast('🔄 Loading your data...');
+  if (!isSilent) showToast('🔄 Loading your data...');
   
   try {
     let hasCloudData = false;
     // Try to load from Firebase first
     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-      hasCloudData = await loadFromFirebase();
+      hasCloudData = await loadFromFirebase(isSilent);
     }
     
     if (!hasCloudData) {
@@ -15464,27 +15451,27 @@ async function loadUserData() {
       if (hasLocalData) {
         loadFromLocalStorage();
         updateDataConnectionIndicator();
-        showToast('✅ Data loaded from local storage for ' + currentUser.email);
+        if (!isSilent) showToast('✅ Data loaded from local storage for ' + currentUser.email);
       } else {
         // Brand new account: migrate guest data
-        showToast('⚙️ Initializing your new account workspace...');
+        if (!isSilent) showToast('⚙️ Initializing your new account workspace...');
         await initializeUserData();
         updateDataConnectionIndicator();
       }
     } else {
       updateDataConnectionIndicator();
-      showToast('✅ Cloud data synced for ' + currentUser.email);
+      if (!isSilent) showToast('✅ Cloud data synced for ' + currentUser.email);
     }
     
   } catch (error) {
     console.error('Error loading user data:', error);
     loadFromLocalStorage();
-    showToast('⚠ Using local data for ' + currentUser.email);
+    if (!isSilent) showToast('⚠ Using local data for ' + currentUser.email);
   }
 }
 
 // Load data from Firebase
-async function loadFromFirebase() {
+async function loadFromFirebase(isSilent = false) {
   if (typeof firebase === 'undefined' || firebase.apps.length === 0 || !currentUser) return false;
   
   try {
@@ -15560,7 +15547,7 @@ async function loadFromFirebase() {
       updateSummary();
       renderAll();
       
-      showToast('✓ Data synced from cloud');
+      if (!isSilent) showToast('✓ Data synced from cloud');
       return true;
     }
     return false;
@@ -16759,8 +16746,8 @@ function playNodeManNotificationSound(showFeedback = false) {
     console.warn('Web Audio synthesis error:', e);
   }
 
-  // Haptic feedback
-  if (typeof playSoundAndHaptic === 'function') {
+  // Haptic feedback (only on explicit user test/preview)
+  if (showFeedback && typeof playSoundAndHaptic === 'function') {
     try { playSoundAndHaptic('tap', 'medium'); } catch(e) {}
   }
 
@@ -16805,11 +16792,6 @@ function postAppNotification({ title, message, channelType = 'attendance', notif
     }
   }
 
-  // 3. Play Signature Harmonic Chime Sound
-  try {
-    playNodeManNotificationSound(false);
-  } catch(e) {}
-
   return sent;
 }
 
@@ -16849,6 +16831,7 @@ function sendTestNotification(type) {
     channelType: chosen.channel,
     notificationId: chosen.id
   });
+  playNodeManNotificationSound(false);
   showToast(`Dispatched: ${chosen.title}`);
 }
 
@@ -19227,7 +19210,16 @@ function hideNavbars(immediate) {
   }
 }
 
+let _userScrollTimeout = null;
+let _isUserScrolling = false;
+
 document.addEventListener('scroll', function(e) {
+  _isUserScrolling = true;
+  if (_userScrollTimeout) clearTimeout(_userScrollTimeout);
+  _userScrollTimeout = setTimeout(() => {
+    _isUserScrolling = false;
+  }, 160);
+
   const target = e.target;
   if (!target || !target.classList || !target.classList.contains('scroll-area')) return;
 
@@ -20139,12 +20131,43 @@ function unlockAudioEngine() {
 });
 
 // Zero-Latency Tap Trigger for all Interactive UI elements on touch
+// Strictly checks that the user is intentionally tapping and not dragging/scrolling
+let _pointerStartX = 0;
+let _pointerStartY = 0;
+let _activePointerTarget = null;
+
 document.addEventListener('pointerdown', function(e) {
+  // If the page is currently in the middle of a scroll motion, ignore
+  if (typeof _isUserScrolling !== 'undefined' && _isUserScrolling) return;
+
   const target = e.target.closest('button, .ss-btn, .nitem, .fab, .chip, .fchip, .scibtn, .calc-btn, .calc-key, .univ-search-circle-btn, .action-pill, .scicalc-tool-btn, .scicalc-hist-btn, .scicalc-angle-badge, .opt-chip, [role="button"], .hm-btn, .period-chip');
   if (target) {
     unlockAudioEngine();
-    playSoundAndHaptic('tap', 'light');
+    if (e.pointerType === 'mouse') {
+      // Mouse click is unambiguous
+      playSoundAndHaptic('tap', 'light');
+    } else {
+      // Touch/stylus: remember target & coords to verify intentional tap without drag
+      _pointerStartX = e.clientX;
+      _pointerStartY = e.clientY;
+      _activePointerTarget = target;
+    }
   }
+}, { passive: true });
+
+document.addEventListener('pointerup', function(e) {
+  if (_activePointerTarget) {
+    const dist = Math.hypot(e.clientX - _pointerStartX, e.clientY - _pointerStartY);
+    // Only fire if the finger moved less than 9px (not a scroll swipe)
+    if (dist < 9 && (!_isUserScrolling)) {
+      playSoundAndHaptic('tap', 'light');
+    }
+    _activePointerTarget = null;
+  }
+}, { passive: true });
+
+document.addEventListener('pointercancel', function() {
+  _activePointerTarget = null;
 }, { passive: true });
 
 // Navigation history management
