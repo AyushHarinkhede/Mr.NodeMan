@@ -7847,7 +7847,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <div class="att-cal-weekday">Wed</div>
       <div class="att-cal-weekday">Thu</div>
       <div class="att-cal-weekday">Fri</div>
-      <div class="att-cal-weekday weekend">Sat</div>
+      <div class="att-cal-weekday">Sat</div>
     </div>
 
     <!-- Calendar Grid -->
@@ -10244,7 +10244,7 @@ function renderAttendanceCalendarGrid(year, month, animClass = '') {
     const dateStr = `${year}-${mStr}-${dStr}`;
     const rec = getAttendanceRecord(dateStr);
     const isToday = (dateStr === todayDs);
-    const isWeekend = (firstDayIndex + day - 1) % 7 === 0 || (firstDayIndex + day - 1) % 7 === 6;
+    const isSunday = (firstDayIndex + day - 1) % 7 === 0;
 
     let statusBadgeHtml = '';
     let otBadgeHtml = '';
@@ -10276,7 +10276,7 @@ function renderAttendanceCalendarGrid(year, month, animClass = '') {
     }
 
     html += `
-      <div class="att-day-tile ${isToday ? 'is-today' : ''} ${isWeekend ? 'weekend-tile' : ''}" onclick="openAttendanceEntryModal('${dateStr}')" title="Date: ${dateStr}">
+      <div class="att-day-tile ${isToday ? 'is-today' : ''} ${isSunday ? 'weekend-tile' : ''}" onclick="openAttendanceEntryModal('${dateStr}')" title="Date: ${dateStr}">
         <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
           <span class="day-num">${day}</span>
           ${otBadgeHtml}
