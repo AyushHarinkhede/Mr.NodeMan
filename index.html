@@ -4928,18 +4928,22 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
       <div class="divider" style="margin:8px 0 10px"></div>
       
       <!-- Trend Performance Metrics Row -->
-      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px" id="stats-trend-metrics-row">
-        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px;text-align:center">
-          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Period Total</div>
-          <div class="mono" id="stats-trend-total" style="font-size:13px;font-weight:700;color:var(--acc)">₹0</div>
+      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:6px" id="stats-trend-metrics-row">
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px 4px;text-align:center">
+          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Total</div>
+          <div class="mono" id="stats-trend-total" style="font-size:12px;font-weight:700;color:var(--acc)">₹0</div>
         </div>
-        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px;text-align:center">
-          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Average / Day</div>
-          <div class="mono" id="stats-trend-avg" style="font-size:13px;font-weight:700;color:var(--paid)">₹0</div>
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px 4px;text-align:center">
+          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Daily Avg</div>
+          <div class="mono" id="stats-trend-avg" style="font-size:12px;font-weight:700;color:var(--paid)">₹0</div>
         </div>
-        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px;text-align:center">
-          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">Growth</div>
-          <div class="mono" id="stats-trend-growth" style="font-size:13px;font-weight:700;color:var(--paid)">+0%</div>
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px 4px;text-align:center">
+          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Growth</div>
+          <div class="mono" id="stats-trend-growth" style="font-size:12px;font-weight:700;color:var(--paid)">+0%</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px 4px;text-align:center" id="stats-trend-perf-box">
+          <div style="font-size:8px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Performance</div>
+          <div class="mono" id="stats-trend-perf" style="font-size:12px;font-weight:700;color:var(--pend)">Tier 1</div>
         </div>
       </div>
     </div>
@@ -5010,8 +5014,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
           <div class="sec-title" style="margin-bottom:2px">Monthly Target</div>
           <div style="font-size:10px;color:var(--t2)" id="stats-target-month-name">Target for Current Month</div>
         </div>
-        <button type="button" class="ss-btn" onclick="promptSetMonthlyGoal()" style="padding:4px 10px;border-radius:8px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        <button type="button" class="ss-btn" onclick="openTargetGoalModal()" style="padding:4px 10px;border-radius:8px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:10px;font-weight:700;display:flex;align-items:center;gap:4px">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
           <span>Set Target</span>
         </button>
       </div>
@@ -5041,8 +5045,11 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
             <span class="mono" id="stats-goal-earned" style="font-size:14px;font-weight:700;color:var(--paid)">₹0</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
-            <span style="font-size:11px;color:var(--t2)">Goal:</span>
-            <span class="mono" id="stats-goal-target" style="font-size:13px;font-weight:600;color:var(--t1)">₹50,000</span>
+            <span style="font-size:11px;color:var(--t2)">Target:</span>
+            <div style="display:inline-flex;align-items:center;gap:4px">
+              <span class="mono" id="stats-goal-target" style="font-size:13px;font-weight:700;color:var(--t1)">₹50,000</span>
+              <span id="stats-goal-badge" style="font-size:8.5px;padding:1px 5px;border-radius:4px;background:var(--s2);color:var(--t2);border:1px solid var(--b)">AUTO</span>
+            </div>
           </div>
           <div style="font-size:10px;color:var(--t3)" id="stats-goal-remaining">₹50,000 needed to reach goal</div>
         </div>
@@ -6414,6 +6421,55 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
 
       <button class="ss-btn" onclick="logWorkerWageToLedger()" style="width:100%;margin-top:6px;padding:12px;border-radius:11px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg> Log as Work Entry in Ledger
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ MONTHLY TARGET GOAL SETTINGS MODAL ══════════════ -->
+<div class="moverlay" id="target-goal-modal" onclick="overlayClose(event,'target-goal-modal')">
+  <div class="msheet" style="max-width:440px">
+    <div class="mhandle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:38px;height:38px;border-radius:12px;background:rgba(45,212,168,0.12);border:1px solid rgba(45,212,168,0.3);display:flex;align-items:center;justify-content:center;color:var(--paid)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:800;color:var(--t1)">Monthly Target</div>
+          <div style="font-size:11px;color:var(--t2)">Set revenue target or use smart benchmarks</div>
+        </div>
+      </div>
+      <button type="button" class="mclose" onclick="closeModal('target-goal-modal')">✕</button>
+    </div>
+
+    <!-- Smart Target Suggestions -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Smart Auto Recommendations</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="goal-smart-chips">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Manual Target Input -->
+    <div class="fgrp" style="margin-bottom:16px">
+      <label class="ss-label" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Custom Target (₹)</span>
+        <span style="font-size:10px;color:var(--t3)" id="goal-input-helper">Monthly Goal</span>
+      </label>
+      <div style="position:relative;display:flex;align-items:center">
+        <span style="position:absolute;left:14px;font-size:15px;font-weight:700;color:var(--t2)">₹</span>
+        <input type="number" id="goal-modal-input" class="finp mono" placeholder="50000" min="1000" step="500" style="padding-left:32px;font-size:16px;font-weight:800;color:var(--paid);letter-spacing:0.5px" />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:8px">
+      <button type="button" class="ss-btn" onclick="applySmartAutoGoal()" style="flex:1;padding:12px;border-radius:10px;background:var(--s2);border:1px solid var(--b);color:var(--t1);font-size:12px;font-weight:700">
+        Reset to Auto Peak
+      </button>
+      <button type="button" class="ss-btn" onclick="saveCustomMonthlyGoal()" style="flex:1.2;padding:12px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:12px;font-weight:800">
+        Save Target
       </button>
     </div>
   </div>
@@ -12996,6 +13052,22 @@ function renderTrendChart(range) {
   const prevPoints = [];
   let periodLabel = 'Last 30 Days';
 
+  // Helper to fetch day income (combining freelance entries + worker attendance if applicable)
+  const getDayTotalIncome = (isoStr) => {
+    let sum = entries.filter(e => e.date === isoStr).reduce((s, e) => s + e.amount, 0);
+    if (currentAppMode !== 'freelance' && typeof getAttendanceRecord === 'function' && workProfile) {
+      const rec = getAttendanceRecord(isoStr);
+      if (rec && rec.status && rec.status !== 'A') {
+        const weight = rec.status === 'HD' ? 0.5 : 1;
+        const dailyRate = workProfile.dailySalary || (workProfile.monthlySalary / (workProfile.workDaysPerMonth || 26)) || 0;
+        const otRate = (typeof getEffectiveOtRate === 'function') ? getEffectiveOtRate(workProfile) : 0;
+        const otH = parseFloat(rec.otHours) || 0;
+        sum += Math.round((weight * dailyRate) + (otH * otRate));
+      }
+    }
+    return sum;
+  };
+
   if (range === '7D') {
     periodLabel = 'Last 7 Days';
     // Current 7 days
@@ -13003,7 +13075,7 @@ function renderTrendChart(range) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const iso = dsOf(d);
       const dayEntries = entries.filter(e => e.date === iso);
-      const amt = dayEntries.reduce((s, e) => s + e.amount, 0);
+      const amt = getDayTotalIncome(iso);
       dataPoints.push({
         date: iso,
         label: DAYS[d.getDay()],
@@ -13016,8 +13088,7 @@ function renderTrendChart(range) {
     for (let i = 13; i >= 7; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const iso = dsOf(d);
-      const amt = entries.filter(e => e.date === iso).reduce((s, e) => s + e.amount, 0);
-      prevPoints.push(amt);
+      prevPoints.push(getDayTotalIncome(iso));
     }
   } else if (range === '12M') {
     periodLabel = 'Last 12 Months';
@@ -13029,12 +13100,16 @@ function renderTrendChart(range) {
         const ed = new Date(e.date + 'T00:00:00');
         return ed.getFullYear() === y && ed.getMonth() === m;
       });
-      const amt = mEntries.reduce((s, e) => s + e.amount, 0);
+      let mTotal = mEntries.reduce((s, e) => s + e.amount, 0);
+      if (currentAppMode !== 'freelance' && typeof getMonthlyAttendanceSummary === 'function') {
+        const offSum = getMonthlyAttendanceSummary(y, m);
+        if (offSum) mTotal += offSum.grossPay;
+      }
       dataPoints.push({
         date: `${MTHS[m]} ${y}`,
         label: MTHS[m].slice(0,3),
         sub: String(y),
-        amount: amt,
+        amount: mTotal,
         count: mEntries.length
       });
     }
@@ -13042,11 +13117,15 @@ function renderTrendChart(range) {
     for (let i = 23; i >= 12; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const y = d.getFullYear(), m = d.getMonth();
-      const amt = entries.filter(e => {
+      let priorTotal = entries.filter(e => {
         const ed = new Date(e.date + 'T00:00:00');
         return ed.getFullYear() === y && ed.getMonth() === m;
       }).reduce((s, e) => s + e.amount, 0);
-      prevPoints.push(amt);
+      if (currentAppMode !== 'freelance' && typeof getMonthlyAttendanceSummary === 'function') {
+        const offSum = getMonthlyAttendanceSummary(y, m);
+        if (offSum) priorTotal += offSum.grossPay;
+      }
+      prevPoints.push(priorTotal);
     }
   } else {
     // Default 30D
@@ -13055,7 +13134,7 @@ function renderTrendChart(range) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const iso = dsOf(d);
       const dayEntries = entries.filter(e => e.date === iso);
-      const amt = dayEntries.reduce((s, e) => s + e.amount, 0);
+      const amt = getDayTotalIncome(iso);
       dataPoints.push({
         date: iso,
         label: d.getDate() === 1 || i === 29 || i === 0 ? (d.getDate() + ' ' + MTHS[d.getMonth()].slice(0,3)) : String(d.getDate()),
@@ -13068,13 +13147,12 @@ function renderTrendChart(range) {
     for (let i = 59; i >= 30; i--) {
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
       const iso = dsOf(d);
-      const amt = entries.filter(e => e.date === iso).reduce((s, e) => s + e.amount, 0);
-      prevPoints.push(amt);
+      prevPoints.push(getDayTotalIncome(iso));
     }
   }
 
   const subEl = document.getElementById('stats-trend-subtitle');
-  if (subEl) subEl.textContent = `Earnings velocity & trend for ${periodLabel}`;
+  if (subEl) subEl.textContent = `Earnings velocity & worker trend for ${periodLabel}`;
 
   const amounts = dataPoints.map(p => p.amount);
   const totalPeriod = amounts.reduce((s, a) => s + a, 0);
@@ -13091,15 +13169,45 @@ function renderTrendChart(range) {
     growthStr = '+100%';
   }
 
+  // Worker Performance calculation for the period
+  let perfTierLabel = 'Tier 1';
+  let perfTierColor = 'var(--t1)';
+  if (workProfile && workProfile.salaryType === 'performance' && Array.isArray(workProfile.perfSalaryTiers) && workProfile.perfSalaryTiers.length > 0) {
+    const curR = parseFloat(workProfile.rating) || 1;
+    const activeTier = workProfile.perfSalaryTiers.find(t => Math.abs(t.rating - curR) < 0.1) || workProfile.perfSalaryTiers[0];
+    perfTierLabel = `★ ${activeTier.rating} (${activeTier.label ? activeTier.label.split(' ')[0] : 'L' + activeTier.rating})`;
+    perfTierColor = 'var(--pend)';
+  } else if (workProfile) {
+    const baseMonthly = workProfile.monthlySalary || 50000;
+    const estPacing = (totalPeriod / Math.max(1, dataPoints.length)) * 30;
+    const ratio = estPacing / Math.max(1, baseMonthly);
+    if (ratio >= 1.1) {
+      perfTierLabel = 'High Pace';
+      perfTierColor = 'var(--paid)';
+    } else if (ratio >= 0.85) {
+      perfTierLabel = 'On Track';
+      perfTierColor = 'var(--acc)';
+    } else {
+      perfTierLabel = 'Moderate';
+      perfTierColor = 'var(--pend)';
+    }
+  }
+
   // Update metrics row
   const totEl = document.getElementById('stats-trend-total');
   const avgEl = document.getElementById('stats-trend-avg');
   const groEl = document.getElementById('stats-trend-growth');
+  const perfEl = document.getElementById('stats-trend-perf');
+
   if (totEl) totEl.textContent = fmtRs(totalPeriod);
   if (avgEl) avgEl.textContent = fmtRs(Math.round(avgPeriod));
   if (groEl) {
     groEl.textContent = growthStr;
     groEl.style.color = (growthPct >= 0 || growthStr === '+100%') ? 'var(--paid)' : 'var(--danger)';
+  }
+  if (perfEl) {
+    perfEl.textContent = perfTierLabel;
+    perfEl.style.color = perfTierColor;
   }
 
   // Generate SVG Area and Line Path
@@ -13200,121 +13308,51 @@ function showTrendNodeTooltip(ev, dateStr, amtStr, x, y) {
   }, 2600);
 }
 
-function renderDayOfWeekMatrix() {
-  const dayTotals = [0, 0, 0, 0, 0, 0, 0]; // 0: Sun, 1: Mon, ... 6: Sat
-  const dayCounts = [0, 0, 0, 0, 0, 0, 0];
-  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// ══════════════ SMART MONTHLY GOAL ENGINE ══════════════
+function getAutoBenchmarkMonthlyTarget() {
+  const now = new Date();
+  let peakMonthly = 0;
 
-  entries.forEach(e => {
-    const d = new Date(e.date + 'T00:00:00');
-    const day = d.getDay();
-    dayTotals[day] += e.amount;
-    dayCounts[day] += 1;
-  });
+  // 1. Calculate highest historical monthly income across previous 12 months
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const y = d.getFullYear(), m = d.getMonth();
+    let mTotal = entries.filter(e => {
+      const ed = new Date(e.date + 'T00:00:00');
+      return ed.getFullYear() === y && ed.getMonth() === m;
+    }).reduce((s, e) => s + e.amount, 0);
 
-  // Reorder display from Monday (1) to Sunday (0)
-  const displayOrder = [1, 2, 3, 4, 5, 6, 0]; // Mon, Tue, Wed, Thu, Fri, Sat, Sun
-  const maxVal = Math.max(...dayTotals, 1);
-
-  let peakDayIdx = 1;
-  let peakVal = 0;
-  dayTotals.forEach((amt, idx) => {
-    if (amt > peakVal) {
-      peakVal = amt;
-      peakDayIdx = idx;
+    if (typeof getMonthlyAttendanceSummary === 'function') {
+      const offSum = getMonthlyAttendanceSummary(y, m);
+      if (offSum) mTotal += offSum.grossPay;
     }
-  });
-
-  const gridEl = document.getElementById('stats-dow-grid');
-  if (gridEl) {
-    gridEl.innerHTML = displayOrder.map(dayIdx => {
-      const amt = dayTotals[dayIdx];
-      const count = dayCounts[dayIdx];
-      const isPeak = dayIdx === peakDayIdx && amt > 0;
-      const pct = Math.max(4, Math.round((amt / maxVal) * 100));
-      const valStr = amt >= 1000 ? '₹' + (amt / 1000).toFixed(1) + 'k' : (amt > 0 ? '₹' + amt : '—');
-
-      return `
-        <div class="dow-col ${isPeak ? 'is-peak' : ''}" title="${dayNames[dayIdx]}: ${fmtRs(amt)} (${count} shifts)">
-          <div style="font-size:7.5px;font-family:'DM Mono',monospace;color:var(--t3);text-align:center;white-space:nowrap">${valStr}</div>
-          <div class="dow-bar-track">
-            <div class="dow-bar-fill" style="height:${pct}%;"></div>
-          </div>
-          <div class="dow-lbl">${dayNames[dayIdx]}</div>
-        </div>
-      `;
-    }).join('');
+    if (mTotal > peakMonthly) peakMonthly = mTotal;
   }
 
-  // Peak badge update
-  const peakBadge = document.getElementById('stats-dow-peak-badge');
-  if (peakBadge) {
-    if (peakVal > 0) {
-      peakBadge.innerHTML = `<span>🔥 Best: ${dayNames[peakDayIdx]} (${fmtRs(peakVal)})</span>`;
-      peakBadge.style.display = 'inline-flex';
+  // 2. Also check highest tier compensation from worker profile if performance mode
+  let highestTierSalary = 0;
+  if (workProfile) {
+    if (Array.isArray(workProfile.perfSalaryTiers) && workProfile.perfSalaryTiers.length > 0) {
+      highestTierSalary = Math.max(...workProfile.perfSalaryTiers.map(t => parseFloat(t.amount) || 0));
     } else {
-      peakBadge.style.display = 'none';
+      highestTierSalary = parseFloat(workProfile.monthlySalary) || 50000;
     }
   }
 
-  // Weekday vs Weekend calculation
-  const weekdayTotal = dayTotals[1] + dayTotals[2] + dayTotals[3] + dayTotals[4] + dayTotals[5];
-  const weekendTotal = dayTotals[6] + dayTotals[0];
-  const grandTotal = weekdayTotal + weekendTotal;
-  const ratioEl = document.getElementById('stats-dow-ratio');
-  if (ratioEl) {
-    if (grandTotal > 0) {
-      const wPct = Math.round((weekdayTotal / grandTotal) * 100);
-      const ePct = 100 - wPct;
-      ratioEl.textContent = `🏢 ${wPct}% Weekdays · 🌴 ${ePct}% Weekends`;
-    } else {
-      ratioEl.textContent = 'No shifts logged yet';
-    }
-  }
+  const benchmark = Math.max(peakMonthly, highestTierSalary, 50000);
+  // Round up to clean nearest 500
+  return Math.ceil(benchmark / 500) * 500;
 }
 
-function renderShiftCompAnalysis() {
-  let totalBase = 0;
-  let totalOT = 0;
-  let totalAdv = 0;
-  let totalOTHours = 0;
-  let totalShifts = entries.length;
-
-  entries.forEach(e => {
-    const otAmt = Number(e.otAmount) || 0;
-    const otHrs = Number(e.otHours) || 0;
-    const adv = Number(e.advance) || 0;
-    const base = Math.max(0, e.amount - otAmt);
-
-    totalBase += base;
-    totalOT += otAmt;
-    totalAdv += adv;
-    totalOTHours += otHrs;
-  });
-
-  const totalEarned = totalBase + totalOT;
-  const basePct = totalEarned > 0 ? Math.round((totalBase / totalEarned) * 100) : 70;
-  const otPct = totalEarned > 0 ? Math.round((totalOT / totalEarned) * 100) : 30;
-  const advPct = totalEarned > 0 ? Math.min(25, Math.round((totalAdv / totalEarned) * 100)) : 0;
-
-  const segBase = document.getElementById('stats-seg-base');
-  const segOT = document.getElementById('stats-seg-ot');
-  const segAdv = document.getElementById('stats-seg-adv');
-  if (segBase) segBase.style.width = `${basePct}%`;
-  if (segOT) segOT.style.width = `${otPct}%`;
-  if (segAdv) segAdv.style.width = `${advPct}%`;
-
-  const countEl = document.getElementById('stats-comp-total-shifts');
-  const valBaseEl = document.getElementById('stats-val-base');
-  const valOtEl = document.getElementById('stats-val-ot');
-  const avgShiftEl = document.getElementById('stats-val-avg-shift');
-
-  if (countEl) countEl.textContent = `${totalShifts} shift${totalShifts !== 1 ? 's' : ''} logged`;
-  if (valBaseEl) valBaseEl.textContent = `${fmtRs(totalBase)} (${basePct}%)`;
-  if (valOtEl) valOtEl.textContent = `${fmtRs(totalOT)} (${totalOTHours} hrs)`;
-
-  const avgShiftVal = totalShifts > 0 ? Math.round(totalEarned / totalShifts) : 0;
-  if (avgShiftEl) avgShiftEl.textContent = `${fmtRs(avgShiftVal)} / shift`;
+function getEffectiveMonthlyTarget() {
+  const userTarget = localStorage.getItem('mrnodeman_monthly_goal');
+  if (userTarget !== null && userTarget !== '') {
+    const parsed = parseFloat(userTarget);
+    if (!isNaN(parsed) && parsed > 0) {
+      return { target: parsed, isAuto: false };
+    }
+  }
+  return { target: getAutoBenchmarkMonthlyTarget(), isAuto: true };
 }
 
 function renderTargetGoalTracker() {
@@ -13325,15 +13363,20 @@ function renderTargetGoalTracker() {
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const currentDay = now.getDate();
 
-  const target = parseFloat(localStorage.getItem('mrnodeman_monthly_goal')) || 50000;
+  const { target, isAuto } = getEffectiveMonthlyTarget();
 
-  // Compute current month's earnings
+  // Compute current month's total earnings (freelance entries + worker attendance gross pay)
   const currentMonthEntries = entries.filter(e => {
     const d = new Date(e.date + 'T00:00:00');
     return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
   });
+  let earned = currentMonthEntries.reduce((s, e) => s + e.amount, 0);
 
-  const earned = currentMonthEntries.reduce((s, e) => s + e.amount, 0);
+  if (currentAppMode !== 'freelance' && typeof getMonthlyAttendanceSummary === 'function') {
+    const offSum = getMonthlyAttendanceSummary(currentYear, currentMonth);
+    if (offSum) earned += offSum.grossPay;
+  }
+
   const pct = Math.min(100, Math.round((earned / target) * 100));
 
   const monthNameEl = document.getElementById('stats-target-month-name');
@@ -13341,10 +13384,17 @@ function renderTargetGoalTracker() {
   const goalEarnedEl = document.getElementById('stats-goal-earned');
   const goalPctEl = document.getElementById('stats-goal-pct');
   const goalRemEl = document.getElementById('stats-goal-remaining');
+  const goalBadgeEl = document.getElementById('stats-goal-badge');
   const ring = document.getElementById('stats-goal-ring');
 
-  if (monthNameEl) monthNameEl.textContent = `Goal for ${monthName} ${currentYear} (${daysInMonth - currentDay} days left)`;
+  if (monthNameEl) monthNameEl.textContent = `${monthName} ${currentYear} (${daysInMonth - currentDay}d remaining)`;
   if (goalTargetEl) goalTargetEl.textContent = fmtRs(target);
+  if (goalBadgeEl) {
+    goalBadgeEl.textContent = isAuto ? 'AUTO PEAK' : 'CUSTOM';
+    goalBadgeEl.style.color = isAuto ? 'var(--acc)' : 'var(--paid)';
+    goalBadgeEl.style.borderColor = isAuto ? 'var(--acc-bd)' : 'var(--paid-bd)';
+    goalBadgeEl.style.background = isAuto ? 'var(--acc-bg)' : 'var(--paid-bg)';
+  }
   if (goalEarnedEl) goalEarnedEl.textContent = fmtRs(earned);
   if (goalPctEl) goalPctEl.textContent = `${pct}%`;
 
@@ -13357,27 +13407,90 @@ function renderTargetGoalTracker() {
 
   if (goalRemEl) {
     if (earned >= target) {
-      goalRemEl.innerHTML = `<span style="color:var(--paid);font-weight:700">🎉 Monthly target achieved! (+${fmtRs(earned - target)})</span>`;
+      goalRemEl.innerHTML = `<span style="color:var(--paid);font-weight:700">Target Achieved (+${fmtRs(earned - target)})</span>`;
     } else {
       const remaining = target - earned;
-      const dailyNeeded = Math.round(remaining / Math.max(1, (daysInMonth - currentDay + 1)));
-      goalRemEl.textContent = `${fmtRs(remaining)} needed · (~${fmtRs(dailyNeeded)}/day)`;
+      const daysLeft = Math.max(1, (daysInMonth - currentDay + 1));
+      const dailyNeeded = Math.round(remaining / daysLeft);
+      goalRemEl.textContent = `${fmtRs(remaining)} remaining · (~${fmtRs(dailyNeeded)}/day)`;
     }
   }
 }
 
-function promptSetMonthlyGoal() {
-  const currentTarget = localStorage.getItem('mrnodeman_monthly_goal') || '50000';
-  const input = prompt('Enter your monthly revenue target (₹):', currentTarget);
-  if (input !== null) {
-    const parsed = parseFloat(input.replace(/[^0-9.]/g, ''));
-    if (!isNaN(parsed) && parsed > 0) {
-      localStorage.setItem('mrnodeman_monthly_goal', String(parsed));
-      renderTargetGoalTracker();
-      playSoundAndHaptic('success', 'medium');
-      if (typeof showToast === 'function') showToast(`🎯 Target set to ${fmtRs(parsed)}`);
-    }
+function openTargetGoalModal() {
+  const { target, isAuto } = getEffectiveMonthlyTarget();
+  const autoBenchmark = getAutoBenchmarkMonthlyTarget();
+  const inputEl = document.getElementById('goal-modal-input');
+  if (inputEl) inputEl.value = target;
+
+  const helperEl = document.getElementById('goal-input-helper');
+  if (helperEl) {
+    helperEl.textContent = isAuto ? 'Using Auto Peak Benchmark' : 'Custom Target Active';
   }
+
+  // Populate smart benchmark chips
+  const chipsContainer = document.getElementById('goal-smart-chips');
+  if (chipsContainer) {
+    const highestTierAmt = (workProfile && Array.isArray(workProfile.perfSalaryTiers) && workProfile.perfSalaryTiers.length > 0)
+      ? Math.max(...workProfile.perfSalaryTiers.map(t => t.amount))
+      : (workProfile ? workProfile.monthlySalary || 50000 : 50000);
+
+    const options = [
+      { label: 'Auto Peak', val: autoBenchmark, desc: 'Highest past earning' },
+      { label: 'Top Tier', val: highestTierAmt, desc: 'Rating Tier 5' },
+      { label: '+10% Growth', val: Math.round(autoBenchmark * 1.1), desc: 'Stretch target' },
+      { label: 'Base Contract', val: workProfile ? (workProfile.monthlySalary || 50000) : 50000, desc: 'Standard contract' }
+    ];
+
+    chipsContainer.innerHTML = options.map(opt => `
+      <div onclick="selectGoalModalPreset(${opt.val})" style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:8px 10px;cursor:pointer;transition:all 0.15s ease">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:700;color:var(--t1)">${opt.label}</span>
+          <span class="mono" style="font-size:11px;font-weight:800;color:var(--paid)">${fmtRs(opt.val)}</span>
+        </div>
+        <div style="font-size:9px;color:var(--t3);margin-top:2px">${opt.desc}</div>
+      </div>
+    `).join('');
+  }
+
+  openModal('target-goal-modal');
+  playSoundAndHaptic('tap', 'light');
+}
+
+function selectGoalModalPreset(val) {
+  const inputEl = document.getElementById('goal-modal-input');
+  if (inputEl) inputEl.value = val;
+  playSoundAndHaptic('tap', 'light');
+}
+
+function applySmartAutoGoal() {
+  localStorage.removeItem('mrnodeman_monthly_goal');
+  closeModal('target-goal-modal');
+  renderTargetGoalTracker();
+  playSoundAndHaptic('success', 'medium');
+  if (typeof showToast === 'function') {
+    showToast(`Target reset to Auto Peak: ${fmtRs(getAutoBenchmarkMonthlyTarget())}`);
+  }
+}
+
+function saveCustomMonthlyGoal() {
+  const inputEl = document.getElementById('goal-modal-input');
+  const val = inputEl ? parseFloat(inputEl.value) : 0;
+  if (!isNaN(val) && val > 0) {
+    localStorage.setItem('mrnodeman_monthly_goal', String(val));
+    closeModal('target-goal-modal');
+    renderTargetGoalTracker();
+    playSoundAndHaptic('success', 'medium');
+    if (typeof showToast === 'function') {
+      showToast(`Monthly target set to ${fmtRs(val)}`);
+    }
+  } else {
+    applySmartAutoGoal();
+  }
+}
+
+function promptSetMonthlyGoal() {
+  openTargetGoalModal();
 }
 function renderMonthlyBars(){
   const now=new Date();
