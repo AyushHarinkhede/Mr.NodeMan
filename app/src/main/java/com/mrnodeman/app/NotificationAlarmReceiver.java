@@ -49,6 +49,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
     public static final int NOTIF_ID_BIRTHDAY = 1010;
     public static final int NOTIF_ID_ANNIVERSARY = 1011;
     public static final int NOTIF_ID_SICK_CARE = 1012;
+    public static final int NOTIF_ID_SHIFT_STATS = 1013;
+    public static final int NOTIF_ID_NIGHT_STREAK = 1014;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -80,6 +82,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         boolean shiftEndGreeting = true;
         boolean wellnessBreaks = true;
         boolean attendanceFollowup = true;
+        boolean shiftStats = true;
+        boolean nightStreak = true;
 
         if (settingsStr != null) {
             try {
@@ -94,6 +98,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 shiftEndGreeting = s.optBoolean("shiftEndGreeting", true);
                 wellnessBreaks = s.optBoolean("wellnessBreaks", true);
                 attendanceFollowup = s.optBoolean("attendanceFollowup", true);
+                shiftStats = s.optBoolean("shiftStats", true);
+                nightStreak = s.optBoolean("nightStreak", true);
             } catch (Exception ignored) {}
         }
 
@@ -205,8 +211,16 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         // Triggered at user's learned lunch time (or 1:00 PM default)
         // ══════════════════════════════════════════════════════
         else if (NotificationScheduler.TYPE_LUNCH_REMINDER.equals(alarmType) && lunchReminder) {
-            String[] lunchMsg = getLunchReminder(daySeed);
-            showLunchActionNotification(context, NOTIF_ID_LUNCH, lunchMsg[0], lunchMsg[1]);
+            boolean todayLunchDone = todayISO.equals(prefs.getString("_mnm_today_lunch_date", "")) && prefs.getBoolean("_mnm_today_lunch_done", false);
+            if (todayLunchDone) {
+                // Lunch already marked today! Strict anti-spam: do not bother user.
+                try {
+                    NotificationManagerCompat.from(context).cancel(NOTIF_ID_LUNCH);
+                } catch (Exception ignored) {}
+            } else {
+                String[] lunchMsg = getLunchReminder(daySeed);
+                showLunchActionNotification(context, NOTIF_ID_LUNCH, lunchMsg[0], lunchMsg[1]);
+            }
         }
 
         // ══════════════════════════════════════════════════════
@@ -393,6 +407,140 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                         }
                     }
                 } catch (Exception ignored) {}
+            }
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 12. SPECIALIZED SHIFT & STATS PROGRESS NOTIFICATION (04:30 PM)
+        // Daily rotating dynamic notification reading user's monthly stats
+        // ══════════════════════════════════════════════════════
+        else if (NotificationScheduler.TYPE_SHIFT_STATS.equals(alarmType) && shiftStats) {
+            String monthPrefix = new SimpleDateFormat("yyyy-MM", Locale.US).format(nowCal.getTime());
+            
+            // Check pre-calculated stats summary from JS if available
+            String statsSummaryStr = prefs.getString("_mnm_stats_summary", null);
+            double monthlyEarned = 0;
+            double monthlyHours = 0;
+            int monthlyShifts = 0;
+            double totalPendingDues = 0;
+            int streak = prefs.getInt("_mnm_current_streak", 0);
+
+            if (statsSummaryStr != null) {
+                try {
+                    JSONObject ss = new JSONObject(statsSummaryStr);
+                    monthlyEarned = ss.optDouble("monthlyEarnings", 0);
+                    monthlyHours = ss.optDouble("monthlyHours", 0);
+                    monthlyShifts = ss.optInt("monthlyShifts", 0);
+                    totalPendingDues = ss.optDouble("pendingDues", 0);
+                    if (streak <= 0) streak = ss.optInt("streak", 0);
+                } catch (Exception ignored) {}
+            }
+
+            // Fallback / dynamic native aggregation from attendance & entries
+            if (monthlyShifts == 0 && attendanceRecords != null) {
+                try {
+                    java.util.Iterator<String> keys = attendanceRecords.keys();
+                    while (keys.hasNext()) {
+                        String k = keys.next();
+                        if (k.startsWith(monthPrefix)) {
+                            JSONObject obj = attendanceRecords.optJSONObject(k);
+                            if (obj != null) {
+                                String st = obj.optString("status", "").toUpperCase(Locale.US);
+                                if ("P".equals(st) || "PRESENT".equals(st) || "HD".equals(st) || "HALF".equals(st)) {
+                                    monthlyShifts++;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            if (monthlyEarned == 0 && entriesStr != null) {
+                try {
+                    JSONArray arr = new JSONArray(entriesStr);
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject e = arr.getJSONObject(i);
+                        String eDate = e.optString("date", "");
+                        if (eDate.startsWith(monthPrefix)) {
+                            monthlyEarned += e.optDouble("amount", e.optDouble("total", 0));
+                            monthlyHours += e.optDouble("hours", e.optDouble("duration", 0));
+                        }
+                        double p = e.optDouble("pending", 0);
+                        String pSt = e.optString("status", e.optString("paymentStatus", ""));
+                        if (p > 0 && !"paid".equalsIgnoreCase(pSt)) {
+                            totalPendingDues += p;
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Select 1 of 4 specialized daily rotating messages based on daySeed
+            int rot = Math.abs(daySeed) % 4;
+            String statTitle;
+            String statBody;
+
+            if (rot == 0) {
+                statTitle = "Monthly Shift Summary";
+                if (monthlyEarned > 0) {
+                    statBody = "You have earned Rs " + String.format(Locale.US, "%,.0f", monthlyEarned) + " across " + monthlyShifts + " shifts this month at " + companyName + ". Excellent work!";
+                } else {
+                    statBody = "You have completed " + monthlyShifts + " shifts this month at " + companyName + ". Keep up the steady progress.";
+                }
+            } else if (rot == 1) {
+                statTitle = "Daily Work Recap";
+                if (monthlyHours > 0) {
+                    statBody = "You have completed " + String.format(Locale.US, "%.1f", monthlyHours) + " hours across " + monthlyShifts + " shifts this month. Consistency brings success.";
+                } else {
+                    statBody = "Dedication in action: " + monthlyShifts + " shifts completed this month at " + companyName + ". Great effort today.";
+                }
+            } else if (rot == 2) {
+                statTitle = "Consistent Work Milestone";
+                if (streak > 1) {
+                    statBody = "You are on an active " + streak + "-day streak. Keep your momentum going strong at " + companyName + ".";
+                } else {
+                    statBody = "Every logged shift brings you closer to your financial goals at " + companyName + ". Keep your streak alive.";
+                }
+            } else {
+                statTitle = "Shift Progress and Receivables";
+                if (totalPendingDues > 0) {
+                    statBody = "Rs " + String.format(Locale.US, "%,.0f", monthlyEarned) + " earned this month, with Rs " + String.format(Locale.US, "%,.0f", totalPendingDues) + " pending from clients. Review your ledger in Mr.NodeMan.";
+                } else {
+                    statBody = "Milestone update: " + monthlyShifts + " shifts logged this month. You are on track for your monthly targets.";
+                }
+            }
+
+            showSimpleNotification(context, CHANNEL_SHIFT_GREETINGS, NOTIF_ID_SHIFT_STATS, statTitle, statBody, R.drawable.ic_stat_salary, Color.parseColor("#7C6FED"));
+        }
+
+        // ══════════════════════════════════════════════════════
+        // 13. NIGHT STREAK GUARDIAN & MOTIVATION (09:45 PM)
+        // ══════════════════════════════════════════════════════
+        else if (NotificationScheduler.TYPE_NIGHT_STREAK.equals(alarmType) && nightStreak) {
+            int streak = prefs.getInt("_mnm_current_streak", 0);
+            if (streak <= 0) {
+                String statsSummaryStr = prefs.getString("_mnm_stats_summary", null);
+                if (statsSummaryStr != null) {
+                    try {
+                        streak = new JSONObject(statsSummaryStr).optInt("streak", 0);
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            if (!hasMarkedAttendance) {
+                // Streak is at risk before midnight! Provide direct 1-tap Present action
+                String streakTitle = streak > 0 ? ("Keep Your " + streak + "-Day Streak Active") : "Log Today's Shift Before Midnight";
+                String streakMsg = streak > 0
+                    ? ("You have not logged your shift for today at " + companyName + ". Mark Present before midnight to maintain your " + streak + "-day streak.")
+                    : ("You have not logged your attendance for today at " + companyName + " yet. Tap below to record your shift before midnight.");
+                
+                showAttendanceActionNotification(context, NOTIF_ID_NIGHT_STREAK, streakTitle, streakMsg, todayISO, companyName);
+            } else {
+                // Today is already marked! Send occasional evening streak celebration
+                if (streak >= 3 && (Math.abs(daySeed) % 2 == 0)) {
+                    String cheerTitle = "Streak Maintained: " + streak + " Days";
+                    String cheerMsg = "Today's shift at " + companyName + " is safely recorded. Great dedication today. Rest well tonight and recharge for tomorrow.";
+                    showSimpleNotification(context, CHANNEL_REMINDERS, NOTIF_ID_NIGHT_STREAK, cheerTitle, cheerMsg, R.drawable.ic_stat_attendance, Color.parseColor("#F59E0B"));
+                }
             }
         }
     }
@@ -617,6 +765,10 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_BIRTHDAY_GREETING, 8, 30, alarmType);
         } else if (NotificationScheduler.TYPE_WORK_ANNIVERSARY.equals(alarmType)) {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_WORK_ANNIVERSARY, 9, 15, alarmType);
+        } else if (NotificationScheduler.TYPE_SHIFT_STATS.equals(alarmType)) {
+            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_SHIFT_STATS, 16, 30, alarmType);
+        } else if (NotificationScheduler.TYPE_NIGHT_STREAK.equals(alarmType)) {
+            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_NIGHT_STREAK, 21, 45, alarmType);
         }
     }
 

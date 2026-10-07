@@ -25,6 +25,8 @@ public class NotificationScheduler {
     public static final String TYPE_ATTENDANCE_FOLLOWUP = "attendance_followup";
     public static final String TYPE_BIRTHDAY_GREETING = "birthday_greeting";
     public static final String TYPE_WORK_ANNIVERSARY = "work_anniversary";
+    public static final String TYPE_SHIFT_STATS = "shift_stats";
+    public static final String TYPE_NIGHT_STREAK = "night_streak";
 
     public static final int REQ_MORNING_SHIFT = 1001;
     public static final int REQ_EVENING_PENDING = 1002;
@@ -38,6 +40,8 @@ public class NotificationScheduler {
     public static final int REQ_ATTENDANCE_FOLLOWUP = 1010;
     public static final int REQ_BIRTHDAY_GREETING = 1011;
     public static final int REQ_WORK_ANNIVERSARY = 1012;
+    public static final int REQ_SHIFT_STATS = 1013;
+    public static final int REQ_NIGHT_STREAK = 1014;
 
     public static void scheduleAllAlarms(Context context) {
         if (context == null) return;
@@ -56,6 +60,8 @@ public class NotificationScheduler {
             boolean shiftEndGreeting = true;
             boolean wellnessBreaks = true;
             boolean attendanceFollowup = true;
+            boolean shiftStats = true;
+            boolean nightStreak = true;
 
             if (settingsJsonStr != null && !settingsJsonStr.isEmpty()) {
                 try {
@@ -70,6 +76,8 @@ public class NotificationScheduler {
                     if (obj.has("shiftEndGreeting")) shiftEndGreeting = obj.optBoolean("shiftEndGreeting", true);
                     if (obj.has("wellnessBreaks")) wellnessBreaks = obj.optBoolean("wellnessBreaks", true);
                     if (obj.has("attendanceFollowup")) attendanceFollowup = obj.optBoolean("attendanceFollowup", true);
+                    if (obj.has("shiftStats")) shiftStats = obj.optBoolean("shiftStats", true);
+                    if (obj.has("nightStreak")) nightStreak = obj.optBoolean("nightStreak", true);
                 } catch (Exception ignored) {}
             }
 
@@ -146,6 +154,20 @@ public class NotificationScheduler {
 
             // 11. Work Tenure & Anniversary Greetings (09:15 AM - 1st of month & joining anniversary)
             scheduleDailyAlarm(context, REQ_WORK_ANNIVERSARY, 9, 15, TYPE_WORK_ANNIVERSARY);
+
+            // 12. Specialized Shift & Stats Progress Notification (04:30 PM = 16:30)
+            if (shiftStats) {
+                scheduleDailyAlarm(context, REQ_SHIFT_STATS, 16, 30, TYPE_SHIFT_STATS);
+            } else {
+                cancelAlarm(context, REQ_SHIFT_STATS);
+            }
+
+            // 13. Night Streak Reminder & Motivation (09:45 PM = 21:45)
+            if (nightStreak) {
+                scheduleDailyAlarm(context, REQ_NIGHT_STREAK, 21, 45, TYPE_NIGHT_STREAK);
+            } else {
+                cancelAlarm(context, REQ_NIGHT_STREAK);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -271,5 +293,7 @@ public class NotificationScheduler {
         cancelAlarm(context, REQ_CLIENT_DUES);
         cancelAlarm(context, REQ_BIRTHDAY_GREETING);
         cancelAlarm(context, REQ_WORK_ANNIVERSARY);
+        cancelAlarm(context, REQ_SHIFT_STATS);
+        cancelAlarm(context, REQ_NIGHT_STREAK);
     }
 }

@@ -85,20 +85,29 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 plIntent.putExtra(EXTRA_NOTIF_ID, notifId);
                 PendingIntent plPi = PendingIntent.getBroadcast(context, notifId * 10 + 5, plIntent, pFlags);
 
-                // Option 3: Direct Absent (A)
+                // Option 3: Half Day (HD)
+                Intent hdIntent = new Intent(context, NotificationActionReceiver.class);
+                hdIntent.setAction(ACTION_MARK_ATTENDANCE);
+                hdIntent.putExtra(EXTRA_STATUS, "HD");
+                hdIntent.putExtra(EXTRA_DATE, targetDate);
+                hdIntent.putExtra(EXTRA_COMPANY, compName);
+                hdIntent.putExtra(EXTRA_NOTIF_ID, notifId);
+                PendingIntent hdPi = PendingIntent.getBroadcast(context, notifId * 10 + 6, hdIntent, pFlags);
+
+                // Option 4: Direct Absent (A)
                 Intent aIntent = new Intent(context, NotificationActionReceiver.class);
                 aIntent.setAction(ACTION_MARK_ATTENDANCE);
                 aIntent.putExtra(EXTRA_STATUS, "A");
                 aIntent.putExtra(EXTRA_DATE, targetDate);
                 aIntent.putExtra(EXTRA_COMPANY, compName);
                 aIntent.putExtra(EXTRA_NOTIF_ID, notifId);
-                PendingIntent aPi = PendingIntent.getBroadcast(context, notifId * 10 + 6, aIntent, pFlags);
+                PendingIntent aPi = PendingIntent.getBroadcast(context, notifId * 10 + 7, aIntent, pFlags);
 
                 NotificationCompat.Builder promptBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
                     .setSmallIcon(R.drawable.ic_stat_attendance)
                     .setContentTitle("Reason for Absence")
-                    .setContentText("Select leave type: Sick Leave (SL), Paid Leave (PL), or Absent.")
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Select leave reason: Sick Leave (SL), Paid Leave (PL), or Absent (A):"))
+                    .setContentText("Select leave reason: Sick Leave, Paid Leave, Half Day, or Absent.")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Select absence reason for " + compName + ": Sick Leave (SL), Paid Leave (PL), Half Day (HD), or Absent (A):"))
                     .setColor(Color.parseColor("#F59E0B"))
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setContentIntent(contentIntent)
@@ -106,6 +115,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     .setVibrate(new long[]{0, 150, 100, 150})
                     .addAction(R.drawable.ic_action_halfday, "Sick Leave (SL)", slPi)
                     .addAction(R.drawable.ic_action_halfday, "Paid Leave (PL)", plPi)
+                    .addAction(R.drawable.ic_action_halfday, "Half Day (HD)", hdPi)
                     .addAction(R.drawable.ic_action_absent, "Absent (A)", aPi);
 
                 NotificationManagerCompat manager = NotificationManagerCompat.from(context);
@@ -120,7 +130,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 // Show quick guidance toast
                 new Handler(Looper.getMainLooper()).post(() -> {
                     try {
-                        Toast.makeText(context, "Select leave type: SL, PL, or Absent", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Select: Sick Leave, Paid Leave, Half Day, or Absent", Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored) {}
                 });
 
@@ -314,33 +324,48 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                         history = new org.json.JSONArray();
                     }
 
+                    String todayISO = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(now.getTime());
+                    String timeStr = new SimpleDateFormat("hh:mm a", Locale.US).format(now.getTime());
+
                     JSONObject entry = new JSONObject();
-                    entry.put("date", new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(now.getTime()));
+                    entry.put("date", todayISO);
                     entry.put("hour", curHour);
                     entry.put("minute", curMin);
                     history.put(entry);
 
-                    // Keep only last 10 records for recency
-                    while (history.length() > 10) {
+                    // Keep up to 14 records for multi-day habit learning
+                    while (history.length() > 14) {
                         history.remove(0);
                     }
 
-                    // Compute moving average of preferred lunch time
-                    int totalMinutes = 0;
+                    // Multi-day weighted moving average: recent days 3x weight, mid 2x, older 1x
+                    int totalWeightedMinutes = 0;
+                    int totalWeight = 0;
                     for (int i = 0; i < history.length(); i++) {
                         JSONObject item = history.getJSONObject(i);
-                        totalMinutes += (item.getInt("hour") * 60 + item.getInt("minute"));
+                        int mins = item.getInt("hour") * 60 + item.getInt("minute");
+                        int weight = 1;
+                        if (i >= history.length() - 3) {
+                            weight = 3;
+                        } else if (i >= history.length() - 7) {
+                            weight = 2;
+                        }
+                        totalWeightedMinutes += (mins * weight);
+                        totalWeight += weight;
                     }
-                    int avgMinOfDay = totalMinutes / history.length();
+                    int avgMinOfDay = totalWeight > 0 ? (totalWeightedMinutes / totalWeight) : (curHour * 60 + curMin);
                     int learnedHour = avgMinOfDay / 60;
                     int learnedMin = avgMinOfDay % 60;
 
                     // Bound between 11:30 AM and 03:30 PM (reasonable workday lunch window)
-                    if (learnedHour < 11) { learnedHour = 11; learnedMin = 30; }
-                    if (learnedHour > 15) { learnedHour = 15; learnedMin = 30; }
+                    if (learnedHour < 11 || (learnedHour == 11 && learnedMin < 30)) { learnedHour = 11; learnedMin = 30; }
+                    if (learnedHour > 15 || (learnedHour == 15 && learnedMin > 30)) { learnedHour = 15; learnedMin = 30; }
 
                     prefs.edit()
                         .putString("_mnm_lunch_history", history.toString())
+                        .putString("_mnm_today_lunch_date", todayISO)
+                        .putBoolean("_mnm_today_lunch_done", true)
+                        .putString("_mnm_today_lunch_time", timeStr)
                         .putInt("_mnm_learned_lunch_hour", learnedHour)
                         .putInt("_mnm_learned_lunch_minute", learnedMin)
                         .commit();
@@ -352,6 +377,8 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     Intent bIntent = new Intent(ACTION_LUNCH_BROADCAST);
                     bIntent.putExtra("learned_hour", learnedHour);
                     bIntent.putExtra("learned_min", learnedMin);
+                    bIntent.putExtra("today_done", true);
+                    bIntent.putExtra("today_time", timeStr);
                     bIntent.setPackage(context.getPackageName());
                     context.sendBroadcast(bIntent);
 
@@ -442,6 +469,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
             SharedPreferences prefs = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
             String profileStr = prefs.getString("_mnm_work_profile", null);
             String workerName = "Champion";
+            String companyName = "Workplace";
             if (profileStr != null) {
                 try {
                     JSONObject wp = new JSONObject(profileStr);
@@ -449,6 +477,10 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     if (name.trim().isEmpty()) name = wp.optString("name", "");
                     if (!name.trim().isEmpty()) {
                         workerName = name.trim();
+                    }
+                    String comp = wp.optString("company", "");
+                    if (!comp.trim().isEmpty()) {
+                        companyName = comp.trim();
                     }
                 } catch (Exception ignored) {}
             }
@@ -465,26 +497,53 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 } catch (Exception ignored) {}
             }
 
-            // Read rotational care counter so each notification is unique
+            // Read rotational care counter & day of year so each notification is uniquely selected
             int careCount = prefs.getInt("_mnm_sick_care_count", 0);
             prefs.edit().putInt("_mnm_sick_care_count", careCount + 1).commit();
+            int daySeed = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
 
+            // ══════════════════════════════════════════════════════════════════════════
+            // APOLOGY + SYMPATHY + TOTAL OWNERSHIP DYNAMIC CARE REPERTORY
+            // 1. Apology: Genuine regret/remorse that user is facing illness/discomfort
+            // 2. Sympathy: Deep empathy, recovery well-wishes, health prioritization
+            // 3. Ownership: Complete responsibility for work/shift logs at workplace; zero guilt/stress
+            // ══════════════════════════════════════════════════════════════════════════
             String[][] careMessages = new String[][] {
                 {
-                    "Get Well Soon, " + workerName,
-                    "Your health comes first. Take complete rest today and recover well. Wishing you a speedy recovery."
+                    "We are Truly Sorry You Are Unwell, " + workerName,
+                    "We are genuinely sorry you are feeling unwell today. Please do not worry about your shift or duties at " + companyName + " — we have taken full ownership of your records. Your health is our highest priority. Take complete rest, stay hydrated, and get well soon."
                 },
                 {
-                    "Rest and Recovery, " + workerName,
-                    "Take care of your health today. Get adequate rest and stay hydrated. Get well soon."
+                    "Health First, " + workerName + " — Work is Fully Covered",
+                    "It pains us to see you under the weather today. Disconnect from work completely — everything at " + companyName + " is safely managed by us. Focus entirely on your healing, drink warm fluids, and take your medicines on time. Wishing you a speedy recovery."
                 },
                 {
-                    "Wishing You a Speedy Recovery, " + workerName,
-                    "Take full rest and do not worry about work today. We hope you feel better soon."
+                    "Get Well Soon, " + workerName + " — Zero Work Stress",
+                    "We deeply regret that you are having a difficult health day. Zero stress about today's attendance or shift — your duty is fully protected. Please consult a doctor if required and give your body the rest it deserves. We stand with you."
+                },
+                {
+                    "Rest Easy Today, " + workerName + " — We Have Your Back",
+                    "So sorry you are sick today. Step away from all work anxiety — Mr.NodeMan and " + companyName + " have taken total responsibility for today's logs. Leave the desk to us and focus 100% on regaining your strength."
+                },
+                {
+                    "Take It Slow Today, " + workerName + " — Your Shift is Protected",
+                    "We are truly sorry to hear about your illness. Do not think twice about work targets or hours today — your sick leave is officially recorded and secured. Drink warm soup, take deep rest, and recover at your own pace."
+                },
+                {
+                    "Your Well-Being Comes First, " + workerName,
+                    "We are so sorry you are unwell today. Work can always wait, but your health cannot. We take full ownership of your shift today at " + companyName + ". Rest peacefully, stay comfortable, and feel better soon."
+                },
+                {
+                    "Sending Healing Thoughts, " + workerName,
+                    "Hate seeing you feel unwell today. Please give yourself complete permission to rest without any guilt. No work or pending tasks will bother you today at " + companyName + ". We are cheering for your fast, gentle recovery."
+                },
+                {
+                    "You are in Safe Hands, " + workerName + " — Rest Completely",
+                    "We apologize for the discomfort illness brings. Relax with total peace of mind — your shift records and tasks are safely taken care of. Take proper nourishment, rest well, and bounce back stronger whenever you are ready."
                 }
             };
 
-            int idx = Math.abs(careCount) % careMessages.length;
+            int idx = Math.abs(careCount + daySeed) % careMessages.length;
             String title = careMessages[idx][0];
             String body = careMessages[idx][1];
 

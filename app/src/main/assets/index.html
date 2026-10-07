@@ -2382,15 +2382,52 @@ select option{background:var(--s)}
 .cfl-due{font-family:'DM Mono',monospace;font-size:10px;color:var(--pend);margin-top:2px}
 
 /* ════════════════════════════════════════════════
-   MORE VIEW
+   MORE VIEW - ANIMATIONS & TRANSITIONS
 ════════════════════════════════════════════════ */
-.more-row{display:flex;align-items:center;gap:14px;padding:14px 14px;background:var(--s2);border:1px solid var(--b);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:background .15s;-webkit-tap-highlight-color:transparent}
-.more-row:hover{background:var(--s3)}
-.more-row:active{transform:scale(.98)}
-.micon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+@keyframes moreCardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.more-row{display:flex;align-items:center;gap:14px;padding:14px 14px;background:var(--s2);border:1px solid var(--b);border-radius:14px;margin-bottom:8px;cursor:pointer;transition:transform .22s cubic-bezier(0.34, 1.56, 0.64, 1), background .18s ease, border-color .18s ease, box-shadow .18s ease;-webkit-tap-highlight-color:transparent;animation:moreCardSlideIn .3s cubic-bezier(0.16, 1, 0.3, 1) both}
+.more-row:hover{background:var(--s3);transform:translateY(-1px);border-color:var(--b2);box-shadow:0 4px 12px rgba(0,0,0,0.18)}
+.more-row:active{transform:scale(.98) translateY(1px)}
+.micon{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:transform .22s cubic-bezier(0.34, 1.56, 0.64, 1)}
+.more-row:hover .micon{transform:scale(1.08)}
+.more-row:active .micon{transform:scale(0.96)}
 .mico-label{font-size:14px;font-weight:700}
 .mico-sub{font-size:11px;color:var(--t2);margin-top:2px}
-.mchev{margin-left:auto;color:var(--t3);font-size:16px}
+.mchev{margin-left:auto;color:var(--t3);font-size:16px;transition:transform .2s ease, color .2s ease}
+.more-row:hover .mchev{transform:translateX(3px);color:var(--t1)}
+
+/* Section Header for More View Actions */
+.more-section-hdr{display:flex;align-items:center;justify-content:space-between;margin:16px 2px 8px 2px;padding:0 2px}
+.more-section-title{font-size:11px;font-weight:800;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:6px}
+.more-section-pill{font-size:9.5px;font-weight:700;color:var(--acc);background:var(--acc-bg);border:1px solid var(--acc-bd);padding:2px 7px;border-radius:6px;letter-spacing:.03em;transition:all .2s ease}
+
+/* Category filter slider track & pills */
+.more-filter-track{display:flex;align-items:center;gap:6px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 4px 2px;-webkit-overflow-scrolling:touch}
+.more-filter-track::-webkit-scrollbar{display:none}
+.more-filter-pill{padding:5px 12px;border-radius:99px;font-size:10.5px;font-weight:700;letter-spacing:.02em;border:1px solid var(--b);background:var(--s2);color:var(--t2);cursor:pointer;white-space:nowrap;transition:all .22s cubic-bezier(0.34, 1.56, 0.64, 1);-webkit-tap-highlight-color:transparent;user-select:none}
+.more-filter-pill:hover{background:var(--s3);color:var(--t1);border-color:var(--b2);transform:translateY(-1px)}
+.more-filter-pill.active{background:var(--acc-bg);border-color:var(--acc-bd);color:var(--acc);box-shadow:0 2px 8px rgba(124,111,237,.18);transform:scale(1.03)}
+
+/* Side-by-side compact grid for options below Work ID & Salary Slip */
+.more-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:8px;margin-top:4px;margin-bottom:12px}
+.more-grid-item{display:flex;align-items:center;gap:10px;padding:12px 12px;background:var(--s2);border:1px solid var(--b);border-radius:13px;cursor:pointer;transition:transform .22s cubic-bezier(0.34, 1.56, 0.64, 1), background .18s ease, border-color .18s ease, box-shadow .18s ease;-webkit-tap-highlight-color:transparent;min-width:0;position:relative;user-select:none;animation:moreCardSlideIn .32s cubic-bezier(0.16, 1, 0.3, 1) both;animation-delay:calc(var(--i, 0) * .04s)}
+.more-grid-item:hover{background:var(--s3);border-color:var(--b2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.18)}
+.more-grid-item:active{transform:scale(.96) translateY(1px);background:var(--s3)}
+.more-grid-item .micon{width:32px;height:32px;border-radius:9px;font-size:15px;flex-shrink:0;border:1px solid transparent;transition:transform .22s cubic-bezier(0.34, 1.56, 0.64, 1), filter .18s ease}
+.more-grid-item:hover .micon{transform:scale(1.1) rotate(-3deg);filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25))}
+.more-grid-item:active .micon{transform:scale(.95)}
+.more-grid-item .mico-name{font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em;transition:color .18s ease}
+.more-grid-item:hover .mico-name{color:#fff}
 
 /* Filter chips */
 .fchips{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
@@ -2415,14 +2452,14 @@ select option{background:var(--s)}
 }
 
 /* Interactive elements - orange arrow */
-button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn,
-button *, .ss-btn *, .nitem *, .pill *, .fchip *, .more-row *, .cfl-row *, .entry-item *, .client-item *, .hm-cell *, .reuse-btn *, .tm-chip *, .tm-add-btn *, .tabbtn *,
+button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter-pill, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn,
+button *, .ss-btn *, .nitem *, .pill *, .fchip *, .more-row *, .more-grid-item *, .more-filter-pill *, .cfl-row *, .entry-item *, .client-item *, .hm-cell *, .reuse-btn *, .tm-chip *, .tm-add-btn *, .tabbtn *,
 .hdr-icon, .fab, .mhandle, .tm-chip-x, [onclick], [role="button"], [data-action] {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.25"/></filter></defs><path d="M4 4 L4 22 L10 16 L14 24 L18 22 L14 14 L22 14 Z" fill="%23FFB930" filter="url(%23shadow)"/></svg>') 4 4, pointer !important;
 }
 
 /* Enhanced hover state for interactive elements */
-button:hover, .ss-btn:hover, .nitem:hover, .pill:hover, .fchip:hover, .more-row:hover, .cfl-row:hover, .entry-item:hover, .client-item:hover, .hm-cell:hover, .reuse-btn:hover, .tm-chip:hover, .tm-add-btn:hover, .tabbtn:hover,
+button:hover, .ss-btn:hover, .nitem:hover, .pill:hover, .fchip:hover, .more-row:hover, .more-grid-item:hover, .more-filter-pill:hover, .cfl-row:hover, .entry-item:hover, .client-item:hover, .hm-cell:hover, .reuse-btn:hover, .tm-chip:hover, .tm-add-btn:hover, .tabbtn:hover,
 .hdr-icon:hover, .fab:hover, .mhandle:hover, .tm-chip-x:hover, [onclick]:hover, [role="button"]:hover, [data-action]:hover {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 28 28"><defs><filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.3"/></filter></defs><path d="M4 4 L4 22 L10 16 L14 24 L18 22 L14 14 L22 14 Z" fill="%23FFB930" filter="url(%23shadow)"/></svg>') 4 4, pointer !important;
 }
@@ -2467,11 +2504,11 @@ a, a * {
 }
 
 /* Ensure all child elements inherit parent cursor behavior */
-button *, .ss-btn *, .nitem *, .pill *, .fchip *, .more-row *, .cfl-row *, .entry-item *, .client-item *, .hm-cell *, .reuse-btn *, .tm-chip *, .tm-add-btn *, .tabbtn *, a * {
+button *, .ss-btn *, .nitem *, .pill *, .fchip *, .more-row *, .more-grid-item *, .more-filter-pill *, .cfl-row *, .entry-item *, .client-item *, .hm-cell *, .reuse-btn *, .tm-chip *, .tm-add-btn *, .tabbtn *, a * {
   pointer-events: none;
 }
 
-button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn, a {
+button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter-pill, .cfl-row, .entry-item, .client-item, .hm-cell, .reuse-btn, .tm-chip, .tm-add-btn, .tabbtn, a {
   position: relative;
 }
 
@@ -4459,6 +4496,35 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .cfl-row, .entry-item, .clien
         <div style="text-align:right">
           <span style="font-size:9px;color:var(--t2);text-transform:uppercase;margin-right:4px">Today Earned:</span>
           <span class="mono" id="today-total-earned" style="font-size:14px;font-weight:800;color:var(--paid)">₹0</span>
+        </div>
+      </div>
+
+      <!-- ══════════════ SMART LUNCH & BREAK HABIT TRACKER ══════════════ -->
+      <div id="today-lunch-break-tracker" style="margin-top:10px;background:linear-gradient(135deg, rgba(245,158,11,.08), rgba(16,185,129,.05));border:1px solid rgba(245,158,11,.22);border-radius:11px;padding:9px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:14px">🍽️</span>
+            <div>
+              <div style="font-size:10.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:5px">
+                <span>Lunch &amp; Break Tracker</span>
+                <span id="lunch-learned-time-pill" style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(245,158,11,0.2);color:#F59E0B">Est. ~1:00 PM</span>
+              </div>
+              <div id="lunch-learned-hint" style="font-size:9px;color:var(--t3)">Self-learning habit schedule based on your taps</div>
+            </div>
+          </div>
+          <div id="today-lunch-status-badge-container">
+            <span id="today-lunch-badge" class="att-badge" style="background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);font-size:9.5px;padding:2px 8px;font-weight:700;border-radius:6px">Pending</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:6px">
+          <button type="button" id="btn-mark-lunch" class="ss-btn" onclick="recordUserLunchAction()" style="padding:7px 10px;font-size:10.5px;border-radius:8px;background:linear-gradient(135deg, #F59E0B, #10B981);color:#fff;border:none;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer">
+            <span id="btn-mark-lunch-icon">🍽️</span>
+            <span id="btn-mark-lunch-text">Mark Lunch Done</span>
+          </button>
+          <button type="button" id="btn-quick-break" class="ss-btn" onclick="recordUserQuickBreakAction()" style="padding:7px 8px;font-size:10.5px;border-radius:8px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-weight:600;display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer">
+            <span>☕</span>
+            <span id="btn-quick-break-text">Quick Break</span>
+          </button>
         </div>
       </div>
 
@@ -9259,6 +9325,7 @@ function renderTodayAttendanceWidget() {
   if (otVal) otVal.textContent = fmtRs(Math.round(todayOtPay));
   if (totalVal) totalVal.textContent = fmtRs(Math.round(todayTotal));
   if (typeof renderWorkerRatingSelector === 'function') renderWorkerRatingSelector();
+  if (typeof renderLunchBreakTracker === 'function') renderLunchBreakTracker();
 }
 
 /* 5. Home View: Monthly Office Snapshot */
@@ -9316,8 +9383,13 @@ function markTodayAttendance(status) {
   showToast(`✅ Today marked as ${statusNames[status] || status}`);
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'medium');
 
-  if (status === 'SL' && window.AndroidApp && typeof window.AndroidApp.triggerSickLeaveCareNotification === 'function') {
-    window.AndroidApp.triggerSickLeaveCareNotification(todayDs);
+  if (status === 'SL') {
+    if (typeof showSickLeaveCareModal === 'function') {
+      showSickLeaveCareModal();
+    }
+    if (window.AndroidApp && typeof window.AndroidApp.triggerSickLeaveCareNotification === 'function') {
+      window.AndroidApp.triggerSickLeaveCareNotification(todayDs);
+    }
   }
 }
 
@@ -13740,56 +13812,70 @@ function renderMoreView(){
   try { if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI(); } catch(e) { console.error('updateNotificationSettingsUI error:', e); }
 
   document.getElementById('more-actions').innerHTML=`
-    <div class="more-row" onclick="openWorkProfileModal()" style="border-color:var(--acc-bd)">
+    <div class="more-row" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); openWorkProfileModal()" style="border-color:var(--acc-bd);--i:0">
       <div class="micon" style="background:var(--acc-bg);color:var(--acc)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="9" y1="22" x2="9" y2="2"/><path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01M8 18h.01M16 18h.01"/></svg></div>
       <div><div class="mico-label" style="color:var(--acc)">Work ID &amp; Salary Setup</div><div class="mico-sub">Company, salary, OT rate, PF &amp; leaves</div></div>
       <div class="mchev">›</div>
     </div>
-    <div class="more-row" onclick="openSalarySlipModal()">
+    <div class="more-row" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); openSalarySlipModal()" style="--i:1">
       <div class="micon" style="background:rgba(255,185,48,.12);color:#FFB930"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
       <div><div class="mico-label">Generate Salary Slip</div><div class="mico-sub">Official monthly payslip statement</div></div>
       <div class="mchev">›</div>
-    <div class="more-row" onclick="exportCSV()">
-      <div class="micon" style="background:rgba(45,212,168,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
-      <div><div class="mico-label">Export CSV</div><div class="mico-sub">Download all entries</div></div>
-      <div class="mchev">›</div>
     </div>
-    <div class="more-row" onclick="exportJSON()">
-      <div class="micon" style="background:rgba(124,111,237,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
-      <div><div class="mico-label">Export JSON</div><div class="mico-sub">Full backup for sharing</div></div>
-      <div class="mchev">›</div>
+
+    <!-- Section Header for Quick Actions -->
+    <div class="more-section-hdr">
+      <div class="more-section-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Quick Tools &amp; Actions
+      </div>
+      <span class="more-section-pill">8 Features</span>
     </div>
-    <div class="more-row" onclick="openPdfExportModal()">
-      <div class="micon" style="background:rgba(255,185,48,.10)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></div>
-      <div><div class="mico-label">Export PDF</div><div class="mico-sub">Themed client report</div></div>
-      <div class="mchev">›</div>
+
+    <!-- Smooth Slider Category Filter Track -->
+    <div class="more-filter-track">
+      <div class="more-filter-pill active" onclick="filterMoreCategory('all', this)" role="button" tabindex="0">All</div>
+      <div class="more-filter-pill" onclick="filterMoreCategory('data', this)" role="button" tabindex="0">Data &amp; Backup</div>
+      <div class="more-filter-pill" onclick="filterMoreCategory('clients', this)" role="button" tabindex="0">Clients</div>
+      <div class="more-filter-pill" onclick="filterMoreCategory('danger', this)" role="button" tabindex="0">Reset</div>
     </div>
-    <div class="more-row" onclick="document.getElementById('import-file').click()">
-      <div class="micon" style="background:rgba(96,165,250,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
-      <div><div class="mico-label">Import JSON</div><div class="mico-sub">Restore or merge data</div></div>
-      <div class="mchev">›</div>
+
+    <!-- Side-by-side feature options with animations & slide transitions -->
+    <div class="more-grid" id="more-actions-grid">
+      <div class="more-grid-item" data-cat="data" style="--i:0" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); exportCSV();" role="button" title="Export CSV">
+        <div class="micon" style="background:rgba(45,212,168,.12);border-color:rgba(45,212,168,.25);color:var(--paid)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+        <div class="mico-name">Export CSV</div>
+      </div>
+      <div class="more-grid-item" data-cat="data" style="--i:1" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); exportJSON();" role="button" title="Export JSON">
+        <div class="micon" style="background:rgba(124,111,237,.12);border-color:rgba(124,111,237,.25);color:var(--acc)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
+        <div class="mico-name">Export JSON</div>
+      </div>
+      <div class="more-grid-item" data-cat="data" style="--i:2" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); openPdfExportModal();" role="button" title="Export PDF">
+        <div class="micon" style="background:rgba(255,185,48,.12);border-color:rgba(255,185,48,.25);color:#FFB930"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></div>
+        <div class="mico-name">Export PDF</div>
+      </div>
+      <div class="more-grid-item" data-cat="data" style="--i:3" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); document.getElementById('import-file').click();" role="button" title="Import JSON">
+        <div class="micon" style="background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.25);color:#60A5FA"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg></div>
+        <div class="mico-name">Import JSON</div>
+      </div>
+      <div class="more-grid-item" data-cat="clients" style="--i:4" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); openModal('client-modal');" role="button" title="Add New Client">
+        <div class="micon" style="background:var(--acc-bg);border-color:var(--acc-bd);color:var(--acc)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg></div>
+        <div class="mico-name">Add Client</div>
+      </div>
+      <div class="more-grid-item" data-cat="clients" style="--i:5" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','light'); bulkMarkPaid();" role="button" title="Mark All as Paid">
+        <div class="micon" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.25);color:var(--paid)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="mico-name">Mark All Paid</div>
+      </div>
+      <div class="more-grid-item" data-cat="danger" style="--i:6;border-color:rgba(248,113,113,.22);background:linear-gradient(145deg,rgba(248,113,113,.06),var(--s2))" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','medium'); confirmClearClients();" role="button" title="Clear All Clients">
+        <div class="micon" style="background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.25);color:var(--danger)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <div class="mico-name" style="color:var(--danger)">Clear Clients</div>
+      </div>
+      <div class="more-grid-item" data-cat="danger" style="--i:7;border-color:rgba(248,113,113,.22);background:linear-gradient(145deg,rgba(248,113,113,.06),var(--s2))" onclick="if(window.playSoundAndHaptic) playSoundAndHaptic('click','medium'); confirmClearData();" role="button" title="Clear All Data">
+        <div class="micon" style="background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.25);color:var(--danger)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
+        <div class="mico-name" style="color:var(--danger)">Clear All Data</div>
+      </div>
     </div>
-    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)"/>
-    <div class="more-row" onclick="openModal('client-modal')">
-      <div class="micon" style="background:var(--acc-bg)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg></div>
-      <div><div class="mico-label">Add New Client</div><div class="mico-sub">Register a new client</div></div>
-      <div class="mchev">›</div>
-    </div>
-    <div class="more-row" onclick="bulkMarkPaid()">
-      <div class="micon" style="background:rgba(45,212,168,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div><div class="mico-label">Mark All as Paid</div><div class="mico-sub">Collect all outstanding</div></div>
-      <div class="mchev">›</div>
-    </div>
-    <div class="more-row" onclick="confirmClearClients()" style="border-color:rgba(248,113,113,.2)">
-      <div class="micon" style="background:rgba(248,113,113,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
-      <div><div class="mico-label" style="color:var(--danger)">Clear All Clients</div><div class="mico-sub">Remove all clients</div></div>
-      <div class="mchev">›</div>
-    </div>
-    <div class="more-row" onclick="confirmClearData()" style="border-color:rgba(248,113,113,.2)">
-      <div class="micon" style="background:rgba(248,113,113,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
-      <div><div class="mico-label" style="color:var(--danger)">Clear All Data</div><div class="mico-sub">Permanently delete entries</div></div>
-      <div class="mchev">›</div>
-    </div>`;
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(event)"/>`;
 
   // Set toggle states based on managers
   const soundToggle = document.getElementById('sound-toggle');
@@ -13806,6 +13892,32 @@ function renderMoreView(){
     initRealtimeLiveClock();
   }
 }
+
+// Dynamic Category Filter with Staggered Slide Animation for More View
+window.filterMoreCategory = function(cat, btn) {
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('tap', 'light');
+  document.querySelectorAll('.more-filter-pill').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const items = document.querySelectorAll('.more-grid-item');
+  let visibleCount = 0;
+  items.forEach(it => {
+    const itemCat = it.getAttribute('data-cat') || 'all';
+    if (cat === 'all' || itemCat === cat) {
+      it.style.display = 'flex';
+      it.style.animation = 'none';
+      void it.offsetHeight; // trigger reflow for smooth slide-in transition
+      it.style.animation = 'moreCardSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both';
+      it.style.animationDelay = (visibleCount * 0.04) + 's';
+      visibleCount++;
+    } else {
+      it.style.display = 'none';
+    }
+  });
+  const pill = document.querySelector('.more-section-pill');
+  if (pill) {
+    pill.textContent = cat === 'all' ? '8 Features' : `${visibleCount} ${visibleCount === 1 ? 'Feature' : 'Features'}`;
+  }
+};
 
 /* ════════════════════════════════════════════
    TEAM MEMBERS FORM UI
@@ -16575,7 +16687,9 @@ const DEFAULT_NOTIF_SETTINGS = {
   sameDayRoster: true,      // Day-of Week Off / Holiday / Leave greetings
   salaryAlerts: true,       // Monthly Salary Credit Date & 1-day advance reminder
   streakMilestones: true,   // Streak milestones (7, 14, 30+ days)
-  clientDues: true          // 11:00 AM pending client receivables & unpaid invoice reminders
+  clientDues: true,         // 11:00 AM pending client receivables & unpaid invoice reminders
+  shiftStats: true,         // 04:30 PM daily rotating specialized work stats recap
+  nightStreak: true         // 09:45 PM streak guardian & pre-midnight reminder
 };
 
 function loadNotificationSettings() {
@@ -16598,6 +16712,49 @@ function syncNotificationScheduleWithNative() {
       const attJson = JSON.stringify(attendanceRecords || {});
       const entJson = JSON.stringify(entries || []);
       window.AndroidApp.syncNotificationSchedule(sJson, wpJson, attJson, entJson);
+
+      // Compute and sync stats summary & streak to native store
+      if (typeof window.AndroidApp.saveData === 'function') {
+        const now = new Date();
+        const mPrefix = now.toISOString().slice(0, 7);
+        let mEarnings = 0;
+        let mHours = 0;
+        let mShifts = 0;
+        let pDues = 0;
+
+        if (Array.isArray(entries)) {
+          entries.forEach(e => {
+            if (e && e.date && e.date.startsWith(mPrefix)) {
+              mEarnings += (parseFloat(e.amount) || parseFloat(e.total) || 0);
+              mHours += (parseFloat(e.hours) || parseFloat(e.duration) || 0);
+            }
+            const p = parseFloat(e.pending) || 0;
+            const st = String(e.status || e.paymentStatus || '').toLowerCase();
+            if (p > 0 && st !== 'paid') pDues += p;
+          });
+        }
+        if (attendanceRecords) {
+          Object.keys(attendanceRecords).forEach(k => {
+            if (k.startsWith(mPrefix)) {
+              const st = String(attendanceRecords[k]?.status || '').toUpperCase();
+              if (['P', 'PRESENT', 'HD', 'HALF'].includes(st)) mShifts++;
+            }
+          });
+        }
+        let streak = 0;
+        if (typeof calculateStreakSummary === 'function') {
+          streak = calculateStreakSummary().currentStreak || 0;
+        }
+        const statsSummary = {
+          monthlyEarnings: mEarnings,
+          monthlyHours: mHours,
+          monthlyShifts: mShifts,
+          pendingDues: pDues,
+          streak: streak
+        };
+        window.AndroidApp.saveData('_mnm_stats_summary', JSON.stringify(statsSummary));
+        window.AndroidApp.saveData('_mnm_current_streak', String(streak));
+      }
     } catch(e) {
       console.warn('syncNotificationScheduleWithNative error:', e);
     }
@@ -16611,6 +16768,105 @@ function saveNotificationSettings(settings) {
   } catch(e) {
     console.warn('Error saving notification settings:', e);
   }
+}
+
+// ══════════════════════════════════════════════════════════════
+// SICK LEAVE HEALTH CARE, APOLOGY & TOTAL OWNERSHIP DIALOG
+// ══════════════════════════════════════════════════════════════
+function showSickLeaveCareModal() {
+  const workerName = (workProfile && workProfile.workerName) ? workProfile.workerName : (currentUser?.name || 'Friend');
+  const companyName = (workProfile && workProfile.company) ? workProfile.company : 'Office';
+
+  let careCount = parseInt(localStorage.getItem('_mnm_sick_care_count') || '0', 10);
+  careCount++;
+  localStorage.setItem('_mnm_sick_care_count', String(careCount));
+  const daySeed = new Date().getDate();
+
+  const messages = [
+    {
+      title: `We are Truly Sorry You Are Unwell, ${workerName}`,
+      body: `We are genuinely sorry you are feeling unwell today. Please do not worry about your shift or duties at ${companyName} — we have taken full ownership of your records. Your health is our highest priority. Take complete rest, stay hydrated, and get well soon!`
+    },
+    {
+      title: `Health First, ${workerName} — Work is Fully Covered`,
+      body: `It pains us to see you under the weather today. Disconnect from work completely — everything at ${companyName} is safely managed by us. Focus entirely on your healing, drink warm fluids, and take your medicines on time. Wishing you a speedy recovery!`
+    },
+    {
+      title: `Get Well Soon, ${workerName} — Zero Work Stress`,
+      body: `We deeply regret that you are having a difficult health day. Zero stress about today's attendance or shift — your duty is fully protected. Please consult a doctor if required and give your body the rest it deserves. We stand with you!`
+    },
+    {
+      title: `Rest Easy Today, ${workerName} — We Have Your Back`,
+      body: `So sorry you are sick today. Step away from all work anxiety — Mr.NodeMan and ${companyName} have taken total responsibility for today's logs. Leave the desk to us and focus 100% on regaining your strength.`
+    },
+    {
+      title: `Take It Slow Today, ${workerName} — You Are Protected`,
+      body: `We are truly sorry to hear about your illness. Do not think twice about work targets or hours today — your sick leave is officially recorded and secured. Drink warm soup, take deep rest, and recover at your own pace.`
+    },
+    {
+      title: `Your Well-Being Comes First, ${workerName}`,
+      body: `We are so sorry you are unwell today. Work can always wait, but your health cannot. We take full ownership of your shift today at ${companyName}. Rest peacefully, stay comfortable, and feel better soon!`
+    },
+    {
+      title: `Wishing You a Quick Recovery, ${workerName}`,
+      body: `We regret that you are feeling unwell today. Please give yourself complete permission to rest without any guilt. No work or pending tasks will bother you today at ${companyName}. We are cheering for your fast, gentle recovery!`
+    },
+    {
+      title: `You Are in Safe Hands, ${workerName} — Rest Completely`,
+      body: `We apologize for the discomfort illness brings. Relax with total peace of mind — your shift records and tasks are safely taken care of. Take proper nourishment, rest well, and bounce back stronger whenever you are ready.`
+    }
+  ];
+
+  const chosen = messages[Math.abs(careCount + daySeed) % messages.length];
+
+  const oldModal = document.getElementById('sick-leave-care-modal');
+  if (oldModal) oldModal.remove();
+
+  const modalHtml = `
+    <div id="sick-leave-care-modal" class="mnm-modal-backdrop" style="display:flex;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);animation:fadeIn 0.25s ease">
+      <div class="card" style="width:100%;max-width:380px;background:var(--s1);border:1.5px solid rgba(236,72,153,0.35);border-radius:20px;padding:20px;box-shadow:0 12px 40px rgba(236,72,153,0.18);position:relative;animation:scaleUp 0.25s ease">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="width:46px;height:46px;border-radius:14px;background:rgba(236,72,153,0.14);border:1px solid rgba(236,72,153,0.3);display:flex;align-items:center;justify-content:center;color:#EC4899;flex-shrink:0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:9.5px;font-weight:800;color:#EC4899;text-transform:uppercase;letter-spacing:0.06em">Sick Leave • Health First</div>
+            <div style="font-size:13.5px;font-weight:800;color:var(--t1);line-height:1.25">${chosen.title}</div>
+          </div>
+        </div>
+
+        <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:12px 14px;margin-bottom:14px">
+          <p style="font-size:12px;line-height:1.6;color:var(--t2);margin:0;font-weight:500">
+            ${chosen.body}
+          </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)">
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#EC4899"></span>
+            <span>Drink plenty of warm water, soup and fluids</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)">
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#EC4899"></span>
+            <span>Take prescribed medicines and consult your doctor</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t2)">
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#EC4899"></span>
+            <span>Complete bed rest — Zero work stress and screen rest</span>
+          </div>
+        </div>
+
+        <button type="button" class="ss-btn" onclick="document.getElementById('sick-leave-care-modal').remove()" style="width:100%;padding:11px;font-size:12.5px;font-weight:800;border-radius:11px;background:linear-gradient(135deg, #EC4899, #8B5CF6);color:#fff;border:none;box-shadow:0 4px 14px rgba(236,72,153,0.35);cursor:pointer">
+          Thank You, I Will Rest Now
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
 }
 
 // Global hook: Real-time update when user taps [Mark Present] / [Absent: SL/PL/A] / [Week Off] in native Android notification
@@ -16636,6 +16892,10 @@ window.onNativeAttendanceUpdated = function(dateStr, status) {
       if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
     } else if (status === 'SL') {
       showToast('Sick Leave marked for today.');
+      if (typeof showSickLeaveCareModal === 'function') showSickLeaveCareModal();
+      if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
+    } else if (status === 'HD') {
+      showToast('Half Day marked for today.');
       if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('info', 'medium');
     } else if (status === 'PL') {
       showToast('Paid Leave marked for today.');
@@ -16648,13 +16908,20 @@ window.onNativeAttendanceUpdated = function(dateStr, status) {
 };
 
 // Global hook: Real-time update when user confirms lunch in native notification
-window.onNativeLunchUpdated = function(hour, minute) {
+window.onNativeLunchUpdated = function(hour, minute, todayDone, todayTime) {
   const h = parseInt(hour, 10) || 13;
   const m = parseInt(minute, 10) || 0;
   localStorage.setItem('_mnm_learned_lunch_hour', h);
   localStorage.setItem('_mnm_learned_lunch_minute', m);
-  const timeStr = `${h > 12 ? (h - 12) : h}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+  if (todayDone) {
+    const todayISO = new Date().toISOString().slice(0, 10);
+    localStorage.setItem('_mnm_today_lunch_date', todayISO);
+    localStorage.setItem('_mnm_today_lunch_done', 'true');
+    if (todayTime) localStorage.setItem('_mnm_today_lunch_time', todayTime);
+  }
+  const timeStr = `${h > 12 ? (h - 12) : (h === 0 ? 12 : h)}:${String(m).padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
   showToast(`Lunch logged. Meal window set to ~${timeStr}`);
+  if (typeof renderLunchBreakTracker === 'function') renderLunchBreakTracker();
   if (typeof updateNotificationSettingsUI === 'function') updateNotificationSettingsUI();
 };
 
@@ -16663,31 +16930,145 @@ function submitLunchResponse(isYes) {
   if (isYes) {
     let history = [];
     try { history = JSON.parse(localStorage.getItem('_mnm_lunch_history') || '[]'); } catch(e) {}
-    history.push({ date: now.toISOString().slice(0, 10), hour: now.getHours(), minute: now.getMinutes() });
-    if (history.length > 10) history = history.slice(-10);
+    const todayISO = now.toISOString().slice(0, 10);
+    const curHour = now.getHours();
+    const curMin = now.getMinutes();
+    const timeStr = `${curHour > 12 ? (curHour - 12) : (curHour === 0 ? 12 : curHour)}:${String(curMin).padStart(2, '0')} ${curHour >= 12 ? 'PM' : 'AM'}`;
+
+    history.push({ date: todayISO, hour: curHour, minute: curMin });
+    if (history.length > 14) history = history.slice(-14);
     localStorage.setItem('_mnm_lunch_history', JSON.stringify(history));
 
-    let totalMinutes = history.reduce((sum, item) => sum + (item.hour * 60 + item.minute), 0);
-    let avgMin = Math.round(totalMinutes / history.length);
+    // Multi-day weighted moving average: recent days 3x weight, mid 2x, older 1x
+    let totalWeightedMinutes = 0;
+    let totalWeight = 0;
+    for (let i = 0; i < history.length; i++) {
+      const item = history[i];
+      const mins = item.hour * 60 + item.minute;
+      let weight = 1;
+      if (i >= history.length - 3) weight = 3;
+      else if (i >= history.length - 7) weight = 2;
+      totalWeightedMinutes += (mins * weight);
+      totalWeight += weight;
+    }
+    let avgMin = totalWeight > 0 ? Math.round(totalWeightedMinutes / totalWeight) : (curHour * 60 + curMin);
     let learnedH = Math.floor(avgMin / 60);
     let learnedM = avgMin % 60;
-    if (learnedH < 11) { learnedH = 11; learnedM = 30; }
-    if (learnedH > 15) { learnedH = 15; learnedM = 30; }
+    if (learnedH < 11 || (learnedH === 11 && learnedM < 30)) { learnedH = 11; learnedM = 30; }
+    if (learnedH > 15 || (learnedH === 15 && learnedM > 30)) { learnedH = 15; learnedM = 30; }
+
     localStorage.setItem('_mnm_learned_lunch_hour', learnedH);
     localStorage.setItem('_mnm_learned_lunch_minute', learnedM);
+    localStorage.setItem('_mnm_today_lunch_date', todayISO);
+    localStorage.setItem('_mnm_today_lunch_done', 'true');
+    localStorage.setItem('_mnm_today_lunch_time', timeStr);
 
     if (window.AndroidApp && typeof window.AndroidApp.saveData === 'function') {
       window.AndroidApp.saveData('_mnm_learned_lunch_hour', String(learnedH));
       window.AndroidApp.saveData('_mnm_learned_lunch_minute', String(learnedM));
       window.AndroidApp.saveData('_mnm_lunch_history', JSON.stringify(history));
+      window.AndroidApp.saveData('_mnm_today_lunch_date', todayISO);
+      window.AndroidApp.saveData('_mnm_today_lunch_done', 'true');
+      window.AndroidApp.saveData('_mnm_today_lunch_time', timeStr);
     }
     syncNotificationScheduleWithNative();
-    const timeStr = `${learnedH > 12 ? (learnedH - 12) : learnedH}:${String(learnedM).padStart(2, '0')} ${learnedH >= 12 ? 'PM' : 'AM'}`;
-    showToast(`Lunch recorded. Meal window set to ~${timeStr}`);
+    const learnedTimeStr = `${learnedH > 12 ? (learnedH - 12) : (learnedH === 0 ? 12 : learnedH)}:${String(learnedM).padStart(2, '0')} ${learnedH >= 12 ? 'PM' : 'AM'}`;
+    showToast(`Lunch marked at ${timeStr}. Estimated window: ~${learnedTimeStr}`);
+    if (typeof renderLunchBreakTracker === 'function') renderLunchBreakTracker();
     closeModal('lunch-reminder-modal');
   } else {
     showToast('Reminder postponed. Remember to have your meal.');
     closeModal('lunch-reminder-modal');
+  }
+}
+
+function recordUserLunchAction() {
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const isDone = localStorage.getItem('_mnm_today_lunch_date') === todayISO && localStorage.getItem('_mnm_today_lunch_done') === 'true';
+  if (isDone) {
+    const timeStr = localStorage.getItem('_mnm_today_lunch_time') || 'earlier';
+    showToast(`Lunch already recorded today at ${timeStr}.`);
+    if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('tap', 'light');
+    return;
+  }
+  submitLunchResponse(true);
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'medium');
+}
+
+function recordUserQuickBreakAction() {
+  const now = new Date();
+  const todayISO = now.toISOString().slice(0, 10);
+  const curHour = now.getHours();
+  const curMin = now.getMinutes();
+  const timeStr = `${curHour > 12 ? (curHour - 12) : (curHour === 0 ? 12 : curHour)}:${String(curMin).padStart(2, '0')} ${curHour >= 12 ? 'PM' : 'AM'}`;
+
+  let breakCount = 0;
+  if (localStorage.getItem('_mnm_today_break_date') === todayISO) {
+    breakCount = parseInt(localStorage.getItem('_mnm_today_break_count') || '0', 10);
+  }
+  breakCount++;
+  localStorage.setItem('_mnm_today_break_date', todayISO);
+  localStorage.setItem('_mnm_today_break_count', String(breakCount));
+  localStorage.setItem('_mnm_today_break_last_time', timeStr);
+
+  if (window.AndroidApp && typeof window.AndroidApp.saveData === 'function') {
+    window.AndroidApp.saveData('_mnm_today_break_count', String(breakCount));
+    window.AndroidApp.saveData('_mnm_today_break_last_time', timeStr);
+  }
+
+  showToast(`☕ Break #${breakCount} logged at ${timeStr}. Rest your eyes & hydrate!`);
+  if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('tap', 'light');
+  if (typeof renderLunchBreakTracker === 'function') renderLunchBreakTracker();
+}
+
+function renderLunchBreakTracker() {
+  const tracker = document.getElementById('today-lunch-break-tracker');
+  if (!tracker) return;
+
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const isDone = localStorage.getItem('_mnm_today_lunch_date') === todayISO && localStorage.getItem('_mnm_today_lunch_done') === 'true';
+  const lunchTime = localStorage.getItem('_mnm_today_lunch_time') || '';
+
+  const learnedH = parseInt(localStorage.getItem('_mnm_learned_lunch_hour'), 10) || 13;
+  const learnedM = parseInt(localStorage.getItem('_mnm_learned_lunch_minute'), 10) || 0;
+  const learnedTimeStr = `${learnedH > 12 ? (learnedH - 12) : (learnedH === 0 ? 12 : learnedH)}:${String(learnedM).padStart(2, '0')} ${learnedH >= 12 ? 'PM' : 'AM'}`;
+
+  const timePill = document.getElementById('lunch-learned-time-pill');
+  if (timePill) timePill.textContent = `Est. ~${learnedTimeStr}`;
+
+  const badgeContainer = document.getElementById('today-lunch-status-badge-container');
+  if (badgeContainer) {
+    if (isDone) {
+      badgeContainer.innerHTML = `<span class="att-badge" style="background:rgba(16,185,129,0.18);color:#10B981;border:1px solid rgba(16,185,129,0.35);font-size:9.5px;padding:2px 8px;font-weight:800;border-radius:6px">✓ Taken ${lunchTime ? '(' + lunchTime + ')' : ''}</span>`;
+    } else {
+      badgeContainer.innerHTML = `<span class="att-badge" style="background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);font-size:9.5px;padding:2px 8px;font-weight:700;border-radius:6px">Pending</span>`;
+    }
+  }
+
+  const btnLunch = document.getElementById('btn-mark-lunch');
+  const btnLunchTxt = document.getElementById('btn-mark-lunch-text');
+  if (btnLunch && btnLunchTxt) {
+    if (isDone) {
+      btnLunch.style.background = 'rgba(16,185,129,0.2)';
+      btnLunch.style.border = '1px solid rgba(16,185,129,0.4)';
+      btnLunch.style.color = '#10B981';
+      btnLunchTxt.textContent = `✓ Lunch Taken`;
+    } else {
+      btnLunch.style.background = 'linear-gradient(135deg, #F59E0B, #10B981)';
+      btnLunch.style.border = 'none';
+      btnLunch.style.color = '#fff';
+      btnLunchTxt.textContent = 'Mark Lunch Done';
+    }
+  }
+
+  const btnBreakTxt = document.getElementById('btn-quick-break-text');
+  if (btnBreakTxt) {
+    const breakCount = (localStorage.getItem('_mnm_today_break_date') === todayISO) ? parseInt(localStorage.getItem('_mnm_today_break_count') || '0', 10) : 0;
+    if (breakCount > 0) {
+      btnBreakTxt.textContent = `Break (${breakCount})`;
+    } else {
+      btnBreakTxt.textContent = 'Quick Break';
+    }
   }
 }
 
@@ -16864,6 +17245,8 @@ function sendTestNotification(type) {
   const testItems = {
     attendance: { title: 'Morning Check-in', message: `Good morning! Remember to mark your attendance for today at ${company}.`, channel: 'attendance', id: 9001 },
     lunch: { title: 'Lunch Break Reminder', message: 'Have you taken your lunch break today? Tap to record your status.', channel: 'lunch', id: 9002 },
+    stats: { title: 'Monthly Shift Summary', message: `You've earned Rs ${(workProfile?.monthlySalary || 35000).toLocaleString('en-IN')} across 18 shifts this month at ${company}. Great momentum!`, channel: 'shift_greetings', id: 9003 },
+    streak: { title: 'Keep Your 12-Day Streak Active', message: `You haven't logged your shift for today at ${company}. Mark Present before midnight to keep your 12-day streak alive!`, channel: 'reminder', id: 9004 },
     salary: { title: 'Salary Day Today', message: `Monthly salary payout alert: Rs ${(workProfile?.monthlySalary || 50000).toLocaleString('en-IN')} is scheduled for credit.`, channel: 'salary', id: 9005 }
   };
 
@@ -17061,8 +17444,9 @@ function checkAndDispatchDailyNotifications() {
 
   // 6. SMART SELF-LEARNING LUNCH & BREAK REMINDER
   if (settings.lunchReminder) {
+    const isLunchDoneToday = localStorage.getItem('_mnm_today_lunch_date') === todayISO && localStorage.getItem('_mnm_today_lunch_done') === 'true';
     const learnedHour = parseInt(localStorage.getItem('_mnm_learned_lunch_hour'), 10) || 13;
-    if (currentHour >= learnedHour && currentHour <= 15 && lastDispatched['lunch_reminder'] !== todayISO) {
+    if (!isLunchDoneToday && currentHour >= learnedHour && currentHour <= 15 && lastDispatched['lunch_reminder'] !== todayISO) {
       const l = getDailyLunchReminder(daySeed);
       postAppNotification({
         title: l.title,
@@ -17071,6 +17455,83 @@ function checkAndDispatchDailyNotifications() {
         notificationId: 6001
       });
       markDispatched('lunch_reminder');
+    }
+  }
+
+  // 7. SPECIALIZED SHIFT & STATS PROGRESS NOTIFICATION (Between 16:00 and 18:00)
+  if (settings.shiftStats && currentHour >= 16 && currentHour < 18 && lastDispatched['shift_stats'] !== todayISO) {
+    const mPrefix = todayISO.slice(0, 7);
+    let mEarned = 0;
+    let mHours = 0;
+    let mShifts = 0;
+    let pDues = 0;
+    if (Array.isArray(entries)) {
+      entries.forEach(e => {
+        if (e && e.date && e.date.startsWith(mPrefix)) {
+          mEarned += (parseFloat(e.amount) || parseFloat(e.total) || 0);
+          mHours += (parseFloat(e.hours) || parseFloat(e.duration) || 0);
+        }
+        const p = parseFloat(e.pending) || 0;
+        const st = String(e.status || e.paymentStatus || '').toLowerCase();
+        if (p > 0 && st !== 'paid') pDues += p;
+      });
+    }
+    if (attRecords) {
+      Object.keys(attRecords).forEach(k => {
+        if (k.startsWith(mPrefix)) {
+          const st = String(attRecords[k]?.status || '').toUpperCase();
+          if (['P', 'PRESENT', 'HD', 'HALF'].includes(st)) mShifts++;
+        }
+      });
+    }
+    const streak = (typeof calculateStreakSummary === 'function') ? (calculateStreakSummary().currentStreak || 0) : 0;
+    const rot = Math.abs(daySeed) % 4;
+    let statTitle = 'Monthly Shift Summary';
+    let statBody = `You've completed ${mShifts} shifts this month at ${companyName}. Keep up the steady momentum!`;
+    if (rot === 0 && mEarned > 0) {
+      statBody = `You've earned Rs ${mEarned.toLocaleString('en-IN')} across ${mShifts} shifts this month at ${companyName}. Great momentum!`;
+    } else if (rot === 1 && mHours > 0) {
+      statTitle = 'Daily Work Recap';
+      statBody = `You've completed ${mHours.toFixed(1)} hours across ${mShifts} shifts this month. Consistency brings success!`;
+    } else if (rot === 2) {
+      statTitle = 'Consistent Work Milestone';
+      statBody = streak > 1 ? `You're on a ${streak}-day active work streak! Keep your rhythm going strong.` : `Every shift counts towards your monthly targets at ${companyName}!`;
+    } else if (rot === 3 && pDues > 0) {
+      statTitle = 'Shift Progress and Receivables';
+      statBody = `Rs ${mEarned.toLocaleString('en-IN')} earned this month, with Rs ${pDues.toLocaleString('en-IN')} pending from clients.`;
+    }
+    postAppNotification({
+      title: statTitle,
+      message: statBody,
+      channelType: 'shift_greetings',
+      notificationId: 7010
+    });
+    markDispatched('shift_stats');
+  }
+
+  // 8. NIGHT STREAK GUARDIAN & PRE-MIDNIGHT MOTIVATION (Between 21:00 and 23:30)
+  if (settings.nightStreak && currentHour >= 21 && currentHour <= 23 && lastDispatched['night_streak'] !== todayISO) {
+    const streak = (typeof calculateStreakSummary === 'function') ? (calculateStreakSummary().currentStreak || 0) : 0;
+    if (!hasMarkedAttendanceToday) {
+      const streakTitle = streak > 0 ? `Keep Your ${streak}-Day Streak Active` : "Log Today's Shift Before Midnight";
+      const streakMsg = streak > 0
+        ? `You haven't logged your shift for today at ${companyName}. Mark Present before midnight to keep your ${streak}-day streak alive!`
+        : `You haven't logged your attendance for today at ${companyName} yet. Tap to record your shift before midnight.`;
+      postAppNotification({
+        title: streakTitle,
+        message: streakMsg,
+        channelType: 'reminder',
+        notificationId: 8010
+      });
+      markDispatched('night_streak');
+    } else if (streak >= 3 && (Math.abs(daySeed) % 2 === 0)) {
+      postAppNotification({
+        title: `Streak Maintained: ${streak} Days`,
+        message: `Today's shift at ${companyName} is safely logged. Great dedication today! Rest well tonight.`,
+        channelType: 'reminder',
+        notificationId: 8011
+      });
+      markDispatched('night_streak');
     }
   }
 
@@ -17358,14 +17819,54 @@ function updateNotificationSettingsUI() {
           </label>
         </div>
       </div>
+
+      <!-- 9. Specialized Shift & Stats Progress Notification -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;color:#10B981;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Shift Stats &amp; Daily Recap (04:30 PM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Rotating metrics: earnings, logged hours, monthly shifts &amp; milestones</div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.shiftStats ? 'checked' : ''} onchange="toggleNotifSetting('shiftStats')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 10. Night Streak Guardian & Pre-Midnight Reminder -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);display:flex;align-items:center;justify-content:center;color:#EF4444;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2c1.5 3 4 5 7 5 0 8-5 13-7 15-2-2-7-7-7-15 3 0 5.5-2 7-5z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Night Streak Guardian (09:45 PM)</div>
+              <div style="font-size:9.5px;color:var(--t3)">Protects active streak before midnight with 1-tap Present action</div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.nightStreak ? 'checked' : ''} onchange="toggleNotifSetting('nightStreak')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
     </div>
 
     <!-- Interactive Test Notification Quick Buttons -->
     <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin-bottom:12px">
       <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:6px;text-transform:uppercase">TEST NOTIFICATION SUITE:</div>
       <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:6px">
-        <button type="button" class="ss-btn" onclick="sendTestNotification('attendance')" style="padding:7px;font-size:10.5px;border-radius:8px">Test Check-in</button>
-        <button type="button" class="ss-btn" onclick="sendTestNotification('lunch')" style="padding:7px;font-size:10.5px;border-radius:8px">Test Lunch (Yes/No)</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('attendance')" style="padding:7px;font-size:10px;border-radius:8px">Test Check-in</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('lunch')" style="padding:7px;font-size:10px;border-radius:8px">Test Lunch (Yes/No)</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('stats')" style="padding:7px;font-size:10px;border-radius:8px">Test Shift Stats</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('streak')" style="padding:7px;font-size:10px;border-radius:8px">Test Night Streak</button>
       </div>
     </div>
   `;
@@ -19425,16 +19926,26 @@ function switchTabWithSwipe(id, direction) {
       // Swiped LEFT → go to NEXT tab
       const nextIdx = currentIdx + 1;
       if (nextIdx < TAB_ORDER.length) {
+        window._lastSwipeTabTime = Date.now();
         switchTabWithSwipe(TAB_ORDER[nextIdx], 'left');
       }
     } else {
       // Swiped RIGHT → go to PREVIOUS tab
       const prevIdx = currentIdx - 1;
       if (prevIdx >= 0) {
+        window._lastSwipeTabTime = Date.now();
         switchTabWithSwipe(TAB_ORDER[prevIdx], 'right');
       }
     }
   }, { passive: true });
+
+  // Suppress ghost clicks immediately after a section swipe transition
+  document.addEventListener('click', function(e) {
+    if (window._lastSwipeTabTime && (Date.now() - window._lastSwipeTabTime < 350)) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }
+  }, true);
 })();
 
 /* ════════════════════════════════════════════

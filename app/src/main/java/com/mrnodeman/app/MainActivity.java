@@ -1028,11 +1028,13 @@ public class MainActivity extends AppCompatActivity {
                     } else if (NotificationActionReceiver.ACTION_LUNCH_BROADCAST.equals(intent.getAction())) {
                         final int learnedHour = intent.getIntExtra("learned_hour", 13);
                         final int learnedMin = intent.getIntExtra("learned_min", 0);
+                        final boolean todayDone = intent.getBooleanExtra("today_done", true);
+                        final String todayTime = intent.getStringExtra("today_time");
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (webView != null) {
-                                    String script = "if(typeof window.onNativeLunchUpdated==='function'){window.onNativeLunchUpdated(" + learnedHour + "," + learnedMin + ");}";
+                                    String script = "if(typeof window.onNativeLunchUpdated==='function'){window.onNativeLunchUpdated(" + learnedHour + "," + learnedMin + "," + todayDone + ",'" + (todayTime != null ? todayTime : "") + "');}";
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                                         webView.evaluateJavascript(script, null);
                                     } else {
