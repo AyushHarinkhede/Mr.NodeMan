@@ -12,12 +12,12 @@
   Seamlessly unified for <strong>Daily Shift Workers</strong>, <strong>Freelancers</strong>, and <strong>Enterprise Contractors</strong>.
 </p>
 
-<!-- Documentation release notes: UI polish, SVG vector iconography and notification system -->
+<!-- Documentation release notes: Production v3.2.0 — Vector SVG iconography & adaptive habit engine -->
 <p align="center">
   <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Platform-Android%20%7C%20PWA-7C6FED?style=for-the-badge&logo=android&logoColor=white" alt="Platform" /></a>
   <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Theme-Emerald%20%26%20Violet%20OLED-07070A?style=for-the-badge&logo=palette&logoColor=2DD4A8" alt="Theme" /></a>
   <a href="https://github.com/AyushHarinkhede/Mr.NodeMan"><img src="https://img.shields.io/badge/Storage-100%25%20Offline%20Vault-2DD4A8?style=for-the-badge&logo=shield&logoColor=black" alt="Storage" /></a>
-  <a href="https://github.com/AyushHarinkhede/Mr.NodeMan/releases"><img src="https://img.shields.io/badge/Build-v3.0.0%20Passing-36DFAF?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build" /></a>
+  <a href="https://github.com/AyushHarinkhede/Mr.NodeMan/releases"><img src="https://img.shields.io/badge/Build-v3.2.0%20Passing-36DFAF?style=for-the-badge&logo=githubactions&logoColor=white" alt="Build" /></a>
 </p>
 
 <br/>
