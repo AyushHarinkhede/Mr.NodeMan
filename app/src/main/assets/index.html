@@ -3500,70 +3500,138 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
   justify-content: center;
   padding: 10px 6px;
   background: var(--s2);
-  border: 1px solid var(--b);
-  border-radius: 11px;
+  border: 1.5px solid var(--b);
+  border-radius: 12px;
   color: var(--t2);
   cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.2, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
   text-align: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .att-quick-btn:hover {
   transform: translateY(-2px);
   border-color: var(--b2);
+  background: var(--s3);
   color: var(--t1);
 }
 .att-quick-btn:active {
   transform: scale(0.95);
 }
-.att-quick-btn .btn-sym {
-  font-size: 15px;
-  font-weight: 800;
-  margin-bottom: 2px;
+.att-quick-btn .btn-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.04);
+}
+.att-quick-btn .btn-icon-wrap svg {
+  width: 15px;
+  height: 15px;
   display: block;
 }
 .att-quick-btn .btn-txt {
-  font-size: 9px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+.att-quick-btn .btn-sub {
+  font-size: 8.5px;
   font-weight: 600;
+  color: var(--t3);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  opacity: 0.85;
+  margin-top: 2px;
 }
 .att-quick-btn.active-p {
-  background: rgba(16, 185, 129, 0.16);
-  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.12);
+  border-color: #10B981;
   color: #10B981;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.22);
 }
-.att-quick-btn.active-a {
-  background: rgba(239, 68, 68, 0.16);
-  border-color: rgba(239, 68, 68, 0.5);
-  color: #EF4444;
-  box-shadow: 0 0 14px rgba(239, 68, 68, 0.25);
+.att-quick-btn.active-p .btn-icon-wrap {
+  background: #10B981;
+  color: #ffffff;
 }
+.att-quick-btn.active-p .btn-sub {
+  color: #10B981;
+}
+
 .att-quick-btn.active-hd {
-  background: rgba(245, 158, 11, 0.16);
-  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.12);
+  border-color: #F59E0B;
   color: #F59E0B;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.22);
 }
+.att-quick-btn.active-hd .btn-icon-wrap {
+  background: #F59E0B;
+  color: #ffffff;
+}
+.att-quick-btn.active-hd .btn-sub {
+  color: #F59E0B;
+}
+
 .att-quick-btn.active-pl {
-  background: rgba(14, 165, 233, 0.16);
-  border-color: rgba(14, 165, 233, 0.5);
+  background: rgba(14, 165, 233, 0.12);
+  border-color: #0EA5E9;
   color: #0EA5E9;
-  box-shadow: 0 0 14px rgba(14, 165, 233, 0.25);
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.22);
 }
+.att-quick-btn.active-pl .btn-icon-wrap {
+  background: #0EA5E9;
+  color: #ffffff;
+}
+.att-quick-btn.active-pl .btn-sub {
+  color: #0EA5E9;
+}
+
 .att-quick-btn.active-sl {
-  background: rgba(139, 92, 246, 0.16);
-  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(139, 92, 246, 0.12);
+  border-color: #8B5CF6;
   color: #8B5CF6;
-  box-shadow: 0 0 14px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.22);
 }
+.att-quick-btn.active-sl .btn-icon-wrap {
+  background: #8B5CF6;
+  color: #ffffff;
+}
+.att-quick-btn.active-sl .btn-sub {
+  color: #8B5CF6;
+}
+
 .att-quick-btn.active-wo {
-  background: rgba(148, 163, 184, 0.16);
-  border-color: rgba(148, 163, 184, 0.5);
+  background: rgba(148, 163, 184, 0.12);
+  border-color: #94A3B8;
   color: #94A3B8;
-  box-shadow: 0 0 14px rgba(148, 163, 184, 0.25);
+  box-shadow: 0 4px 16px rgba(148, 163, 184, 0.22);
+}
+.att-quick-btn.active-wo .btn-icon-wrap {
+  background: #94A3B8;
+  color: #ffffff;
+}
+.att-quick-btn.active-wo .btn-sub {
+  color: #94A3B8;
+}
+
+.att-quick-btn.active-a {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: #EF4444;
+  color: #EF4444;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.22);
+}
+.att-quick-btn.active-a .btn-icon-wrap {
+  background: #EF4444;
+  color: #ffffff;
+}
+.att-quick-btn.active-a .btn-sub {
+  color: #EF4444;
 }
 
 /* OT Quick Bar */
@@ -4412,27 +4480,40 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
       </div>
     </div>
 
-    <!-- ══════════════ TODAY'S OFFICE ATTENDANCE & OT CARD ══════════════ -->
-    <div class="card anim office-sec" id="today-attendance-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-        <div>
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-            <span class="live-pulse-dot" style="background:#10B981"></span>
-            <div class="ss-label" style="font-size:10px;font-weight:700;color:var(--t1)">Today's Attendance</div>
-            <span id="today-att-date-badge" style="font-size:10px;color:var(--t2);font-weight:600">--</span>
+    <!-- ══════════════ TODAY'S OFFICE ATTENDANCE & OT CARD (REDESIGNED) ══════════════ -->
+    <div class="card anim office-sec" id="today-attendance-card" style="position:relative;overflow:hidden;background:linear-gradient(180deg, var(--s1) 0%, var(--s2) 100%);border:1px solid var(--b2);border-radius:18px;padding:16px 14px;box-shadow:0 8px 24px rgba(0,0,0,0.12)">
+      <!-- Top Header Row -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:38px;height:38px;border-radius:12px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.25);display:flex;align-items:center;justify-content:center;color:#10B981;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
           </div>
-          <div style="font-size:11px;color:var(--acc);font-weight:700" id="today-att-comp-badge">Office Profile</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="live-pulse-dot" style="background:#10B981;width:7px;height:7px"></span>
+              <span style="font-size:13px;font-weight:800;color:var(--t1);letter-spacing:-0.01em">Today's Attendance</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+              <span id="today-att-date-badge" style="font-size:10.5px;color:var(--t2);font-weight:600">--</span>
+              <span style="font-size:10px;color:var(--t3)">•</span>
+              <span style="font-size:10.5px;color:var(--acc);font-weight:700" id="today-att-comp-badge">Office Profile</span>
+            </div>
+          </div>
         </div>
         <div id="today-status-chip-container">
-          <span class="att-badge att-badge-wo" id="today-current-status-badge">Not Marked</span>
+          <span class="att-badge att-badge-wo" id="today-current-status-badge" style="padding:4px 10px;font-size:10.5px;border-radius:8px">Not Marked</span>
         </div>
       </div>
 
       <!-- Interactive Performance Rating Selector Strip (Shown ONLY if rating-based salary is enabled) -->
-      <div id="worker-rating-interactive-bar" style="display:none;background:var(--s2);border:1px solid var(--b);border-radius:11px;padding:9px 12px;margin-bottom:11px">
+      <div id="worker-rating-interactive-bar" style="display:none;background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:9px 12px;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:4px">
-            <span style="color:#FFB930">★</span> Performance Rating: <span id="worker-active-rating-label" style="color:#FFB930;font-weight:800">Rating 4</span>
+          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:5px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="#FFB930" stroke="#FFB930" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Performance Rating: <span id="worker-active-rating-label" style="color:#FFB930;font-weight:800">Rating 4</span>
           </div>
           <span id="worker-active-rating-sal-badge" class="mono" style="font-size:11px;font-weight:700;color:var(--paid)">₹38,000/mo</span>
         </div>
@@ -4441,42 +4522,89 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
         </div>
       </div>
 
-      <!-- 1-Tap Attendance Buttons -->
+      <!-- 1-Tap Attendance Buttons with SVG Icons -->
       <div class="att-quick-grid" id="today-att-buttons">
         <button type="button" class="att-quick-btn" id="qbtn-P" onclick="markTodayAttendance('P')" title="Mark Present (Full Day)">
-          <span class="btn-sym" style="color:#10B981">P</span>
+          <div class="btn-icon-wrap" style="color:#10B981">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
           <span class="btn-txt">Present</span>
+          <span class="btn-sub">Full Day</span>
         </button>
+
         <button type="button" class="att-quick-btn" id="qbtn-HD" onclick="markTodayAttendance('HD')" title="Mark Half Day">
-          <span class="btn-sym" style="color:#F59E0B">HD</span>
+          <div class="btn-icon-wrap" style="color:#F59E0B">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 12"></polyline>
+            </svg>
+          </div>
           <span class="btn-txt">Half Day</span>
+          <span class="btn-sub">0.5 Shift</span>
         </button>
+
         <button type="button" class="att-quick-btn" id="qbtn-PL" onclick="markTodayAttendance('PL')" title="Mark Paid Leave">
-          <span class="btn-sym" style="color:#0EA5E9">PL</span>
+          <div class="btn-icon-wrap" style="color:#0EA5E9">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
           <span class="btn-txt">Paid Leave</span>
+          <span class="btn-sub">Approved</span>
         </button>
+
         <button type="button" class="att-quick-btn" id="qbtn-SL" onclick="markTodayAttendance('SL')" title="Mark Sick Leave">
-          <span class="btn-sym" style="color:#8B5CF6">SL</span>
+          <div class="btn-icon-wrap" style="color:#8B5CF6">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+            </svg>
+          </div>
           <span class="btn-txt">Sick Leave</span>
+          <span class="btn-sub">Care Mode</span>
         </button>
+
         <button type="button" class="att-quick-btn" id="qbtn-WO" onclick="markTodayAttendance('WO')" title="Mark Week Off">
-          <span class="btn-sym" style="color:#94A3B8">WO</span>
+          <div class="btn-icon-wrap" style="color:#94A3B8">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+          </div>
           <span class="btn-txt">Week Off</span>
+          <span class="btn-sub">Scheduled</span>
         </button>
+
         <button type="button" class="att-quick-btn" id="qbtn-A" onclick="markTodayAttendance('A')" title="Mark Absent / Unpaid">
-          <span class="btn-sym" style="color:#EF4444">A</span>
+          <div class="btn-icon-wrap" style="color:#EF4444">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </div>
           <span class="btn-txt">Absent</span>
+          <span class="btn-sub">Unpaid</span>
         </button>
       </div>
 
       <!-- Fast Overtime (OT) Strip -->
-      <div style="background:var(--s2);border:1px solid var(--b);border-radius:10px;padding:9px 12px;margin-bottom:10px">
+      <div style="background:var(--s2);border:1px solid var(--b);border-radius:12px;padding:9px 12px;margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:4px">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="color:#FFB930"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:5px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#FFB930">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
             Overtime (OT): <span id="today-ot-hours-label" style="color:#FFB930;font-weight:800">0 hrs</span>
           </div>
-          <button type="button" onclick="promptCustomOt()" style="background:transparent;border:none;color:var(--acc);font-size:10px;font-weight:700;cursor:pointer">Custom OT →</button>
+          <button type="button" onclick="promptCustomOt()" style="background:transparent;border:none;color:var(--acc);font-size:10.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px">
+            Custom OT
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
         </div>
         <div class="ot-quick-strip">
           <button type="button" class="ot-quick-chip" onclick="logQuickOt(0)">0h</button>
@@ -4489,27 +4617,38 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
       </div>
 
       <!-- Today's Estimated Payout Bar -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:rgba(45,212,168,.05);border:1px solid rgba(45,212,168,.18);border-radius:10px">
-        <div style="font-size:10px;color:var(--t2)">
-          Base: <span id="today-base-val" class="mono" style="color:var(--t1);font-weight:600">₹0</span> + OT: <span id="today-ot-val" class="mono" style="color:#FFB930;font-weight:600">₹0</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:rgba(45,212,168,.06);border:1px solid rgba(45,212,168,.2);border-radius:12px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="color:var(--paid)"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          <div style="font-size:10px;color:var(--t2)">
+            Base: <span id="today-base-val" class="mono" style="color:var(--t1);font-weight:700">₹0</span> + OT: <span id="today-ot-val" class="mono" style="color:#FFB930;font-weight:700">₹0</span>
+          </div>
         </div>
         <div style="text-align:right">
-          <span style="font-size:9px;color:var(--t2);text-transform:uppercase;margin-right:4px">Today Earned:</span>
+          <span style="font-size:9.5px;color:var(--t2);text-transform:uppercase;letter-spacing:0.04em;margin-right:4px;font-weight:600">Today Earned:</span>
           <span class="mono" id="today-total-earned" style="font-size:14px;font-weight:800;color:var(--paid)">₹0</span>
         </div>
       </div>
 
-      <!-- ══════════════ SMART LUNCH & BREAK HABIT TRACKER ══════════════ -->
-      <div id="today-lunch-break-tracker" style="margin-top:10px;background:linear-gradient(135deg, rgba(245,158,11,.08), rgba(16,185,129,.05));border:1px solid rgba(245,158,11,.22);border-radius:11px;padding:9px 12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div style="display:flex;align-items:center;gap:7px">
-            <span style="font-size:14px">🍽️</span>
+      <!-- ══════════════ SMART LUNCH & BREAK HABIT TRACKER (REDESIGNED) ══════════════ -->
+      <div id="today-lunch-break-tracker" style="margin-top:10px;background:linear-gradient(135deg, rgba(245,158,11,.08), rgba(16,185,129,.05));border:1px solid rgba(245,158,11,.22);border-radius:13px;padding:10px 12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;border-radius:8px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);display:flex;align-items:center;justify-content:center;color:#F59E0B;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                <line x1="6" y1="1" x2="6" y2="4"></line>
+                <line x1="10" y1="1" x2="10" y2="4"></line>
+                <line x1="14" y1="1" x2="14" y2="4"></line>
+              </svg>
+            </div>
             <div>
-              <div style="font-size:10.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:5px">
+              <div style="font-size:11px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px">
                 <span>Lunch &amp; Break Tracker</span>
-                <span id="lunch-learned-time-pill" style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(245,158,11,0.2);color:#F59E0B">Est. ~1:00 PM</span>
+                <span id="lunch-learned-time-pill" style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:5px;background:rgba(245,158,11,0.2);color:#F59E0B">Est. ~1:00 PM</span>
               </div>
-              <div id="lunch-learned-hint" style="font-size:9px;color:var(--t3)">Self-learning habit schedule based on your taps</div>
+              <div id="lunch-learned-hint" style="font-size:9.5px;color:var(--t3);margin-top:1px">Self-learning habit schedule based on your taps</div>
             </div>
           </div>
           <div id="today-lunch-status-badge-container">
@@ -4517,12 +4656,18 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:6px">
-          <button type="button" id="btn-mark-lunch" class="ss-btn" onclick="recordUserLunchAction()" style="padding:7px 10px;font-size:10.5px;border-radius:8px;background:linear-gradient(135deg, #F59E0B, #10B981);color:#fff;border:none;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer">
-            <span id="btn-mark-lunch-icon">🍽️</span>
+          <button type="button" id="btn-mark-lunch" class="ss-btn" onclick="recordUserLunchAction()" style="padding:8px 10px;font-size:11px;border-radius:9px;background:linear-gradient(135deg, #F59E0B, #10B981);color:#fff;border:none;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all 0.18s ease">
+            <svg id="btn-mark-lunch-icon-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            </svg>
             <span id="btn-mark-lunch-text">Mark Lunch Done</span>
           </button>
-          <button type="button" id="btn-quick-break" class="ss-btn" onclick="recordUserQuickBreakAction()" style="padding:7px 8px;font-size:10.5px;border-radius:8px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-weight:600;display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer">
-            <span>☕</span>
+          <button type="button" id="btn-quick-break" class="ss-btn" onclick="recordUserQuickBreakAction()" style="padding:8px 10px;font-size:11px;border-radius:9px;background:var(--s3);border:1px solid var(--b2);color:var(--t1);font-weight:600;display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;transition:all 0.18s ease">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 14 14"></polyline>
+            </svg>
             <span id="btn-quick-break-text">Quick Break</span>
           </button>
         </div>
@@ -4530,7 +4675,7 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
 
       <!-- Quick Action Navigation -->
       <div style="margin-top:10px">
-        <button type="button" class="ss-btn" onclick="openWorkProfileModal()" style="width:100%;padding:9px;border-radius:9px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px">
+        <button type="button" class="ss-btn" onclick="openWorkProfileModal()" style="width:100%;padding:9px;border-radius:10px;background:var(--acc-bg);border:1px solid var(--acc-bd);color:var(--acc);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all 0.18s ease">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
           Edit Work ID
         </button>
@@ -9380,7 +9525,7 @@ function markTodayAttendance(status) {
   saveAttendanceRecord(todayDs, existing);
 
   const statusNames = { 'P': 'Present', 'HD': 'Half Day', 'PL': 'Paid Leave', 'SL': 'Sick Leave', 'WO': 'Week Off', 'A': 'Absent' };
-  showToast(`✅ Today marked as ${statusNames[status] || status}`);
+  showToast(`Today marked as ${statusNames[status] || status}.`);
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('success', 'medium');
 
   if (status === 'SL') {
@@ -9412,9 +9557,9 @@ function logQuickOt(hours) {
   saveAttendanceRecord(todayDs, existing);
 
   if (hours > 0) {
-    showToast(`⚡ Overtime logged: +${hours} hrs (${fmtRs(existing.otAmount)})`);
+    showToast(`Overtime logged: +${hours} hrs (${fmtRs(existing.otAmount)})`);
   } else {
-    showToast(`⚡ Overtime cleared for today`);
+    showToast(`Overtime cleared for today.`);
   }
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('click', 'light');
 }
@@ -17016,7 +17161,7 @@ function recordUserQuickBreakAction() {
     window.AndroidApp.saveData('_mnm_today_break_last_time', timeStr);
   }
 
-  showToast(`☕ Break #${breakCount} logged at ${timeStr}. Rest your eyes & hydrate!`);
+  showToast(`Break #${breakCount} logged at ${timeStr}. Rest your eyes and stay hydrated.`);
   if (typeof playSoundAndHaptic === 'function') playSoundAndHaptic('tap', 'light');
   if (typeof renderLunchBreakTracker === 'function') renderLunchBreakTracker();
 }
