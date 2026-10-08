@@ -224,6 +224,13 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         }
 
         // ══════════════════════════════════════════════════════
+        // 5. SHIFT END WRAP-UP & STATS RECAP (Scheduled at user's Shift End Time)
+        // ══════════════════════════════════════════════════════
+        else if (NotificationScheduler.TYPE_SHIFT_END.equals(alarmType) && shiftEndGreeting) {
+            showShiftEndStatsNotification(context, companyName, workerName, profileStr, attendanceRecords, entriesStr, prefs);
+        }
+
+        // ══════════════════════════════════════════════════════
         // 6. EVENING PENDING ATTENDANCE & STREAK SAVIOR (07:30 PM)
         // Only triggered if still unlogged in evening
         // ══════════════════════════════════════════════════════
@@ -753,7 +760,19 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
 
     private void rescheduleNextAlarm(Context context, String alarmType) {
         if (NotificationScheduler.TYPE_MORNING_SHIFT.equals(alarmType)) {
-            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_MORNING_SHIFT, 9, 0, alarmType);
+            int startH = 9;
+            int startM = 0;
+            try {
+                String wpStr = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE).getString("_mnm_work_profile", null);
+                if (wpStr != null) {
+                    String s = new JSONObject(wpStr).optString("shiftStart", "09:00");
+                    if (s.contains(":")) {
+                        startH = Integer.parseInt(s.split(":")[0].trim());
+                        startM = Integer.parseInt(s.split(":")[1].trim());
+                    }
+                }
+            } catch (Exception ignored) {}
+            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_MORNING_SHIFT, startH, startM, alarmType);
         } else if (NotificationScheduler.TYPE_ATTENDANCE_FOLLOWUP.equals(alarmType)) {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_ATTENDANCE_FOLLOWUP, 10, 45, alarmType);
         } else if (NotificationScheduler.TYPE_LUNCH_REMINDER.equals(alarmType)) {
@@ -761,6 +780,20 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             int lh = p.getInt("_mnm_learned_lunch_hour", 13);
             int lm = p.getInt("_mnm_learned_lunch_minute", 0);
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_LUNCH_REMINDER, lh, lm, alarmType);
+        } else if (NotificationScheduler.TYPE_SHIFT_END.equals(alarmType)) {
+            int endH = 18;
+            int endM = 0;
+            try {
+                String wpStr = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE).getString("_mnm_work_profile", null);
+                if (wpStr != null) {
+                    String s = new JSONObject(wpStr).optString("shiftEnd", "18:00");
+                    if (s.contains(":")) {
+                        endH = Integer.parseInt(s.split(":")[0].trim());
+                        endM = Integer.parseInt(s.split(":")[1].trim());
+                    }
+                }
+            } catch (Exception ignored) {}
+            NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_SHIFT_END, endH, endM, alarmType);
         } else if (NotificationScheduler.TYPE_EVENING_PENDING.equals(alarmType)) {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_EVENING_PENDING, 19, 30, alarmType);
         } else if (NotificationScheduler.TYPE_ADVANCE_ROSTER.equals(alarmType)) {
@@ -777,6 +810,132 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_SHIFT_STATS, 16, 30, alarmType);
         } else if (NotificationScheduler.TYPE_NIGHT_STREAK.equals(alarmType)) {
             NotificationScheduler.scheduleDailyAlarm(context, NotificationScheduler.REQ_NIGHT_STREAK, 21, 45, alarmType);
+        }
+    }
+
+    // Helper: Build and post Shift End Notification with user's shift & monthly stats
+    public static void showShiftEndStatsNotification(Context context, String companyName, String workerName, String profileStr, JSONObject attendanceRecords, String entriesStr, SharedPreferences prefs) {
+        if (context == null) return;
+        try {
+            ensureNotificationChannels(context);
+
+            String displayName = (workerName != null && !workerName.trim().isEmpty() && !workerName.equalsIgnoreCase("Worker")) ? workerName : "Champion";
+            String compName = (companyName != null && !companyName.trim().isEmpty()) ? companyName : "Workplace";
+
+            Calendar nowCal = Calendar.getInstance();
+            String monthPrefix = new SimpleDateFormat("yyyy-MM", Locale.US).format(nowCal.getTime());
+
+            double monthlyEarned = 0;
+            double monthlyHours = 0;
+            int monthlyShifts = 0;
+            double totalPendingDues = 0;
+            int streak = prefs != null ? prefs.getInt("_mnm_current_streak", 0) : 0;
+            double scheduledShiftHours = 8.0;
+
+            if (profileStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileStr);
+                    scheduledShiftHours = wp.optDouble("shiftHours", 8.0);
+                } catch (Exception ignored) {}
+            }
+
+            if (prefs != null) {
+                String statsSummaryStr = prefs.getString("_mnm_stats_summary", null);
+                if (statsSummaryStr != null) {
+                    try {
+                        JSONObject ss = new JSONObject(statsSummaryStr);
+                        monthlyEarned = ss.optDouble("monthlyEarnings", 0);
+                        monthlyHours = ss.optDouble("monthlyHours", 0);
+                        monthlyShifts = ss.optInt("monthlyShifts", 0);
+                        totalPendingDues = ss.optDouble("pendingDues", 0);
+                        if (streak <= 0) streak = ss.optInt("streak", 0);
+                    } catch (Exception ignored) {}
+                }
+            }
+
+            // Fallback calculation for monthlyShifts from attendanceRecords
+            if (monthlyShifts == 0 && attendanceRecords != null) {
+                try {
+                    java.util.Iterator<String> keys = attendanceRecords.keys();
+                    while (keys.hasNext()) {
+                        String k = keys.next();
+                        if (k.startsWith(monthPrefix)) {
+                            JSONObject obj = attendanceRecords.optJSONObject(k);
+                            if (obj != null) {
+                                String st = obj.optString("status", "").toUpperCase(Locale.US);
+                                if ("P".equals(st) || "PRESENT".equals(st) || "HD".equals(st) || "HALF".equals(st)) {
+                                    monthlyShifts++;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // Fallback for monthlyEarned from profile monthlySalary
+            if (monthlyEarned == 0 && profileStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileStr);
+                    double mSal = wp.optDouble("monthlySalary", 0);
+                    int workDays = wp.optInt("workDaysPerMonth", 26);
+                    if (mSal > 0 && monthlyShifts > 0) {
+                        monthlyEarned = (mSal / workDays) * monthlyShifts;
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            String title = "Shift Complete, " + displayName + "! 🎉";
+            String summaryText = "Shift completed at " + compName + " (" + monthlyShifts + " shifts logged this month).";
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Great work today! Shift is completed at ").append(compName).append(".\n\n");
+            sb.append("⏱ Today's Shift: ").append(String.format(Locale.US, "%.1f", scheduledShiftHours)).append(" hrs logged\n");
+            sb.append("📊 Monthly Shifts: ").append(monthlyShifts).append(" shifts completed\n");
+            if (monthlyEarned > 0) {
+                sb.append("💰 Monthly Earnings: Rs ").append(String.format(Locale.US, "%,.0f", monthlyEarned)).append("\n");
+            }
+            if (streak > 0) {
+                sb.append("🔥 Active Streak: ").append(streak).append(" days on track\n");
+            }
+            if (totalPendingDues > 0) {
+                sb.append("💳 Client Receivables: Rs ").append(String.format(Locale.US, "%,.0f", totalPendingDues)).append(" pending\n");
+            }
+            sb.append("\nRest well tonight and recharge for tomorrow!");
+
+            String bigBody = sb.toString();
+
+            Intent mainIntent = new Intent(context, MainActivity.class);
+            mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
+            PendingIntent contentIntent = PendingIntent.getActivity(context, NOTIF_ID_SHIFT_END, mainIntent, pFlags);
+
+            Uri soundUri = getCustomSoundUri(context);
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_SHIFT_GREETINGS)
+                .setSmallIcon(R.drawable.ic_stat_salary)
+                .setContentTitle(title)
+                .setContentText(summaryText)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(bigBody))
+                .setColor(Color.parseColor("#10B981"))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_EVENT)
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                .setSound(soundUri)
+                .setVibrate(new long[]{0, 200, 100, 200});
+
+            NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                    manager.notify(NOTIF_ID_SHIFT_END, builder.build());
+                }
+            } else {
+                manager.notify(NOTIF_ID_SHIFT_END, builder.build());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

@@ -16943,7 +16943,7 @@ const DEFAULT_NOTIF_SETTINGS = {
   attendanceFollowup: true, // 10:45 AM intelligent 1x follow-up only if skipped in morning
   lunchReminder: true,      // Interactive Yes/No lunch & break reminder with AI self-learning time
   wellnessBreaks: false,    // Disabled: trivial recurring notifications
-  shiftEndGreeting: false,  // Disabled: trivial non-interactive greetings
+  shiftEndGreeting: true,   // Shift completion notification with daily & monthly stats recap
   eveningPending: true,     // 07:30 PM streak savior (only if attendance still unlogged)
   advanceRoster: true,      // 08:00 PM 1-day advance notification for Week Off, Holiday, and Leaves
   sameDayRoster: true,      // Day-of Week Off / Holiday / Leave greetings
@@ -17562,8 +17562,19 @@ function sendTestNotification(type) {
     }
   }
 
+  // Test Shift End Notification with Live Stats Recap
+  if (type === 'shift_end' || type === 'shiftend') {
+    if (window.AndroidApp && typeof window.AndroidApp.postShiftEndNotification === 'function') {
+      window.AndroidApp.postShiftEndNotification();
+      playNodeManNotificationSound(false);
+      showToast('Dispatched: Shift End Notification with Stats Recap');
+      return;
+    }
+  }
+
   const testItems = {
     attendance: { title: 'Morning Check-in', message: `Good morning! Remember to mark your attendance for today at ${company}.`, channel: 'attendance', id: 9001 },
+    shift_end: { title: 'Shift Complete! 🎉', message: `Great work today! Shift completed at ${company}. Logged hours, monthly earnings and streak recorded.`, channel: 'shift_end', id: 9006 },
     lunch: { title: 'Lunch Break Reminder', message: 'Have you taken your lunch break today? Tap to record your status.', channel: 'lunch', id: 9002 },
     stats: { title: 'Monthly Shift Summary', message: `You've earned Rs ${(workProfile?.monthlySalary || 35000).toLocaleString('en-IN')} across 18 shifts this month at ${company}. Great momentum!`, channel: 'shift_greetings', id: 9003 },
     streak: { title: 'Keep Your 12-Day Streak Active', message: `You haven't logged your shift for today at ${company}. Mark Present before midnight to keep your 12-day streak alive!`, channel: 'reminder', id: 9004 },
@@ -17775,6 +17786,27 @@ function checkAndDispatchDailyNotifications() {
         notificationId: 6001
       });
       markDispatched('lunch_reminder');
+    }
+  }
+
+  // 6b. SHIFT END WRAP-UP & STATS RECAP (At user's configured shiftEnd time)
+  if (settings.shiftEndGreeting) {
+    const sEnd = workProfile?.shiftEnd || '18:00';
+    let endHour = 18;
+    let endMin = 0;
+    if (sEnd.includes(':')) {
+      const p = sEnd.split(':');
+      endHour = parseInt(p[0], 10) || 18;
+      endMin = parseInt(p[1], 10) || 0;
+    }
+    if ((currentHour > endHour || (currentHour === endHour && currentMinute >= endMin)) && currentHour < 23 && lastDispatched['shift_end'] !== todayISO) {
+      postAppNotification({
+        title: 'Shift Complete! 🎉',
+        message: `Your shift has ended at ${companyName}. Tap to view your daily and monthly performance stats.`,
+        channelType: 'shift_end',
+        notificationId: 7001
+      });
+      markDispatched('shift_end');
     }
   }
 
@@ -18021,7 +18053,7 @@ function updateNotificationSettingsUI() {
     <!-- Category Toggles Grid -->
     <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;opacity:${settings.enabled ? '1' : '0.45'};pointer-events:${settings.enabled ? 'auto' : 'none'}">
       
-      <!-- 1. Morning Shift & Anti-Spam Check-in -->
+      <!-- 1. Shift Start Check-in (Dynamic) -->
       <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px">
         <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
           <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
@@ -18029,12 +18061,36 @@ function updateNotificationSettingsUI() {
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
             </div>
             <div>
-              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Morning Shift Check-in (09:00 AM)</div>
-              <div style="font-size:9.5px;color:var(--t3)">1-Tap Present / Absent / Half Day actions. Anti-spam: Silenced once marked!</div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--t1)">Shift Start Check-in (${workProfile?.shiftStart || '09:00'})</div>
+              <div style="font-size:9.5px;color:var(--t3)">1-Tap Present / Absent / Week Off actions directly at your shift start time</div>
             </div>
           </div>
           <label class="mnm-switch">
             <input type="checkbox" ${settings.morningShift ? 'checked' : ''} onchange="toggleNotifSetting('morningShift')"/>
+            <span class="mnm-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- 1b. Shift End Wrap-up & Stats Progress -->
+      <div class="settings-card-item" style="margin-bottom:0;padding:10px 12px;background:linear-gradient(135deg, rgba(16,185,129,.08), rgba(124,111,237,.05));border-color:rgba(16,185,129,.3)">
+        <div class="settings-row" style="margin-top:0;padding-top:0;border:none">
+          <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding-right:10px">
+            <div style="width:30px;height:30px;border-radius:8px;background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.35);display:flex;align-items:center;justify-content:center;color:#10B981;flex-shrink:0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:6px">
+                <span>Shift End Wrap-up &amp; Stats (${workProfile?.shiftEnd || '18:00'})</span>
+                <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:#10B981;color:#000">Live Stats</span>
+              </div>
+              <div style="font-size:9.5px;color:var(--t2);margin-top:2px">
+                Rings when your shift ends with logged hours, monthly shifts, earnings &amp; active streak recap
+              </div>
+            </div>
+          </div>
+          <label class="mnm-switch">
+            <input type="checkbox" ${settings.shiftEndGreeting ? 'checked' : ''} onchange="toggleNotifSetting('shiftEndGreeting')"/>
             <span class="mnm-slider"></span>
           </label>
         </div>
@@ -18184,8 +18240,8 @@ function updateNotificationSettingsUI() {
       <div style="font-size:10px;font-weight:700;color:var(--t2);margin-bottom:6px;text-transform:uppercase">TEST NOTIFICATION SUITE:</div>
       <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:6px">
         <button type="button" class="ss-btn" onclick="sendTestNotification('attendance')" style="padding:7px;font-size:10px;border-radius:8px">Test Check-in</button>
+        <button type="button" class="ss-btn" onclick="sendTestNotification('shift_end')" style="padding:7px;font-size:10px;border-radius:8px">Test Shift End &amp; Stats</button>
         <button type="button" class="ss-btn" onclick="sendTestNotification('lunch')" style="padding:7px;font-size:10px;border-radius:8px">Test Lunch (Yes/No)</button>
-        <button type="button" class="ss-btn" onclick="sendTestNotification('stats')" style="padding:7px;font-size:10px;border-radius:8px">Test Shift Stats</button>
         <button type="button" class="ss-btn" onclick="sendTestNotification('streak')" style="padding:7px;font-size:10px;border-radius:8px">Test Night Streak</button>
       </div>
     </div>

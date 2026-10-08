@@ -696,10 +696,51 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // ── Native Shift End Notification with Rich Shift & Monthly Stats ──
+        @JavascriptInterface
+        public boolean postShiftEndNotification() {
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            SharedPreferences prefs = getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
+                            String profileStr = prefs.getString("_mnm_work_profile", null);
+                            String attendanceStr = prefs.getString("_mnm_attendance", null);
+                            String entriesStr = prefs.getString("_mnm_entries", null);
+                            String compName = "Workplace";
+                            String workerName = "Champion";
+                            if (profileStr != null) {
+                                try {
+                                    JSONObject wp = new JSONObject(profileStr);
+                                    compName = wp.optString("company", "Workplace");
+                                    workerName = wp.optString("workerName", "Champion");
+                                } catch (Exception ignored) {}
+                            }
+                            JSONObject attObj = null;
+                            if (attendanceStr != null) {
+                                try { attObj = new JSONObject(attendanceStr); } catch (Exception ignored) {}
+                            }
+                            NotificationAlarmReceiver.showShiftEndStatsNotification(MainActivity.this, compName, workerName, profileStr, attObj, entriesStr, prefs);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
         @JavascriptInterface
         public boolean postNativeNotification(final String title, final String message, final String channelType, final int notificationId) {
             if ("attendance".equalsIgnoreCase(channelType)) {
                 return postAttendanceNotification(title, message, null, null, notificationId);
+            }
+            if ("shift_end".equalsIgnoreCase(channelType) || "shiftend".equalsIgnoreCase(channelType)) {
+                return postShiftEndNotification();
             }
             try {
                 runOnUiThread(new Runnable() {

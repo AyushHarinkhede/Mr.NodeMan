@@ -86,16 +86,43 @@ public class NotificationScheduler {
                 return;
             }
 
-            // 1. Morning Shift Check-in (09:00 AM) - 1-Tap Attendance Check-in
+            // Parse user configured shift times from Work Profile (default 09:00 - 18:00)
+            int shiftStartHour = 9;
+            int shiftStartMinute = 0;
+            int shiftEndHour = 18;
+            int shiftEndMinute = 0;
+
+            if (profileJsonStr != null) {
+                try {
+                    JSONObject wp = new JSONObject(profileJsonStr);
+                    String sStart = wp.optString("shiftStart", "09:00");
+                    if (sStart.contains(":")) {
+                        String[] parts = sStart.split(":");
+                        shiftStartHour = Integer.parseInt(parts[0].trim());
+                        shiftStartMinute = Integer.parseInt(parts[1].trim());
+                    }
+                    String sEnd = wp.optString("shiftEnd", "18:00");
+                    if (sEnd.contains(":")) {
+                        String[] parts = sEnd.split(":");
+                        shiftEndHour = Integer.parseInt(parts[0].trim());
+                        shiftEndMinute = Integer.parseInt(parts[1].trim());
+                    }
+                } catch (Exception ignored) {}
+            }
+
+            // 1. Shift Start Check-in (Scheduled dynamically at user's Shift Start Time)
             if (morningShift) {
-                scheduleDailyAlarm(context, REQ_MORNING_SHIFT, 9, 0, TYPE_MORNING_SHIFT);
+                scheduleDailyAlarm(context, REQ_MORNING_SHIFT, shiftStartHour, shiftStartMinute, TYPE_MORNING_SHIFT);
             } else {
                 cancelAlarm(context, REQ_MORNING_SHIFT);
             }
 
-            // 2. Intelligent Attendance Follow-up (10:45 AM) - Only triggered ONCE if morning skipped
+            // 2. Intelligent Attendance Follow-up (Only triggered if morning skipped)
             if (morningShift && attendanceFollowup) {
-                scheduleDailyAlarm(context, REQ_ATTENDANCE_FOLLOWUP, 10, 45, TYPE_ATTENDANCE_FOLLOWUP);
+                int followHour = shiftStartHour + 1;
+                int followMin = (shiftStartMinute + 45) % 60;
+                if (shiftStartMinute + 45 >= 60) followHour++;
+                scheduleDailyAlarm(context, REQ_ATTENDANCE_FOLLOWUP, followHour, followMin, TYPE_ATTENDANCE_FOLLOWUP);
             } else {
                 cancelAlarm(context, REQ_ATTENDANCE_FOLLOWUP);
             }
@@ -118,8 +145,12 @@ public class NotificationScheduler {
             cancelAlarm(context, REQ_BIO_WELLNESS_1);
             cancelAlarm(context, REQ_BIO_WELLNESS_2);
 
-            // 5. Shift End Motivation Greeting (Removed: trivial non-interactive notifications)
-            cancelAlarm(context, REQ_SHIFT_END);
+            // 5. Shift End Wrap-up & Stats Progress Recap (Scheduled dynamically at user's Shift End Time!)
+            if (shiftEndGreeting) {
+                scheduleDailyAlarm(context, REQ_SHIFT_END, shiftEndHour, shiftEndMinute, TYPE_SHIFT_END);
+            } else {
+                cancelAlarm(context, REQ_SHIFT_END);
+            }
 
             // 6. Evening Pending Attendance & Streak Savior (07:30 PM = 19:30)
             if (eveningPending) {
