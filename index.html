@@ -14380,41 +14380,58 @@ function showTermsAndConditions() {
   showConfirm({
     title: 'Terms & Conditions',
     body: `
-      <div style="text-align:left;max-height:380px;overflow-y:auto;padding:6px 4px;font-size:12px;line-height:1.6;color:var(--t2)">
-        <div style="background:rgba(124,111,237,0.1);border:1px solid var(--acc-bd);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--acc);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          <div style="color:var(--acc);font-size:11px;font-weight:700">Official Terms of Service &amp; Application Usage Agreement</div>
+      <div style="text-align:left;max-height:420px;overflow-y:auto;padding:6px 6px;font-size:12px;line-height:1.65;color:var(--t2)">
+        <div style="background:rgba(124,111,237,0.1);border:1px solid var(--acc-bd);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--acc);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <div>
+            <div style="color:var(--acc);font-size:11.5px;font-weight:800;letter-spacing:0.2px">Official Terms of Service &amp; Application Usage Agreement</div>
+            <div style="font-size:10px;color:var(--t3)">Effective Date: 2026 • Version 2.4 (Security &amp; Work Management Release)</div>
+          </div>
         </div>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">1. Acceptance of Terms</h4>
-        <p style="margin-bottom:14px">By installing, accessing, or utilizing Mr.NodeMan, you agree to comply with and be bound by these Terms &amp; Conditions and our Privacy Policy. This software is built for contractors, freelancers, independent workers, and business operators to manage work logs, daily wages, invoices, and client directories.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">1. Acceptance of Terms &amp; Scope of Service</h4>
+        <p style="margin-bottom:14px">By installing, accessing, or utilizing Mr.NodeMan, you agree to comply with and be bound by these Terms &amp; Conditions and our Privacy Policy. This application is engineered for contractors, freelancers, independent professionals, employees, and business operators to manage daily financial work sessions, shift schedules, wage calculations, attendance rosters, invoices, and client accounts.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">2. 100% Ad-Free &amp; Zero Ad Promotion Guarantee</h4>
-        <p style="margin-bottom:14px">Mr.NodeMan is <strong>100% free of advertisements</strong>. We do not display, host, embed, or promote any third-party ads, commercial banners, sponsored popups, or advertising networks. The application is built solely as a clean, focused utility tool without commercial interruptions.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">2. 100% Ad-Free &amp; Zero Commercial Promotion Guarantee</h4>
+        <p style="margin-bottom:14px">Mr.NodeMan is <strong>100% strictly ad-free</strong>. We do not display, host, embed, or promote third-party advertisements, commercial popups, banner ads, interstitial videos, or sponsored affiliate redirects. The software operates purely as a focused, high-performance professional utility without commercial distraction.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">3. Complete User Data Custody &amp; Zero Company Access</h4>
-        <p style="margin-bottom:14px">All work entries, client accounts, hourly rates, wage calculations, advance payments, and financial figures belong <strong>100% exclusively to you</strong>.
-        <br>• <strong>Mr.NodeMan Company Cannot Access Your Data</strong>: The developer and company staff have <strong>no access</strong> to inspect, view, or read your personal financial records.
-        <br>• <strong>Zero Third-Party Sale or Sharing</strong>: Your data is never sold, rented, monetized, traded, or shared with any third party, broker, or external entity.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">3. Complete User Data Sovereignty &amp; Zero Company Access</h4>
+        <p style="margin-bottom:14px">All financial entries, work logs, client accounts, hourly rates, wage calculations, advance payments, attendance records, and salary parameters belong <strong>100% exclusively to you</strong>.
+        <br>• <strong>Zero Company Access</strong>: Mr.NodeMan, its developer, and staff maintain <strong>zero access</strong> to inspect, view, read, or mine your personal financial or work data.
+        <br>• <strong>Zero Third-Party Sale or Sharing</strong>: Your records are never sold, rented, monetized, traded, or shared with any third party, broker, or external entity.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">4. No Algorithmic Feeds &amp; Zero Behavioral Manipulation</h4>
-        <p style="margin-bottom:14px">The application does not employ algorithmic feeds, behavioral tracking engines, attention-manipulation models, or psychological nudges. User data is never fed into external machine-learning models, advertising profiling engines, or recommendation algorithms.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">4. Work Profile, Shift Scheduling &amp; Attendance Roster</h4>
+        <p style="margin-bottom:14px">The application provides specialized work management modules:
+        <br>• <strong>Shift Timings &amp; Schedules</strong>: Users can configure custom Shift Start and Shift End timings, enabling automated on-device check-in and shift completion tracking.
+        <br>• <strong>Attendance Matrix</strong>: Log and manage daily attendance categories including Present (P), Absent (A), Sick Leave (SL), Paid Leave (PL), Half Day (HD), and Week Off (WO).
+        <br>• <strong>Wages, Allowances &amp; Overtime</strong>: Supports multi-tiered overtime multipliers (1.5x, 2.0x), shift allowances, and statutory PF deductions.
+        <br>• <strong>Monthly Salary Slips</strong>: Generate printable official salary statements reflecting monthly attendance summaries and net wage calculations.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">5. Integrated Client-Side Privacy Features</h4>
-        <p style="margin-bottom:14px">The application includes built-in client-side privacy tools, including an <strong>Incognito Mode and Privacy Shield</strong>, giving users on-device visual privacy and display protection to safeguard sensitive ledger information.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">5. Local-First Smart Device Notifications &amp; Alarms</h4>
+        <p style="margin-bottom:14px">Mr.NodeMan features a self-scheduled, local-first notification suite designed strictly for user utility:
+        <br>• <strong>100% Local Scheduling</strong>: All alarms and notifications are scheduled directly on your device via Android's native AlarmManager and BroadcastReceiver.
+        <br>• <strong>Zero Cloud Push Servers</strong>: The application does NOT rely on external push notification servers (no Firebase Cloud Messaging tracking, no remote push relays).
+        <br>• <strong>Interactive 1-Tap Lockscreen Actions</strong>: Direct check-in (Present / Absent / Sick Leave) at shift start, and wrap-up alerts with live daily logged hours, monthly shifts, earnings, and streak recap at shift end.
+        <br>• <strong>User Control</strong>: Each notification category (Shift Start, Shift End, Lunch Reminders, Night Streak Guardian, Salary Credit Day) can be individually toggled or disabled in Settings.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">6. Financial Calculations &amp; Verification</h4>
-        <p style="margin-bottom:14px">Mr.NodeMan provides high-precision mathematical, wage, and GST estimators. While formulas conform to standard tax brackets and shift rate mathematics, users are advised to verify commercial invoices and statutory tax filings with certified tax or legal professionals.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">6. Integrated Security Protocols &amp; Hardware Anti-Capture Guard</h4>
+        <p style="margin-bottom:14px">To ensure utmost operational security:
+        <br>• <strong>Hardware Anti-Capture (FLAG_SECURE)</strong>: Prevents unauthorized screen recording, screenshots, screen mirroring, and masks the application thumbnail in the Android App Switcher.
+        <br>• <strong>Privacy Shield &amp; Stealth Mode</strong>: Integrated on-screen privacy overlays blur financial balances and sensitive rates in shared or public environments.
+        <br>• <strong>528Hz Harmonic Chime</strong>: High-definition custom audio frequency synthesized locally, strictly honoring Android's Silent and Do Not Disturb (DND) modes.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">7. Intellectual Property &amp; Integrity</h4>
-        <p style="margin-bottom:14px">All application logic, user interface designs, custom SVG assets, and source code are the intellectual property of Ayush Harinkhede. Unauthorized redistribution, cloning, or reverse engineering is prohibited.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">7. Financial Calculations &amp; Statutory Disclaimer</h4>
+        <p style="margin-bottom:14px">Mr.NodeMan provides high-precision mathematical, wage, and GST calculation engines. While equations follow standard commercial arithmetic and tax slabs, users remain solely responsible for validating statutory tax filings and official commercial invoices with certified financial or legal authorities.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">8. Limitation of Liability</h4>
-        <p style="margin-bottom:14px">Mr.NodeMan is provided "as is" and "as available". The developer shall not be liable for device-level hardware failures, OS wipes, or unbacked data loss caused outside the application sandbox.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">8. Intellectual Property &amp; Code Integrity</h4>
+        <p style="margin-bottom:14px">All application logic, user interface designs, custom SVG assets, and source code are the intellectual property of Ayush Harinkhede. Unauthorized redistribution, cloning, or reverse engineering is strictly prohibited.</p>
+
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">9. Limitation of Liability &amp; Data Portability</h4>
+        <p style="margin-bottom:14px">Mr.NodeMan is provided "as is" without warranties of any kind. Users are encouraged to utilize the built-in <strong>Export PDF Statement</strong> and <strong>Cloud / JSON Backup</strong> features to maintain independent backups of their financial records.</p>
 
         <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:12px;margin-top:10px">
           <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px">Legal &amp; Developer Support Contact</div>
-          <div style="font-size:11px;color:var(--t2);margin-bottom:8px">For questions regarding terms, licensing, or compliance, contact us directly:</div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:8px">For inquiries regarding legal terms, licensing, or compliance, reach out directly:</div>
           <div style="display:flex;align-items:center;gap:6px">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <a href="mailto:ayushharinkhere2005@gmail.com?subject=Mr.NodeMan%20Terms%20Inquiry" onclick="openExternalUrl('mailto:ayushharinkhere2005@gmail.com'); return false;" style="color:#38bdf8;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer">ayushharinkhere2005@gmail.com</a>
@@ -14425,7 +14442,7 @@ function showTermsAndConditions() {
     singleButton: true,
     countdown: false,
     okStyle: 'background:linear-gradient(135deg, var(--acc), #8b5cf6);border:none;color:#fff',
-    okText: 'I Understand',
+    okText: 'I Agree & Understand',
     fn: () => {}
   });
 }
@@ -14434,38 +14451,58 @@ function showPrivacyPolicy() {
   showConfirm({
     title: 'Privacy Policy',
     body: `
-      <div style="text-align:left;max-height:380px;overflow-y:auto;padding:6px 4px;font-size:12px;line-height:1.6;color:var(--t2)">
-        <div style="background:rgba(45,212,168,0.1);border:1px solid var(--paid-bd);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:8px">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--paid);flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <div style="color:var(--paid);font-size:11px;font-weight:700">100% Private, Zero Ads &amp; Absolute Data Sovereignty</div>
+      <div style="text-align:left;max-height:420px;overflow-y:auto;padding:6px 6px;font-size:12px;line-height:1.65;color:var(--t2)">
+        <div style="background:rgba(45,212,168,0.1);border:1px solid var(--paid-bd);border-radius:10px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--paid);flex-shrink:0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div>
+            <div style="color:var(--paid);font-size:11.5px;font-weight:800;letter-spacing:0.2px">100% Private, Zero-Knowledge &amp; Hardware-Guarded Policy</div>
+            <div style="font-size:10px;color:var(--t3)">Effective Date: 2026 • Absolute Data Sovereignty Standard</div>
+          </div>
         </div>
 
         <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">1. 100% Private, Zero-Knowledge Architecture</h4>
-        <p style="margin-bottom:14px">Mr.NodeMan is built on a strict privacy model. Your financial entries, wage calculations, client details, and notes reside strictly on your device or in your personal private database. <strong>Mr.NodeMan (the company and developer) has zero access to your private financial data</strong> and cannot view, inspect, or harvest your personal records.</p>
+        <p style="margin-bottom:14px">Mr.NodeMan is built on an uncompromising privacy model. All financial records, shift durations, hourly wage rates, employee identities, client databases, and personal notes reside <strong>strictly within your private device sandbox</strong>. <strong>Mr.NodeMan (the company and developer) has zero access to your private data</strong> and possesses no mechanism to inspect, harvest, or decrypt your personal records.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">2. Zero Third-Party Sharing or Sale Policy</h4>
-        <p style="margin-bottom:14px">Your privacy is absolute. We <strong>NEVER sell, rent, trade, lease, or share your data</strong> with any third-party companies, marketing brokers, commercial advertisers, or external analytics firms.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">2. Zero Third-Party Sale or Sharing Policy</h4>
+        <p style="margin-bottom:14px">Your privacy is absolute and non-negotiable. We <strong>NEVER sell, rent, trade, lease, or share your data</strong> with third-party corporations, marketing brokers, commercial advertisers, data aggregators, or external analytics firms.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">3. 100% Ad-Free &amp; Zero Ad Networks</h4>
-        <p style="margin-bottom:14px">Mr.NodeMan contains <strong>NO advertisements</strong>. We do not integrate advertising SDKs, commercial tracking pixels, or ad networks, and we never promote or monetize through ads.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">3. 100% Ad-Free &amp; Zero Tracking SDKs</h4>
+        <p style="margin-bottom:14px">Mr.NodeMan contains <strong>NO advertisements and NO ad-tracking frameworks</strong>. We do not integrate commercial SDKs, ad networks, Facebook Pixel, Google Ads SDK, or telemetry profiling tools. Your activity within the app is never tracked or monetized.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">4. No Algorithmic Profiling or Behavioral Manipulation</h4>
-        <p style="margin-bottom:14px">We do not construct algorithms or profiling models from your data. The application contains no algorithmic feeds, engagement algorithms, or behavioral manipulation techniques.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">4. Local Device Notifications &amp; Zero Cloud Push</h4>
+        <p style="margin-bottom:14px">Unlike cloud-dependent apps:
+        <br>• <strong>100% On-Device Processing</strong>: All shift start, shift end stats wrap-ups, lunch reminders, and streak protection notifications run entirely on your local device hardware using Android AlarmManager.
+        <br>• <strong>Zero Remote Push Servers</strong>: We run no Firebase Cloud Messaging (FCM) tracking servers, No OneSignal SDKs, and no external push proxies.
+        <br>• <strong>Local Action Execution</strong>: Interactive buttons (Present, Absent, Sick Leave, Paid Leave) are received and executed entirely within local application memory without internet dependency.
+        <br>• <strong>Zero Spam Guarantee</strong>: You will never receive marketing push notifications, promo messages, or commercial alerts.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">5. Client-Side Privacy Features (Incognito Mode)</h4>
-        <p style="margin-bottom:14px">To ensure on-device confidentiality, the application includes integrated client-side privacy features, such as <strong>Incognito Mode and Privacy Shield</strong>, designed to protect your active screen and sensitive ledger displays from unauthorized viewing.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">5. Attendance, Health &amp; Leave Data Confidentiality</h4>
+        <p style="margin-bottom:14px">Your work history and personal leave reasons are strictly confidential:
+        <br>• <strong>Sick Leave &amp; Health Guidance</strong>: Caring health recovery notifications and rest reminders are generated dynamically on-device. <strong>Zero health, diagnostic, medical, or biometric data is collected or transmitted</strong>.
+        <br>• <strong>Paid Leave &amp; Shift Stats</strong>: Shift timings, daily hours logged, and monthly earnings recap remain exclusively within local database storage.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">6. Zero System Permissions &amp; Zero Spam Policy</h4>
-        <p style="margin-bottom:14px">Mr.NodeMan requires <strong>no background device permissions</strong> (no camera, microphone, GPS location, contacts, or storage scans) and <strong>never sends push notifications, marketing alerts, or spam</strong>.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">6. Hardware Anti-Capture Guard &amp; Visual Privacy</h4>
+        <p style="margin-bottom:14px">To protect against physical and software snooping:
+        <br>• <strong>FLAG_SECURE Hardware Enforcement</strong>: Prevents screenshot capture, video screen recording, HDMI mirroring, and obfuscates app previews in the Android Task Switcher.
+        <br>• <strong>Privacy Shield &amp; Stealth Mode</strong>: One-tap blur masking hides confidential wage totals and client amounts from shoulder-surfers in public environments.
+        <br>• <strong>Audio Privacy</strong>: The 528Hz Harmonic crystal chime is generated entirely on-device and strictly adheres to system Silent and Do Not Disturb (DND) settings.</p>
 
-        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">7. Complete User Data Sovereignty &amp; Control</h4>
-        <p style="margin-bottom:14px">You retain absolute ownership of your records:
-        <br>• <strong>Instant Data Export</strong>: Generate formatted PDF statements or complete JSON data backups at any time.
-        <br>• <strong>One-Tap Permanent Purge</strong>: Reset or wipe your entire workspace database permanently from the Settings menu whenever you desire.</p>
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">7. Minimal System Permissions</h4>
+        <p style="margin-bottom:14px">Mr.NodeMan requires <strong>zero invasive device permissions</strong>:
+        <br>• No Camera or Microphone access.
+        <br>• No GPS or Location tracking.
+        <br>• No Contact book or Call log access.
+        <br>• No Full-disk or Gallery file scanning.
+        <br>• The app only requests the standard notification permission (POST_NOTIFICATIONS) strictly to deliver your self-configured work and shift alarms.</p>
+
+        <h4 style="color:var(--t1);font-size:13px;font-weight:700;margin-bottom:6px">8. Complete User Data Sovereignty &amp; Erasure</h4>
+        <p style="margin-bottom:14px">You retain absolute custody and control over your records:
+        <br>• <strong>Instant Data Portability</strong>: Export complete JSON backups and formatted PDF statements at any time.
+        <br>• <strong>One-Tap Permanent Wipe</strong>: Reset or permanently wipe your entire workspace database through the Settings menu with zero residual records left behind.</p>
 
         <div style="background:var(--s2);border:1px solid var(--b2);border-radius:12px;padding:12px;margin-top:10px">
-          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px">Official Privacy &amp; Data Protection Contact</div>
-          <div style="font-size:11px;color:var(--t2);margin-bottom:8px">For any privacy questions, security disclosures, or data inquiries, reach out directly:</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px">Official Privacy &amp; Data Protection Officer</div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:8px">For any privacy questions, security disclosures, or audit inquiries, contact directly:</div>
           <div style="display:flex;align-items:center;gap:6px">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <a href="mailto:ayushharinkhere2005@gmail.com?subject=Mr.NodeMan%20Privacy%20Inquiry" onclick="openExternalUrl('mailto:ayushharinkhere2005@gmail.com'); return false;" style="color:#38bdf8;font-size:12px;font-weight:700;text-decoration:underline;cursor:pointer">ayushharinkhere2005@gmail.com</a>
@@ -14475,8 +14512,8 @@ function showPrivacyPolicy() {
     `,
     singleButton: true,
     countdown: false,
-    okStyle: 'background:linear-gradient(135deg, var(--acc), #8b5cf6);border:none;color:#fff',
-    okText: 'I Understand',
+    okStyle: 'background:linear-gradient(135deg, var(--paid), #059669);border:none;color:#fff',
+    okText: 'I Understand & Accept',
     fn: () => {}
   });
 }
@@ -21685,6 +21722,8 @@ function renderQuickSuggestions(rawQuery) {
     { title: 'Cloud Sync & Backup', fill: 'cloud', action: "if(typeof openCloudSyncModal==='function') openCloudSyncModal(); closeUniversalSearch();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['cloud','sync','backup','restore'] },
     { title: 'Toggle Theme', fill: 'theme', action: "if(typeof toggleTheme==='function') toggleTheme();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['theme','dark','light','mode'] },
     { title: 'Add New Entry', fill: 'add entry', action: "if(typeof openEntryModal==='function') openEntryModal(); closeUniversalSearch();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['add','new','entry','log','create'] },
+    { title: 'Terms & Conditions', fill: 'terms', action: 'showTermsAndConditions(); closeUniversalSearch();', badgeText: 'Legal', badgeClass: 'badge-tool', keys: ['terms', 'terms and conditions', 'terms of service', 'tos', 'usage agreement', 'conditions', 'legal', 'shartein'] },
+    { title: 'Privacy & Security Policy', fill: 'privacy', action: 'showPrivacyPolicy(); closeUniversalSearch();', badgeText: 'Privacy', badgeClass: 'badge-status', keys: ['privacy', 'privacy policy', 'data security', 'data protection', 'security policy', 'confidentiality', 'suraksha', 'niti'] },
     { title: 'About Developer', fill: 'developer', action: 'openDeveloperModal();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['developer','ayush','about','github','creator'] }
   ];
   quickFeatureList.forEach(f => {
@@ -22137,6 +22176,8 @@ function renderUniversalSearchResults(query) {
     { keys: ['pdf', 'export', 'print', 'download', 'statement', 'report', 'nikalo'], title: 'Export PDF Statement', desc: 'Generate and download custom PDF financial statements', icon: SEARCH_ICONS.export, action: () => { if(typeof openPdfExportModal==='function') openPdfExportModal(); } },
     { keys: ['cloud', 'sync', 'backup', 'restore', 'online', 'save', 'upload'], title: 'Cloud Sync & Data Backup', desc: 'Sync work ledger to cloud workspace or backup data', icon: SEARCH_ICONS.cloud, action: () => { if(typeof openCloudSyncModal==='function') openCloudSyncModal(); } },
     { keys: ['theme', 'dark', 'light', 'mode', 'raat', 'din'], title: 'Toggle Light / Dark Theme', desc: 'Switch app appearance theme', icon: SEARCH_ICONS.moon, action: () => { if(typeof toggleTheme==='function') toggleTheme(); } },
+    { keys: ['terms', 'terms and conditions', 'terms of service', 'tos', 'usage agreement', 'conditions', 'legal', 'shartein'], title: 'Terms & Conditions (Official)', desc: 'Official terms of service, shift scheduling, wage policies & usage agreements', icon: SEARCH_ICONS.fileText, action: () => showTermsAndConditions() },
+    { keys: ['privacy', 'privacy policy', 'data security', 'data protection', 'security policy', 'confidentiality', 'suraksha', 'niti'], title: 'Privacy & Security Policy (Official)', desc: 'Zero-knowledge architecture, local-first storage & hardware anti-capture policies', icon: SEARCH_ICONS.check, action: () => showPrivacyPolicy() },
     { keys: ['developer', 'dev', 'ayush', 'harinkhede', 'about', 'creator', 'author', 'banane wala'], title: 'About Developer (Ayush Harinkhede)', desc: 'Official portfolio, Vercel website & GitHub repository', icon: SEARCH_ICONS.dev, action: () => openDeveloperModal() }
   ];
 
