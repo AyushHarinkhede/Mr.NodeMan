@@ -9047,6 +9047,23 @@ function loadLS(){
       attendanceRecords = Object.assign({}, attendanceRecords, loadedAttendance);
     }
 
+    // Ensure native notification actions marked in background are ALWAYS merged into attendanceRecords
+    try {
+      const nativeAttObj = safeParseObj(AppStorage.get('_mnm_attendance')) || safeParseObj(localStorage.getItem('_mnm_attendance'));
+      if (nativeAttObj && typeof nativeAttObj === 'object') {
+        if (!attendanceRecords) attendanceRecords = {};
+        Object.keys(nativeAttObj).forEach(dateKey => {
+          const nRec = nativeAttObj[dateKey];
+          if (nRec && nRec.status) {
+            const curRec = attendanceRecords[dateKey];
+            if (!curRec || nRec.markedVia === 'notification_action' || (nRec.updatedAt && (!curRec.updatedAt || nRec.updatedAt >= curRec.updatedAt))) {
+              attendanceRecords[dateKey] = Object.assign({}, curRec || {}, nRec);
+            }
+          }
+        });
+      }
+    } catch(e) {}
+
     // Recalculate salary figures to ensure consistency
     syncEffectiveWorkProfileSalary();
 
@@ -17466,9 +17483,20 @@ function postAppNotification({ title, message, channelType = 'attendance', notif
   }
 
   let sent = false;
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const company = workProfile?.company || 'Workplace';
 
-  // 1. Android Native Bridge (Dispatches with custom notification sound)
-  if (window.AndroidApp && typeof window.AndroidApp.postNativeNotification === 'function') {
+  // 1. Android Native Attendance Notification (with interactive Present / Absent / Week Off buttons)
+  if (channelType === 'attendance' && window.AndroidApp && typeof window.AndroidApp.postAttendanceNotification === 'function') {
+    try {
+      sent = window.AndroidApp.postAttendanceNotification(title, message, todayISO, company, notificationId);
+    } catch(e) {
+      console.warn('Android native attendance notification error:', e);
+    }
+  }
+
+  // 2. Android Native Bridge Standard Notification
+  if (!sent && window.AndroidApp && typeof window.AndroidApp.postNativeNotification === 'function') {
     try {
       sent = window.AndroidApp.postNativeNotification(title, message, channelType, notificationId);
     } catch(e) {
@@ -17515,7 +17543,24 @@ function sendTestNotification(type) {
     requestDeviceNotificationPermission();
   }
   const company = workProfile?.company || 'Workplace';
+  const todayISO = new Date().toISOString().slice(0, 10);
   const now = new Date();
+
+  // Test interactive attendance notification directly with Present & Absent buttons
+  if (type === 'attendance') {
+    if (window.AndroidApp && typeof window.AndroidApp.postAttendanceNotification === 'function') {
+      window.AndroidApp.postAttendanceNotification(
+        'Morning Check-in',
+        `Good morning! Please mark your attendance for today at ${company}.`,
+        todayISO,
+        company,
+        9001
+      );
+      playNodeManNotificationSound(false);
+      showToast('Dispatched: Attendance Notification with Present & Absent buttons');
+      return;
+    }
+  }
 
   const testItems = {
     attendance: { title: 'Morning Check-in', message: `Good morning! Remember to mark your attendance for today at ${company}.`, channel: 'attendance', id: 9001 },
@@ -17683,7 +17728,7 @@ function checkAndDispatchDailyNotifications() {
         notificationId: 4002
       });
       markDispatched('morning_shift');
-    } else if (settings.morningShift && currentHour >= 8 && currentHour < 12 && lastDispatched['morning_shift'] !== todayISO) {
+    } else if (settings.morningShift && currentHour >= 8 && currentHour < 19 && lastDispatched['morning_shift'] !== todayISO) {
       const g = getDailyMorningGreeting(daySeed, companyName);
       postAppNotification({
         title: g.title,
@@ -17694,8 +17739,8 @@ function checkAndDispatchDailyNotifications() {
       markDispatched('morning_shift');
     }
 
-    // 4. INTELLIGENT ATTENDANCE FOLLOW-UP (Only 1x between 10:45 AM and 12:00 PM if morning was skipped)
-    if (settings.attendanceFollowup && currentHour >= 10 && currentHour < 12 && lastDispatched['morning_shift'] === todayISO && lastDispatched['att_followup'] !== todayISO) {
+    // 4. INTELLIGENT ATTENDANCE FOLLOW-UP (Only 1x between 10:45 AM and 13:00 PM if morning was skipped)
+    if (settings.attendanceFollowup && currentHour >= 10 && currentHour < 13 && lastDispatched['morning_shift'] === todayISO && lastDispatched['att_followup'] !== todayISO) {
       postAppNotification({
         title: 'Attendance Reminder',
         message: `Reminder: You have not checked in for today at ${companyName} yet. Tap Present to record your day.`,
@@ -17710,7 +17755,7 @@ function checkAndDispatchDailyNotifications() {
       postAppNotification({
         title: 'Attendance Pending for Today',
         message: `You have not logged your attendance for today yet. Mark it now to record your work day.`,
-        channelType: 'reminder',
+        channelType: 'attendance',
         notificationId: 5001
       });
       markDispatched('evening_pending');

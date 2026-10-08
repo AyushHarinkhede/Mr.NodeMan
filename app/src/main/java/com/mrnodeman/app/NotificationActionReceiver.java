@@ -50,7 +50,10 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
         // ══════════════════════════════════════════════════════
         // 1. INTERACTIVE ABSENT SUB-FLOW PROMPT
-        // When user taps "Absent", ask reason: SL, PL, or Direct Absent
+        // When user taps "Absent", prompt with EXACTLY 3 options:
+        // 1. Sick Leave (SL)
+        // 2. Paid Leave (PL)
+        // 3. Absent (A)
         // ══════════════════════════════════════════════════════
         if (ACTION_PROMPT_ABSENT.equals(action)) {
             final String dateISO = intent.getStringExtra(EXTRA_DATE);
@@ -62,6 +65,8 @@ public class NotificationActionReceiver extends BroadcastReceiver {
             final String compName = (company != null && !company.trim().isEmpty()) ? company : "Workplace";
 
             try {
+                NotificationAlarmReceiver.ensureNotificationChannels(context);
+
                 Intent mainIntent = new Intent(context, MainActivity.class);
                 mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
@@ -85,16 +90,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 plIntent.putExtra(EXTRA_NOTIF_ID, notifId);
                 PendingIntent plPi = PendingIntent.getBroadcast(context, notifId * 10 + 5, plIntent, pFlags);
 
-                // Option 3: Half Day (HD)
-                Intent hdIntent = new Intent(context, NotificationActionReceiver.class);
-                hdIntent.setAction(ACTION_MARK_ATTENDANCE);
-                hdIntent.putExtra(EXTRA_STATUS, "HD");
-                hdIntent.putExtra(EXTRA_DATE, targetDate);
-                hdIntent.putExtra(EXTRA_COMPANY, compName);
-                hdIntent.putExtra(EXTRA_NOTIF_ID, notifId);
-                PendingIntent hdPi = PendingIntent.getBroadcast(context, notifId * 10 + 6, hdIntent, pFlags);
-
-                // Option 4: Direct Absent (A)
+                // Option 3: Absent (A)
                 Intent aIntent = new Intent(context, NotificationActionReceiver.class);
                 aIntent.setAction(ACTION_MARK_ATTENDANCE);
                 aIntent.putExtra(EXTRA_STATUS, "A");
@@ -103,20 +99,24 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 aIntent.putExtra(EXTRA_NOTIF_ID, notifId);
                 PendingIntent aPi = PendingIntent.getBroadcast(context, notifId * 10 + 7, aIntent, pFlags);
 
+                Uri soundUri = NotificationAlarmReceiver.getCustomSoundUri(context);
+
                 NotificationCompat.Builder promptBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
                     .setSmallIcon(R.drawable.ic_stat_attendance)
                     .setContentTitle("Reason for Absence")
-                    .setContentText("Select leave reason: Sick Leave, Paid Leave, Half Day, or Absent.")
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Select absence reason for " + compName + ": Sick Leave (SL), Paid Leave (PL), Half Day (HD), or Absent (A):"))
-                    .setColor(Color.parseColor("#F59E0B"))
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setContentText("Select leave reason: Sick Leave, Paid Leave, or Absent.")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText("Select absence reason for today at " + compName + ": Sick Leave (SL), Paid Leave (PL), or Absent (A):"))
+                    .setColor(Color.parseColor("#EF4444"))
+                    .setPriority(NotificationCompat.PRIORITY_MAX)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setCategory(NotificationCompat.CATEGORY_REMINDER)
                     .setContentIntent(contentIntent)
                     .setAutoCancel(true)
+                    .setSound(soundUri)
                     .setVibrate(new long[]{0, 150, 100, 150})
-                    .addAction(R.drawable.ic_action_halfday, "Sick Leave (SL)", slPi)
-                    .addAction(R.drawable.ic_action_halfday, "Paid Leave (PL)", plPi)
-                    .addAction(R.drawable.ic_action_halfday, "Half Day (HD)", hdPi)
-                    .addAction(R.drawable.ic_action_absent, "Absent (A)", aPi);
+                    .addAction(R.drawable.ic_action_halfday, "Sick Leave", slPi)
+                    .addAction(R.drawable.ic_action_halfday, "Paid Leave", plPi)
+                    .addAction(R.drawable.ic_action_absent, "Absent", aPi);
 
                 NotificationManagerCompat manager = NotificationManagerCompat.from(context);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -130,7 +130,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 // Show quick guidance toast
                 new Handler(Looper.getMainLooper()).post(() -> {
                     try {
-                        Toast.makeText(context, "Select: Sick Leave, Paid Leave, Half Day, or Absent", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Select: Sick Leave, Paid Leave, or Absent", Toast.LENGTH_SHORT).show();
                     } catch (Exception ignored) {}
                 });
 
@@ -155,7 +155,7 @@ public class NotificationActionReceiver extends BroadcastReceiver {
             final String targetDate = dateISO.trim();
             final String compName = (company != null && !company.trim().isEmpty()) ? company : "Workplace";
 
-            // 1. Update native SharedPreferences and disk backup
+            // 1. Update native SharedPreferences, active user data, and disk backup
             try {
                 SharedPreferences prefs = context.getSharedPreferences("mrnodeman_native_store", Context.MODE_PRIVATE);
                 String currentAttStr = prefs.getString("_mnm_attendance", "{}");
@@ -178,8 +178,40 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                 attObj.put(targetDate, rec);
                 String newAttJson = attObj.toString();
 
-                // Save to SharedPreferences
-                prefs.edit().putString("_mnm_attendance", newAttJson).commit();
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("_mnm_attendance", newAttJson);
+
+                // Synchronize into all userData_* stores so logged-in web session has it immediately
+                try {
+                    java.util.Map<String, ?> allEntries = prefs.getAll();
+                    for (java.util.Map.Entry<String, ?> entry : allEntries.entrySet()) {
+                        if (entry.getKey().startsWith("userData_")) {
+                            try {
+                                JSONObject uObj = new JSONObject(entry.getValue().toString());
+                                JSONObject uAtt = uObj.optJSONObject("attendance");
+                                if (uAtt == null) uAtt = new JSONObject();
+                                uAtt.put(targetDate, rec);
+                                uObj.put("attendance", uAtt);
+                                editor.putString(entry.getKey(), uObj.toString());
+                            } catch (Exception ignored) {}
+                        }
+                    }
+                } catch (Exception ignored) {}
+
+                // Synchronize into Master DB backup
+                try {
+                    String masterDbStr = prefs.getString("_mnm_master_db_backup", null);
+                    if (masterDbStr != null) {
+                        JSONObject masterDb = new JSONObject(masterDbStr);
+                        JSONObject mAtt = masterDb.optJSONObject("attendance");
+                        if (mAtt == null) mAtt = new JSONObject();
+                        mAtt.put(targetDate, rec);
+                        masterDb.put("attendance", mAtt);
+                        editor.putString("_mnm_master_db_backup", masterDb.toString());
+                    }
+                } catch (Exception ignored) {}
+
+                editor.commit();
 
                 // Mirror to disk file
                 try {
@@ -188,6 +220,28 @@ public class NotificationActionReceiver extends BroadcastReceiver {
                     File file = new File(storeDir, "store_" + Math.abs("_mnm_attendance".hashCode()) + ".dat");
                     try (FileOutputStream fos = new FileOutputStream(file)) {
                         fos.write(newAttJson.getBytes(StandardCharsets.UTF_8));
+                    }
+                } catch (Exception ignored) {}
+
+                // Mirror into mrnodeman_master_db.json file
+                try {
+                    File dbFile = new File(context.getFilesDir(), "mrnodeman_master_db.json");
+                    if (dbFile.exists() && dbFile.length() > 0) {
+                        try (java.io.FileInputStream fis = new java.io.FileInputStream(dbFile);
+                             java.io.InputStreamReader isr = new java.io.InputStreamReader(fis, StandardCharsets.UTF_8);
+                             java.io.BufferedReader br = new java.io.BufferedReader(isr)) {
+                            StringBuilder sb = new StringBuilder();
+                            String line;
+                            while ((line = br.readLine()) != null) sb.append(line).append("\n");
+                            JSONObject dbJson = new JSONObject(sb.toString().trim());
+                            JSONObject dbAtt = dbJson.optJSONObject("attendance");
+                            if (dbAtt == null) dbAtt = new JSONObject();
+                            dbAtt.put(targetDate, rec);
+                            dbJson.put("attendance", dbAtt);
+                            try (FileOutputStream fos = new FileOutputStream(dbFile)) {
+                                fos.write(dbJson.toString().getBytes(StandardCharsets.UTF_8));
+                            }
+                        }
                     }
                 } catch (Exception ignored) {}
 
@@ -554,13 +608,15 @@ public class NotificationActionReceiver extends BroadcastReceiver {
 
             Uri soundUri = NotificationAlarmReceiver.getCustomSoundUri(context);
 
-            NotificationCompat.Builder careBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_WELLNESS)
+            NotificationCompat.Builder careBuilder = new NotificationCompat.Builder(context, NotificationAlarmReceiver.CHANNEL_ATTENDANCE)
                 .setSmallIcon(R.drawable.ic_stat_notification)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                 .setColor(Color.parseColor("#EC4899"))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_EVENT)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .setSound(soundUri)

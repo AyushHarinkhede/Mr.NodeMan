@@ -576,27 +576,33 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
     // ══════════════════════════════════════════════════════════
 
     // Helper: Build and post rich notification with direct 1-Tap Attendance Action buttons
-    private void showAttendanceActionNotification(Context context, int notifId, String title, String message, String dateISO, String company) {
+    public static void showAttendanceActionNotification(Context context, int notifId, String title, String message, String dateISO, String company) {
+        if (context == null) return;
         try {
+            ensureNotificationChannels(context);
+
             Intent mainIntent = new Intent(context, MainActivity.class);
             mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             int pFlags = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE : PendingIntent.FLAG_UPDATE_CURRENT;
             PendingIntent contentIntent = PendingIntent.getActivity(context, notifId, mainIntent, pFlags);
 
+            String targetDate = (dateISO != null && !dateISO.isEmpty()) ? dateISO : new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+            String targetComp = (company != null && !company.isEmpty()) ? company : "Workplace";
+
             // Action 1: Mark Present
             Intent presentIntent = new Intent(context, NotificationActionReceiver.class);
             presentIntent.setAction(NotificationActionReceiver.ACTION_MARK_ATTENDANCE);
             presentIntent.putExtra(NotificationActionReceiver.EXTRA_STATUS, "P");
-            presentIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, dateISO);
-            presentIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, company);
+            presentIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, targetDate);
+            presentIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, targetComp);
             presentIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent presentPi = PendingIntent.getBroadcast(context, notifId * 10 + 1, presentIntent, pFlags);
 
             // Action 2: Absent (Launches interactive reason question: SL, PL, Absent)
             Intent absentIntent = new Intent(context, NotificationActionReceiver.class);
             absentIntent.setAction(NotificationActionReceiver.ACTION_PROMPT_ABSENT);
-            absentIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, dateISO);
-            absentIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, company);
+            absentIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, targetDate);
+            absentIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, targetComp);
             absentIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent absentPi = PendingIntent.getBroadcast(context, notifId * 10 + 2, absentIntent, pFlags);
 
@@ -604,8 +610,8 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
             Intent woIntent = new Intent(context, NotificationActionReceiver.class);
             woIntent.setAction(NotificationActionReceiver.ACTION_MARK_ATTENDANCE);
             woIntent.putExtra(NotificationActionReceiver.EXTRA_STATUS, "WO");
-            woIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, dateISO);
-            woIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, company);
+            woIntent.putExtra(NotificationActionReceiver.EXTRA_DATE, targetDate);
+            woIntent.putExtra(NotificationActionReceiver.EXTRA_COMPANY, targetComp);
             woIntent.putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId);
             PendingIntent woPi = PendingIntent.getBroadcast(context, notifId * 10 + 3, woIntent, pFlags);
 
@@ -617,7 +623,9 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
                 .setContentText(message)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setColor(Color.parseColor("#36DFAF"))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .setSound(soundUri)
@@ -772,7 +780,7 @@ public class NotificationAlarmReceiver extends BroadcastReceiver {
         }
     }
 
-    private void ensureNotificationChannels(Context context) {
+    public static void ensureNotificationChannels(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             try {
                 NotificationManager manager = context.getSystemService(NotificationManager.class);

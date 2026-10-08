@@ -669,8 +669,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        // ── Native Interactive Attendance Notification with 1-Tap Action Buttons ──
+        @JavascriptInterface
+        public boolean postAttendanceNotification(final String title, final String message, final String dateISO, final String company, final int notificationId) {
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String targetDate = (dateISO != null && !dateISO.isEmpty()) ? dateISO : new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(new java.util.Date());
+                            String targetComp = (company != null && !company.isEmpty()) ? company : "Workplace";
+                            int id = notificationId > 0 ? notificationId : NotificationAlarmReceiver.NOTIF_ID_MORNING;
+                            String targetTitle = (title != null && !title.isEmpty()) ? title : "Morning Check-in";
+                            String targetMsg = (message != null && !message.isEmpty()) ? message : "Good morning! Please mark your attendance for today at " + targetComp + ".";
+
+                            NotificationAlarmReceiver.showAttendanceActionNotification(MainActivity.this, id, targetTitle, targetMsg, targetDate, targetComp);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
         @JavascriptInterface
         public boolean postNativeNotification(final String title, final String message, final String channelType, final int notificationId) {
+            if ("attendance".equalsIgnoreCase(channelType)) {
+                return postAttendanceNotification(title, message, null, null, notificationId);
+            }
             try {
                 runOnUiThread(new Runnable() {
                     @Override
