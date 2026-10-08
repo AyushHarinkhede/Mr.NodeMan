@@ -2976,6 +2976,8 @@ button, .ss-btn, .nitem, .pill, .fchip, .more-row, .more-grid-item, .more-filter
 .univ-sugg-badge.badge-math   { background: rgba(251,113,133,0.22); color: #fca5a5; }
 .univ-sugg-badge.badge-date   { background: rgba(167,139,250,0.22); color: #c4b5fd; }
 .univ-sugg-badge.badge-nav    { background: rgba(52,211,153,0.22); color: #6ee7b7; }
+.univ-sugg-badge.badge-alert  { background: rgba(245,158,11,0.25); color: #fbbf24; }
+.univ-sugg-badge.badge-health { background: rgba(239,68,68,0.22); color: #f87171; }
 
 /* Independently Scrollable Results Area */
 .univ-search-results-area {
@@ -21503,7 +21505,9 @@ const SEARCH_ICONS = {
   moon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`,
   calendar: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`,
   briefcase: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`,
-  fileText: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`
+  fileText: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`,
+  bell: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>`,
+  heart: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`
 };
 
 // ── Safe HTML escape helper (guard for search) ──
@@ -21656,29 +21660,37 @@ function renderQuickSuggestions(rawQuery) {
     }
   });
 
-  // ⑤ Tools & Features (badge: Tool, purple)
+  // ⑤ Tools & Features (badge: Tool / Alert, styled)
   const quickFeatureList = [
-    { title: 'Work ID & Salary Profile', fill: 'work profile', action: 'openWorkProfileModal(); closeUniversalSearch();', keys: ['work profile','work id','employee id','company','designation','ctc','pf','salary profile','quota'] },
-    { title: 'Attendance Calendar', fill: 'attendance', action: 'openAttendanceCalendar(); closeUniversalSearch();', keys: ['attendance','calendar','roster','present','absent','leave','week off','half day','hajiri'] },
-    { title: 'Salary Slip / Payslip', fill: 'payslip', action: 'openSalarySlipModal(); closeUniversalSearch();', keys: ['salary slip','payslip','pay slip','salary statement','in hand'] },
-    { title: 'Wages & OT Calc', fill: 'wages', action: 'openWageCalcModal(); closeUniversalSearch();', keys: ['wage','salary','overtime','ot','shift'] },
-    { title: 'Scientific Calc', fill: 'calc', action: 'openScientificCalculator();', keys: ['calc','calculator','math','sci'] },
-    { title: 'GST & Tax Estimator', fill: 'gst', action: 'openGstTool(); closeUniversalSearch();', keys: ['gst','tax','vat','cgst','sgst'] },
-    { title: 'Area & Site Dimensions', fill: 'area', action: 'openAreaTool(); closeUniversalSearch();', keys: ['area','sqft','gaj','dimension','plot'] },
-    { title: 'Shift Time & Duration', fill: 'shift', action: 'openTimeDurationTool(); closeUniversalSearch();', keys: ['shift','time','duration','hour'] },
-    { title: 'Performance RAP/PRR', fill: 'rap', action: 'openRapPrrTool(); closeUniversalSearch();', keys: ['performance','rap','prr','productivity'] },
-    { title: 'Unit & Age Converters', fill: 'unit', action: 'openUnitAgeTool(); closeUniversalSearch();', keys: ['unit','convert','age','dob','weight','height'] },
-    { title: 'Stats & Analytics', fill: 'stats', action: "switchTab('stats'); closeUniversalSearch();", keys: ['stats','analytics','graph','chart','revenue'] },
-    { title: 'Export PDF Statement', fill: 'pdf', action: "if(typeof openPdfExportModal==='function') openPdfExportModal(); closeUniversalSearch();", keys: ['pdf','export','print','statement'] },
-    { title: 'Cloud Sync & Backup', fill: 'cloud', action: "if(typeof openCloudSyncModal==='function') openCloudSyncModal(); closeUniversalSearch();", keys: ['cloud','sync','backup','restore'] },
-    { title: 'Toggle Theme', fill: 'theme', action: "if(typeof toggleTheme==='function') toggleTheme();", keys: ['theme','dark','light','mode'] },
-    { title: 'Add New Entry', fill: 'add entry', action: "if(typeof openEntryModal==='function') openEntryModal(); closeUniversalSearch();", keys: ['add','new','entry','log','create'] },
-    { title: 'About Developer', fill: 'developer', action: 'openDeveloperModal();', keys: ['developer','ayush','about','github','creator'] }
+    { title: 'Mark Today Attendance', fill: 'mark attendance', action: 'openAttendanceEntryModal(new Date().toISOString().slice(0, 10)); closeUniversalSearch();', badgeText: 'Log', badgeClass: 'badge-status', keys: ['mark attendance','check in','check-in','present','absent','hajiri','today attendance','punch in'] },
+    { title: 'Smart Notifications & Alerts', fill: 'notifications', action: 'openSettingsModal("notifications"); closeUniversalSearch();', badgeText: 'Alert', badgeClass: 'badge-alert', keys: ['notifications','notification','alert','alerts','alarm','device notifications','sound','harmonic','528hz','reminder','reminders','lunch reminder','streak alert'] },
+    { title: 'Shift End Wrap-up & Stats', fill: 'shift end', action: 'openSettingsModal("notifications"); closeUniversalSearch();', badgeText: 'Alert', badgeClass: 'badge-alert', keys: ['shift end','shift wrap up','shift stats','stats recap','end time','out time','shift over','daily stats'] },
+    { title: 'Sick Leave & Health Care', fill: 'sick leave', action: 'openAttendanceEntryModal(new Date().toISOString().slice(0, 10)); selectModalStatus("SL"); closeUniversalSearch();', badgeText: 'Health', badgeClass: 'badge-health', keys: ['sick leave','sl','health','bimar','care','recovery','rest','medical'] },
+    { title: 'Paid Leave Quota (PL)', fill: 'paid leave', action: 'openAttendanceEntryModal(new Date().toISOString().slice(0, 10)); selectModalStatus("PL"); closeUniversalSearch();', badgeText: 'Leave', badgeClass: 'badge-tool', keys: ['paid leave','pl','leave quota','leave balance','chutti'] },
+    { title: 'Shift Timings & Duty Hours', fill: 'shift timings', action: 'openWorkProfileModal(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['shift timing','shift timings','shift start','shift end','duty time','office timing','working hours','in time','out time'] },
+    { title: 'Test Shift End Notification', fill: 'test shift end', action: 'sendTestNotification("shift_end"); closeUniversalSearch();', badgeText: 'Test', badgeClass: 'badge-alert', keys: ['test shift end','test shift stats','test stats notification'] },
+    { title: 'Test Check-in Notification', fill: 'test check-in', action: 'sendTestNotification("attendance"); closeUniversalSearch();', badgeText: 'Test', badgeClass: 'badge-alert', keys: ['test check-in','test attendance','test present','test absent notification'] },
+    { title: 'Work ID & Salary Profile', fill: 'work profile', action: 'openWorkProfileModal(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['work profile','work id','employee id','company','designation','ctc','pf','salary profile','quota'] },
+    { title: 'Attendance Calendar', fill: 'attendance', action: 'openAttendanceCalendar(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['attendance','calendar','roster','present','absent','leave','week off','half day','hajiri'] },
+    { title: 'Salary Slip / Payslip', fill: 'payslip', action: 'openSalarySlipModal(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['salary slip','payslip','pay slip','salary statement','in hand'] },
+    { title: 'Wages & OT Calc', fill: 'wages', action: 'openWageCalcModal(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['wage','salary','overtime','ot','shift'] },
+    { title: 'Scientific Calc', fill: 'calc', action: 'openScientificCalculator();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['calc','calculator','math','sci'] },
+    { title: 'GST & Tax Estimator', fill: 'gst', action: 'openGstTool(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['gst','tax','vat','cgst','sgst'] },
+    { title: 'Area & Site Dimensions', fill: 'area', action: 'openAreaTool(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['area','sqft','gaj','dimension','plot'] },
+    { title: 'Shift Time & Duration', fill: 'shift', action: 'openTimeDurationTool(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['shift','time','duration','hour'] },
+    { title: 'Performance RAP/PRR', fill: 'rap', action: 'openRapPrrTool(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['performance','rap','prr','productivity'] },
+    { title: 'Unit & Age Converters', fill: 'unit', action: 'openUnitAgeTool(); closeUniversalSearch();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['unit','convert','age','dob','weight','height'] },
+    { title: 'Stats & Analytics', fill: 'stats', action: "switchTab('stats'); closeUniversalSearch();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['stats','analytics','graph','chart','revenue'] },
+    { title: 'Export PDF Statement', fill: 'pdf', action: "if(typeof openPdfExportModal==='function') openPdfExportModal(); closeUniversalSearch();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['pdf','export','print','statement'] },
+    { title: 'Cloud Sync & Backup', fill: 'cloud', action: "if(typeof openCloudSyncModal==='function') openCloudSyncModal(); closeUniversalSearch();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['cloud','sync','backup','restore'] },
+    { title: 'Toggle Theme', fill: 'theme', action: "if(typeof toggleTheme==='function') toggleTheme();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['theme','dark','light','mode'] },
+    { title: 'Add New Entry', fill: 'add entry', action: "if(typeof openEntryModal==='function') openEntryModal(); closeUniversalSearch();", badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['add','new','entry','log','create'] },
+    { title: 'About Developer', fill: 'developer', action: 'openDeveloperModal();', badgeText: 'Tool', badgeClass: 'badge-tool', keys: ['developer','ayush','about','github','creator'] }
   ];
   quickFeatureList.forEach(f => {
     const allKeys = [f.title.toLowerCase(), f.fill, ...f.keys];
     if (allKeys.some(k => k.includes(q) || q.includes(k.split(' ')[0]))) {
-      suggestions.push({ label: f.title, badgeText: 'Tool', badgeClass: 'badge-tool', action: f.action });
+      suggestions.push({ label: f.title, badgeText: f.badgeText || 'Tool', badgeClass: f.badgeClass || 'badge-tool', action: f.action });
     }
   });
 
@@ -21963,6 +21975,28 @@ function renderUniversalSearchResults(query) {
     html += `
       <div class="univ-section-header">${SEARCH_ICONS.lightning} Quick Shortcuts</div>
       
+      <div class="univ-result-card" onclick="openAttendanceEntryModal(new Date().toISOString().slice(0, 10)); closeUniversalSearch();">
+        <div class="univ-result-icon" style="background:rgba(16,185,129,0.16);color:var(--paid)">
+          ${SEARCH_ICONS.check}
+        </div>
+        <div class="univ-result-content">
+          <div class="univ-result-title">Mark Today's Attendance</div>
+          <div class="univ-result-sub">Quick check-in: Present, Absent, Sick Leave (SL), Paid Leave (PL) or Week Off</div>
+        </div>
+        <span style="font-size:12px;color:var(--paid)">Log ↗</span>
+      </div>
+
+      <div class="univ-result-card" onclick="openSettingsModal(); switchSettingsTab('notifications'); closeUniversalSearch();">
+        <div class="univ-result-icon" style="background:rgba(245,158,11,0.16);color:#F59E0B">
+          ${SEARCH_ICONS.bell}
+        </div>
+        <div class="univ-result-content">
+          <div class="univ-result-title">Smart Notifications &amp; Alerts</div>
+          <div class="univ-result-sub">Shift Start/End, Live Stats Recap, Lunch alarms &amp; 528Hz Harmonic Sound</div>
+        </div>
+        <span style="font-size:12px;color:#F59E0B">Open ↗</span>
+      </div>
+
       <div class="univ-result-card" onclick="openWageCalcModal()">
         <div class="univ-result-icon" style="background:rgba(124,111,237,0.14);color:var(--acc)">
           ${SEARCH_ICONS.wages}
@@ -22070,6 +22104,15 @@ function renderUniversalSearchResults(query) {
 
   // 1. App Features & Navigations
   const featurePages = [
+    { keys: ['mark attendance', 'check in', 'check-in', 'mark present', 'mark absent', 'punch in', 'hajiri', 'daily check in', 'today attendance', 'log attendance'], title: "Mark Today's Attendance Check-in", desc: 'Fast check-in for today: Present, Absent, Sick Leave (SL), Paid Leave (PL) or Week Off (WO)', icon: SEARCH_ICONS.check, action: () => openAttendanceEntryModal(new Date().toISOString().slice(0, 10)) },
+    { keys: ['notification', 'notifications', 'alerts', 'alarm', 'smart notifications', 'device alerts', 'sound', 'harmonic sound', '528hz', 'lunch reminder', 'night streak', 'salary alert', 'preview sound'], title: 'Smart Device Notifications Suite', desc: 'Configure Shift Start/End, Lunch reminders, Night Streak Guardian, Salary alerts & 528Hz crystal chime', icon: SEARCH_ICONS.bell, action: () => openSettingsModal('notifications') },
+    { keys: ['shift end', 'shift wrap up', 'shift stats', 'stats recap', 'end time', 'out time', 'shift over', 'daily stats', 'shift recap', 'stats notification'], title: 'Shift End Wrap-up & Stats Recap', desc: 'Automatic shift end alert with logged hours, monthly shifts, earnings & streak recap', icon: SEARCH_ICONS.clock, action: () => openSettingsModal('notifications') },
+    { keys: ['sick leave', 'sl', 'health', 'bimar', 'medical leave', 'care', 'recovery', 'rest', 'health care'], title: 'Sick Leave & Health Recovery Guidance', desc: 'Log Sick Leave (SL) with automatic health recovery guidance and rest reminders', icon: SEARCH_ICONS.heart, action: () => { openAttendanceEntryModal(new Date().toISOString().slice(0, 10)); selectModalStatus('SL'); } },
+    { keys: ['paid leave', 'pl', 'leave balance', 'earned leave', 'casual leave', 'cl', 'chutti', 'leave quota'], title: 'Paid Leave (PL) & Monthly Quota', desc: 'Record Paid Leave (PL) against your monthly quota without salary deductions', icon: SEARCH_ICONS.calendar, action: () => { openAttendanceEntryModal(new Date().toISOString().slice(0, 10)); selectModalStatus('PL'); } },
+    { keys: ['shift timing', 'shift timings', 'shift start', 'shift end', 'duty time', 'office timing', 'working hours', 'in time', 'out time', 'office hours', 'duty schedule'], title: 'Shift Timings & Duty Schedule', desc: 'Configure Shift Start and Shift End in Work Profile for automatic check-in & wrap-up alarms', icon: SEARCH_ICONS.clock, action: () => openWorkProfileModal() },
+    { keys: ['test shift end', 'test shift stats', 'test stats notification', 'shift end test'], title: 'Test Shift End & Stats Notification', desc: 'Preview the shift completion alert with live daily hours, monthly shifts, earnings & streak', icon: SEARCH_ICONS.bell, action: () => sendTestNotification('shift_end') },
+    { keys: ['test check in', 'test check-in', 'test attendance', 'test present', 'test absent', 'attendance test'], title: 'Test Check-in Notification (1-Tap Actions)', desc: 'Preview Morning Check-in lockscreen notification with 1-tap Present & Absent action buttons', icon: SEARCH_ICONS.bell, action: () => sendTestNotification('attendance') },
+    { keys: ['sound preview', '528hz', 'harmonic sound', 'chime', 'notification sound', 'play sound'], title: '528Hz Harmonic Notification Sound', desc: 'Play crystal frequency chime custom-designed for Mr.NodeMan alerts', icon: SEARCH_ICONS.bell, action: () => playNodeManNotificationSound(true) },
     { keys: ['work profile', 'work id', 'employee id', 'company', 'designation', 'ctc', 'pf', 'provident fund', 'leave quota', 'office profile', 'salary profile'], title: 'Work ID & Salary Profile', desc: 'Manage company name, employee ID, designation, salary CTC, PF deductions & leave quotas', icon: SEARCH_ICONS.briefcase, action: () => openWorkProfileModal() },
     { keys: ['attendance', 'calendar', 'roster', 'present', 'absent', 'half day', 'leave', 'week off', 'wo', 'sick leave', 'sl', 'paid leave', 'pl', 'hajiri'], title: 'Attendance Calendar & Roster', desc: 'Interactive monthly attendance sheet, week off settling & daily attendance logs', icon: SEARCH_ICONS.calendar, action: () => openAttendanceCalendar() },
     { keys: ['salary slip', 'payslip', 'pay slip', 'salary statement', 'monthly salary', 'in hand', 'salary print'], title: 'Monthly Salary Slip (Payslip)', desc: 'Generate printable official monthly salary slip with attendance matrix & deductions', icon: SEARCH_ICONS.fileText, action: () => openSalarySlipModal() },
